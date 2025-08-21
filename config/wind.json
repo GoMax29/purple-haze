@@ -1,0 +1,85 @@
+{
+  "parameter": "wind",
+  "api_parameters": {
+    "speed": "wind_speed_10m",
+    "gust": "wind_gusts_10m",
+    "direction": "wind_direction_10m"
+  },
+  "api_source": "api1",
+  "algorithm": "wind_composite",
+  "unit": {
+    "speed": "km/h",
+    "gust": "km/h",
+    "direction": "°"
+  },
+  "output_format": "hourly_array_object",
+  "algorithm_params": {
+    "sigma_speed": 1.5,
+    "sigma_gust": 1.5,
+    "sigma_direction_deg": 30
+  },
+  "models": {
+    "meteofrance_arome_france": {
+      "name": "MF AROME FRANCE",
+      "forecast_hours": [0, 62],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "meteofrance_arome_france_hd": {
+      "name": "MF AROME FRANCE HD",
+      "forecast_hours": [0, 62],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "meteofrance_arpege_europe": {
+      "name": "MF ARPEGE EU",
+      "forecast_hours": [48, 116],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "knmi_harmonie_arome_europe": {
+      "name": "HARMONIE AROME EU",
+      "forecast_hours": [0, 48],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ukmo_uk_deterministic_2km": {
+      "name": "UKMO DETERM 2KM",
+      "forecast_hours": [0, 62],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "icon_eu": {
+      "name": "ICON EU",
+      "forecast_hours": [0, 128],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "icon_global": {
+      "name": "ICON GLOBAL",
+      "forecast_hours": [0, 96],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ukmo_global_deterministic_10km": {
+      "name": "UKMO GLOBAL DETERM 10KM",
+      "forecast_hours": [96, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "gfs_graphcast025": {
+      "name": "GFS GRAPHCAST",
+      "forecast_hours": [96, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ecmwf_ifs025": {
+      "name": "ECMWF IFS 0.25°",
+      "forecast_hours": [0, 168],
+      "weight": 1.0,
+      "enabled": true
+    }
+  },
+  "description": "Configuration pour le traitement du vent (force moyenne, rafales, direction) avec pondération gaussienne et agrégation vectorielle pour la direction",
+  "last_updated": "2025-08-11T00:00:00Z"
+}

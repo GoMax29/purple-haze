@@ -1,0 +1,202 @@
+<div class="container">
+  <div class="card">
+    <div class="header-card">
+      <h2>🧭 Direction du Vent</h2>
+      <p>
+        Analyse de la direction du vent avec agrégation vectorielle pondérée
+        gaussienne
+      </p>
+    </div>
+
+    <div class="loading-section">
+      <div id="wind-direction-loading" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Chargement des données de direction...</p>
+      </div>
+      <div
+        id="wind-direction-error"
+        class="error-message"
+        style="display: none"
+      >
+        <p>Erreur lors du chargement des données</p>
+      </div>
+    </div>
+
+    <div id="wind-direction-content" style="display: none">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Direction Dominante</h3>
+          <p id="wind-direction-dominant" class="stat-value">--°</p>
+          <p id="wind-direction-cardinal" class="stat-label">--</p>
+        </div>
+        <div class="stat-card">
+          <h3>Variation</h3>
+          <p id="wind-direction-variation" class="stat-value">±--°</p>
+        </div>
+        <div class="stat-card">
+          <h3>Stabilité</h3>
+          <p id="wind-direction-stability" class="stat-value">--%</p>
+        </div>
+        <div class="stat-card">
+          <h3>Points de Données</h3>
+          <p id="wind-direction-count" class="stat-value">--</p>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <h3>🎯 Répartition Directionnelle (Scatter Plot)</h3>
+        <div class="chart-container">
+          <canvas id="wind-direction-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="compass-section">
+        <h3>🧭 Rose des Vents (24h)</h3>
+        <div class="compass-container">
+          <div id="wind-compass" class="wind-compass">
+            <!-- Rose des vents générée dynamiquement -->
+          </div>
+        </div>
+      </div>
+
+      <div class="algorithm-section">
+        <h3>🧮 Méthodologie Vectorielle</h3>
+        <div class="algorithm-info">
+          <div class="algorithm-step">
+            <h4>1. Conversion Vectorielle</h4>
+            <p>
+              Transformation des directions (°) en vecteurs unitaires :
+              <code>(cos(θ), sin(θ))</code>
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>2. Centre Initial</h4>
+            <p>
+              Calcul d'un centre par moyenne vectorielle simple pour gérer la
+              circularité (0° = 360°).
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>3. Pondération Gaussienne Angulaire</h4>
+            <p>
+              Poids basés sur l'écart angulaire minimal au centre avec σ=30°
+              (configurable).
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>4. Agrégation Finale</h4>
+            <p>
+              Somme pondérée des vecteurs puis
+              <code>atan2(sumY, sumX)</code> pour la direction résultante.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-table-section">
+        <h3>📊 Données Détaillées (24 premières heures)</h3>
+        <div class="table-container">
+          <table id="wind-direction-table" class="data-table">
+            <thead>
+              <tr>
+                <th>Heure</th>
+                <th>Direction (°)</th>
+                <th>Point Cardinal</th>
+                <th>Secteur</th>
+              </tr>
+            </thead>
+            <tbody id="wind-direction-table-body">
+              <!-- Données générées dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .compass-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .wind-compass {
+    width: 320px;
+    height: 320px;
+    border: 3px solid var(--accent);
+    border-radius: 50%;
+    position: relative;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.8) 70%,
+      var(--accent-light) 100%
+    );
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 2px 8px rgba(255, 255, 255, 0.8),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .compass-point {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border: 2px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .compass-point:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+    z-index: 10;
+  }
+
+  .compass-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #ff4444 0%, #cc0000 100%);
+    border: 2px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+  }
+
+  .compass-label {
+    position: absolute;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--accent);
+    transform: translate(-50%, -50%);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+  }
+
+  .compass-label.north {
+    top: 10px;
+    left: 50%;
+  }
+  .compass-label.east {
+    top: 50%;
+    right: 10px;
+  }
+  .compass-label.south {
+    bottom: 10px;
+    left: 50%;
+  }
+  .compass-label.west {
+    top: 50%;
+    left: 10px;
+  }
+</style>

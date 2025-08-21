@@ -1,0 +1,10 @@
+---
+description: "Assistant behavior during development"
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- Never delete files unless explicitly confirmed by the user.
+- Never `git add`, `commit`, or `push` without user approval.
+- Use `// TODO:` only when justified with clear context.
+- Each major change must update `Documentation.md` and/or `Project.md`.

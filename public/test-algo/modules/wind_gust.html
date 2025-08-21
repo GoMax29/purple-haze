@@ -1,0 +1,96 @@
+<div class="container">
+  <div class="card">
+    <div class="header-card">
+      <h2>💨 Rafales de Vent</h2>
+      <p>
+        Analyse des rafales moyennes et maximales avec pondération gaussienne
+        des modèles météo
+      </p>
+    </div>
+
+    <div class="loading-section">
+      <div id="wind-gust-loading" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Chargement des données de rafales...</p>
+      </div>
+      <div id="wind-gust-error" class="error-message" style="display: none">
+        <p>Erreur lors du chargement des données</p>
+      </div>
+    </div>
+
+    <div id="wind-gust-content" style="display: none">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Rafales Min</h3>
+          <p id="wind-gust-min" class="stat-value">-- km/h</p>
+        </div>
+        <div class="stat-card">
+          <h3>Rafales Max</h3>
+          <p id="wind-gust-max" class="stat-value">-- km/h</p>
+        </div>
+        <div class="stat-card">
+          <h3>Rafales Moyennes</h3>
+          <p id="wind-gust-avg" class="stat-value">-- km/h</p>
+        </div>
+        <div class="stat-card">
+          <h3>Rafale Absolue Max</h3>
+          <p id="wind-gust-absolute-max" class="stat-value">-- km/h</p>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <h3>📈 Évolution des Rafales (168h)</h3>
+        <div class="chart-container">
+          <canvas id="wind-gust-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="algorithm-section">
+        <h3>🧮 Méthodologie</h3>
+        <div class="algorithm-info">
+          <div class="algorithm-step">
+            <h4>1. Double Agrégation</h4>
+            <p>
+              Calcul de la <strong>rafale agrégée</strong> (gaussienne) et de la
+              <strong>rafale maximale</strong> (max absolu) par heure.
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>2. Pondération Gaussienne</h4>
+            <p>
+              Application de l'algorithme <code>gaussian_weighted</code> avec
+              σ=1.5 sur les valeurs <code>wind_gusts_10m</code>.
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>3. Seuils d'Alerte</h4>
+            <div class="alert-levels">
+              <span class="alert-badge alert-safe">🟢 &lt; 40 km/h</span>
+              <span class="alert-badge alert-moderate">🟡 40-60 km/h</span>
+              <span class="alert-badge alert-danger">🔴 &gt; 60 km/h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-table-section">
+        <h3>📊 Données Détaillées (24 premières heures)</h3>
+        <div class="table-container">
+          <table id="wind-gust-table" class="data-table">
+            <thead>
+              <tr>
+                <th>Heure</th>
+                <th>Rafales Moy. (km/h)</th>
+                <th>Rafales Max (km/h)</th>
+                <th>Niveau</th>
+              </tr>
+            </thead>
+            <tbody id="wind-gust-table-body">
+              <!-- Données générées dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

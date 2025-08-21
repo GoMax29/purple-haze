@@ -1,0 +1,174 @@
+{
+  "documentation": {
+    "title": "React Surf-N-Weather - Documentation",
+    "description": "Documentation technique complète du projet",
+    "files": [
+      {
+        "file": "Documentation.md",
+        "title": "Documentation API",
+        "description": "Documentation complète des APIs Open-Meteo et du module fetchMeteoData",
+        "sections": [
+          "Module fetchMeteoData.js",
+          "Core orchestrateur météo — buildForecastFromHourly",
+          "API 1 - Données Principales Météo",
+          "API 2 - UV et Qualité de l'Air",
+          "API 3 - Données de Houle et Marine",
+          "Utilisation du Module fetchMeteoData",
+          "Performance et Cache",
+          "Gestion d'erreurs",
+          "Algorithmes et Logique Métier"
+        ],
+        "keywords": [
+          "API",
+          "météo",
+          "cache",
+          "houle",
+          "UV",
+          "qualité air",
+          "Open-Meteo"
+        ],
+        "last_updated": "2025-08-12"
+      },
+      {
+        "file": "test-wmo-background.html",
+        "title": "Banc de test icônes WMO",
+        "description": "Page statique pour vérifier transparence de fond, tailles d'affichage et fonds de case (slider, color picker, gradient/random)",
+        "sections": [
+          "Contrôles d'affichage (taille, couleur)",
+          "Disposition 5x8",
+          "Chargement icônes depuis docs/icones WMO/improve"
+        ],
+        "keywords": ["WMO", "icônes", "transparence", "test", "UI"],
+        "last_updated": "2025-08-13"
+      },
+      {
+        "file": "Project.md",
+        "title": "Gestion de Projet",
+        "description": "Suivi des milestones, tâches, architecture et roadmap du projet",
+        "sections": [
+          "Vue d'ensemble",
+          "Structure du Projet",
+          "Milestones",
+          "Tâches Actuelles",
+          "APIs Intégrées",
+          "Villes Supportées",
+          "Architecture Technique",
+          "Standards de Développement",
+          "Performance et Optimisation",
+          "Roadmap et Prochaines Étapes",
+          "Notes Techniques",
+          "Historique des Versions"
+        ],
+        "keywords": [
+          "projet",
+          "milestones",
+          "architecture",
+          "roadmap",
+          "standards",
+          "performance"
+        ],
+        "last_updated": "2025-08-18"
+      }
+    ]
+  },
+  "api_endpoints": {
+    "fetchMeteoData": {
+      "file": "pages/api/fetchMeteoData.js",
+      "description": "Module principal de récupération des données météorologiques",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/fetchMeteoData",
+          "params": ["ville"],
+          "description": "Récupère les données météo pour une ville donnée"
+        }
+      ],
+      "functions": [
+        {
+          "name": "fetchMeteoData",
+          "description": "Fonction principale de récupération des données",
+          "params": ["ville"],
+          "returns": "Object - Données unifiées des 3 APIs"
+        },
+        {
+          "name": "clearCache",
+          "description": "Vide le cache manuellement",
+          "params": [],
+          "returns": "void"
+        },
+        {
+          "name": "getCacheStats",
+          "description": "Retourne les statistiques du cache",
+          "params": [],
+          "returns": "Object - Statistiques détaillées"
+        },
+        {
+          "name": "getSupportedCities",
+          "description": "Liste les villes supportées",
+          "params": [],
+          "returns": "Array<string> - Liste des villes"
+        }
+      ]
+    }
+  },
+  "external_apis": {
+    "open_meteo": {
+      "forecast": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "description": "Données météo multi-modèles (0h-168h)",
+        "models": [
+          "ecmwf_ifs025",
+          "gfs_global",
+          "gfs_graphcast025",
+          "icon_global",
+          "icon_eu",
+          "knmi_harmonie_arome_europe",
+          "meteofrance_arpege_europe",
+          "meteofrance_arome_france",
+          "meteofrance_arome_france_hd",
+          "ukmo_global_deterministic_10km",
+          "ukmo_uk_deterministic_2km"
+        ]
+      },
+      "air_quality": {
+        "url": "https://air-quality-api.open-meteo.com/v1/air-quality",
+        "description": "UV et qualité de l'air",
+        "parameters": ["european_aqi", "uv_index", "uv_index_clear_sky"]
+      },
+      "marine": {
+        "url": "https://marine-api.open-meteo.com/v1/marine",
+        "description": "Données de houle et marine",
+        "models": [
+          "meteofrance_wave",
+          "ecmwf_wam025",
+          "gwam",
+          "ewam",
+          "meteofrance_currents"
+        ]
+      }
+    }
+  },
+  "cities_supported": [
+    "brest",
+    "quimper",
+    "lorient",
+    "vannes",
+    "rennes",
+    "saint-malo",
+    "ploumanach",
+    "crozon",
+    "douarnenez",
+    "concarneau"
+  ],
+  "cache_config": {
+    "ttl_minutes": 15,
+    "storage": "memory",
+    "strategy": "ttl_based"
+  },
+  "project_status": {
+    "current_milestone": "Infrastructure API",
+    "completion": "100%",
+    "next_milestone": "Composants UI",
+    "last_updated": "2025-01-27"
+  }
+}

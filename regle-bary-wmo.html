@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Règle WMO — Barycentre pondéré</title>
+    <meta
+      name="description"
+      content="Visualisation interactive du barycentre pondéré sur une règle des codes WMO, avec animation des blocs et doigt indicateur."
+    />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #11162a;
+        --panel-2: #0e1426;
+        --text: #e6e8ef;
+        --muted: #9aa3b2;
+        --accent: #6ea8fe;
+        --ok: #00d3a7;
+        --warn: #ffb020;
+        --danger: #ff5a7a;
+        --grid-gap: 6px;
+        --slot-w: 56px; /* largeur d'une position */
+        --slot-h: 110px; /* règle un peu plus épaisse */
+        --stack-zone-h: 220px; /* zone d'empilement au-dessus de la règle */
+        --block-h: 16px; /* hauteur de bloc (visuelle, pas la masse) */
+        --anim-drop-ms: 175ms; /* 2x plus rapide */
+        --anim-finger-ms: 600ms;
+        --radius: 10px;
+        --shadow-2: 0 6px 24px rgba(0, 0, 0, 0.35);
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial,
+          "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(
+          1200px 800px at 20% -20%,
+          #1b2350 0%,
+          var(--bg) 55%
+        );
+        color: var(--text);
+      }
+
+      .app {
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        gap: 18px;
+        padding: 18px clamp(12px, 4vw, 28px) 28px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+      }
+      header h1 {
+        font-size: clamp(16px, 2.6vw, 24px);
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .panel {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        background-color: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-2);
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 12px;
+      }
+      .controls .group {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      input[type="number"],
+      select {
+        background: var(--panel-2);
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px 12px;
+        min-width: 90px;
+        outline: none;
+      }
+      input[type="number"]:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(110, 168, 254, 0.25);
+      }
+
+      button {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.2),
+          rgba(255, 255, 255, 0.06)
+        );
+        background-color: #2a3570;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: transform 0.08s ease, box-shadow 0.12s ease,
+          filter 120ms ease;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+      button:hover {
+        filter: brightness(1.05);
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      .btn-secondary {
+        background-color: #283255;
+      }
+      .btn-ghost {
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.12);
+        color: var(--muted);
+      }
+      .btn-danger {
+        background-color: #5a2231;
+        border-color: rgba(255, 106, 130, 0.4);
+      }
+      .btn-lg {
+        font-size: 16px;
+        padding: 14px 18px;
+      }
+      .actions {
+        text-align: center;
+        padding: 10px 12px 14px;
+      }
+
+      /* Groupes de boutons (toggle) */
+      .btn-group {
+        display: inline-flex;
+        background: var(--panel-2);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 4px;
+      }
+      .btn-group .btn {
+        background: transparent;
+        border: none;
+        padding: 8px 10px;
+        color: var(--muted);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .btn-group .btn:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .btn-group .btn.is-active {
+        color: #0ef9c9;
+        background: rgba(14, 249, 201, 0.12);
+        border: 1px solid rgba(14, 249, 201, 0.35);
+      }
+
+      .grid-wmo {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: var(--grid-gap);
+        padding: 12px;
+      }
+
+      .tile {
+        position: relative;
+        border-radius: 12px;
+        padding: 6px 8px;
+        min-height: 48px;
+        background: linear-gradient(
+          160deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        user-select: none;
+        overflow: hidden;
+        transition: transform 100ms ease, border-color 120ms ease,
+          box-shadow 120ms ease;
+      }
+      .tile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+      }
+      .tile:active {
+        transform: translateY(0);
+      }
+      .tile .code {
+        font-size: 11px;
+        color: #000;
+        font-weight: 700;
+      }
+      .tile .desc {
+        font-size: 10px;
+        color: #000;
+        opacity: 0.95;
+        margin-top: 2px;
+        font-weight: 700;
+      }
+      .tile .count {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 999px;
+        font-size: 11px;
+        padding: 3px 7px;
+        min-width: 20px;
+        text-align: center;
+      }
+      .tile .buttons {
+        position: absolute;
+        bottom: 2px; /* plus bas pour éviter le compteur */
+        right: 8px;
+        display: flex;
+        gap: 6px;
+      }
+      .tile .buttons button {
+        padding: 0; /* bouton plus compact */
+        font-size: 12px;
+      }
+      .btn-circle {
+        width: 22px; /* plus petit */
+        height: 22px; /* plus petit */
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+      }
+
+      .legend {
+        padding: 8px 12px 16px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .legend strong {
+        color: var(--text);
+      }
+
+      .stage {
+        position: relative;
+        overflow-x: auto;
+        overflow-y: hidden; /* cache le scroll vertical dans le panel de la règle */
+        padding: 12px;
+        height: calc(var(--stack-zone-h) + var(--slot-h) + 40px);
+      }
+      .stage-inner {
+        position: relative;
+        display: flex;
+        align-items: center; /* centrage vertical */
+        justify-content: center; /* centrage horizontal */
+        width: 100%;
+        margin: 0 auto;
+        height: 100%;
+      }
+
+      .stack-wrap {
+        position: relative;
+        width: 0; /* mis à jour dynamiquement */
+        height: calc(var(--stack-zone-h) + var(--slot-h));
+      }
+
+      .rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: var(--slot-h);
+        display: grid;
+        grid-template-columns: repeat(28, var(--slot-w));
+        align-items: end;
+        gap: 0;
+      }
+      .rule .slot {
+        position: relative;
+        height: 100%;
+        border-top: 0;
+        border-left: 1px solid rgba(0, 0, 0, 0.18);
+        background: #2a2a32; /* Ebene sombre */
+        box-shadow: inset 0 8px 0 rgba(0, 0, 0, 0.28),
+          inset 0 -8px 0 rgba(0, 0, 0, 0.35);
+      }
+      .rule .slot:first-child {
+        border-left: none;
+      }
+      .slot .wmo {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: #f9f9f9;
+        font-weight: 700;
+      }
+      .slot .weight {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: #c6d4ff;
+      }
+      .slot .index {
+        position: absolute;
+        top: 4px;
+        left: 6px;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      .mask-outside .slot.is-outside {
+        opacity: 0.18;
+        filter: grayscale(0.6);
+      }
+
+      .overlay {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: var(--slot-h);
+        height: var(--stack-zone-h);
+      }
+
+      svg#stacks {
+        width: 100%;
+        height: var(--stack-zone-h);
+        overflow: visible;
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+      }
+
+      .finger {
+        display: none !important;
+      }
+
+      .results {
+        padding: 10px 12px;
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .chip {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        color: var(--text);
+      }
+      .chip code {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .footer {
+        color: var(--muted);
+        font-size: 12px;
+        padding: 4px 8px 16px;
+      }
+
+      /* Catégories/couleurs */
+      .cat-clear {
+        --cat: #66d3ff;
+      }
+      .cat-fog {
+        --cat: #a3a8b8;
+      }
+      .cat-drizzle {
+        --cat: #7ec8ff;
+      }
+      .cat-rain {
+        --cat: #4aa3ff;
+      }
+      .cat-snow {
+        --cat: #d9f1ff;
+      }
+      .cat-thunder {
+        --cat: #ffd14a;
+      }
+      .cat-default {
+        --cat: #a8b2d1;
+      }
+
+      .block {
+        stroke: rgba(0, 0, 0, 0.35);
+        stroke-width: 0.8;
+      }
+      .block-text {
+        font-size: 9px;
+        fill: #0b1020;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>Règle WMO — Barycentre pondéré</h1>
+      </header>
+
+      <section class="panel controls" aria-labelledby="titre-param">
+        <h2 id="titre-param" class="sr-only">Paramètres</h2>
+        <div class="group">
+          <div class="field">
+            <label class="label">Pondération max P (position 28)</label>
+            <div
+              id="p-group"
+              class="btn-group"
+              role="group"
+              aria-label="Pondération"
+            >
+              <button class="btn is-active" data-p="1">1</button>
+              <button class="btn" data-p="1.5">1.5</button>
+              <button class="btn" data-p="2">2</button>
+              <button class="btn" data-p="2.5">2.5</button>
+              <button class="btn" data-p="3">3</button>
+              <button class="btn" data-p="4">4</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Mode d'arrondi</label>
+            <div
+              id="round-group"
+              class="btn-group"
+              role="group"
+              aria-label="Arrondi"
+            >
+              <button class="btn is-active" data-round="arith">
+                Arithmétique
+              </button>
+              <button class="btn" data-round="ceil">
+                Toujours vers le haut
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="inline">
+          <span
+            id="selection-count"
+            class="chip"
+            title="Nombre total d'occurrences saisies"
+            >0 occurrence</span
+          >
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="titre-codes">
+        <h2 id="titre-codes" class="sr-only">Sélection des codes WMO</h2>
+        <div
+          id="wmo-grid"
+          class="grid-wmo"
+          role="list"
+          aria-label="Codes WMO cliquables"
+        ></div>
+        <div class="legend"></div>
+        <div class="actions">
+          <button
+            id="btn-validate"
+            class="btn-lg"
+            title="Lancer l'animation et le calcul"
+          >
+            Valider
+          </button>
+          <button
+            id="btn-reset"
+            class="btn-danger btn-lg"
+            title="Réinitialiser"
+          >
+            Réinitialiser
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="panel stage"
+        aria-labelledby="titre-scene"
+        style="background: #111a2a; border-color: rgba(255, 255, 255, 0.1)"
+      >
+        <h2 id="titre-scene" class="sr-only">Règle et animation</h2>
+        <div
+          id="group-info"
+          style="padding: 8px 12px; color: #cfe3ff; font-weight: 700"
+        >
+          Groupes — Tempéré: 0 | Brouillard: 0 | Glacé: 0 — Dominant: —
+        </div>
+        <div
+          id="finger"
+          class="finger"
+          aria-hidden="true"
+          title="Doigt"
+          style="left: 0"
+        >
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0 L24 24 L0 24 Z" fill="var(--warn)" opacity="0.95" />
+          </svg>
+        </div>
+        <div id="stage-inner" class="stage-inner mask-outside">
+          <div class="stack-wrap" id="stack-wrap">
+            <div class="overlay" aria-hidden="true">
+              <svg id="stacks" xmlns="http://www.w3.org/2000/svg">
+                <!-- Ticks et blocs ajoutés dynamiquement -->
+              </svg>
+            </div>
+            <div
+              id="rule"
+              class="rule"
+              role="grid"
+              aria-label="Règle WMO"
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="panel results"
+        aria-live="polite"
+        style="justify-content: center; text-align: center"
+      >
+        <div
+          id="summary"
+          style="font-size: 22px; font-weight: 700; letter-spacing: 0.2px"
+        >
+          —
+        </div>
+      </section>
+
+      <div class="footer">
+        Astuce: après validation, la règle est coupée visuellement entre la
+        position min et max sélectionnées.
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const WMO_CODES = [
+          0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73,
+          75, 77, 80, 81, 82, 85, 86, 95, 96, 99,
+        ];
+        const GROUPS = {
+          tempere: [0, 1, 2, 3, 51, 53, 55, 61, 63, 65, 80, 81, 82, 95],
+          brouillard: [45, 48],
+          glace: [56, 57, 66, 67, 71, 73, 75, 77, 85, 86, 96, 99],
+        };
+        const NUM_POS = WMO_CODES.length; // 28
+        const slotWidth = 56; // doit rester sync avec --slot-w
+        const blockSize = 22; // taille des carrés empilés
+        const stackZoneHeight = 220; // sync --stack-zone-h
+
+        const refs = {
+          pGroup: document.getElementById("p-group"),
+          roundGroup: document.getElementById("round-group"),
+          grid: document.getElementById("wmo-grid"),
+          rule: document.getElementById("rule"),
+          stageInner: document.getElementById("stage-inner"),
+          svg: document.getElementById("stacks"),
+          stackWrap: document.getElementById("stack-wrap"),
+          bary: document.getElementById("bary-value"),
+          pos: document.getElementById("pos-value"),
+          code: document.getElementById("code-value"),
+          codeDesc: document.getElementById("code-desc"),
+          finger: document.getElementById("finger"),
+          btnValidate: document.getElementById("btn-validate"),
+          btnReset: document.getElementById("btn-reset"),
+          selectionCount: document.getElementById("selection-count"),
+        };
+
+        /** Etat */
+        const state = {
+          counts: Array(NUM_POS).fill(0),
+          P: 1,
+          roundMode: "arith",
+          weights: Array(NUM_POS).fill(1),
+          blocks: [], // {posIndex, rect, color}
+          isAnimating: false,
+          cropRange: [0, NUM_POS - 1],
+          activeGroup: "tempere",
+          activeCodes: [],
+        };
+
+        /** Couleurs WMO (snippet fourni) */
+        function wmoColorBg(code) {
+          if ([96, 99].includes(code)) return "#7E57C2"; // Orage avec grêle
+          if (code === 95) return "#9575CD"; // Orage
+          if ([71, 72, 73, 74, 75, 76, 77, 85, 86].includes(code))
+            return "#E1F5FE"; // Neige
+          if ([80, 81, 82].includes(code)) return "#2196F3"; // Averses de pluie
+          if ([56, 57, 66, 67].includes(code)) return "#4FC3F7"; // Pluie verglaçante
+          if ([51, 52, 53, 54, 55, 61, 62, 63, 64, 65].includes(code))
+            return "#64B5F6"; // Pluie/Bruine
+          if ([45, 48].includes(code)) return "#CFD8DC"; // Brouillard
+          if ([1, 2, 3].includes(code)) return "#B0BEC5"; // Couvert
+          if (code === 0) return "#FFF176"; // Ciel clair
+          return "#B0BEC5";
+        }
+
+        /** Descriptions WMO (résumé) */
+        function wmoDesc(code) {
+          const map = {
+            0: "Ciel clair",
+            1: "Nuages épars",
+            2: "Nuages épars",
+            3: "Ciel couvert",
+            45: "Brouillard",
+            48: "Brouillard givrant",
+            51: "Bruine faible",
+            53: "Bruine modérée",
+            55: "Bruine forte",
+            56: "Bruine verglaçante faible",
+            57: "Bruine verglaçante forte",
+            61: "Pluie faible",
+            63: "Pluie modérée",
+            65: "Pluie forte",
+            66: "Pluie verglaçante faible",
+            67: "Pluie verglaçante forte",
+            71: "Neige faible",
+            73: "Neige modérée",
+            75: "Neige forte",
+            77: "Grains de neige",
+            80: "Averses faibles",
+            81: "Averses modérées",
+            82: "Averses fortes",
+            85: "Averses de neige faibles",
+            86: "Averses de neige fortes",
+            95: "Orage",
+            96: "Orage avec grêle",
+            99: "Orage violent avec grêle",
+          };
+          return map[code] || "—";
+        }
+
+        /** Catégorisation couleurs */
+        function categoryForCode(code) {
+          if (code === 0) return "cat-clear";
+          if ([45, 48].includes(code)) return "cat-fog";
+          if ([51, 53, 55, 56, 57].includes(code)) return "cat-drizzle";
+          if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code))
+            return "cat-rain";
+          if ([71, 73, 75, 77, 85, 86].includes(code)) return "cat-snow";
+          if ([95, 96, 99].includes(code)) return "cat-thunder";
+          return "cat-default";
+        }
+
+        /** Pondérations linéaires 1 → P */
+        function recomputeWeights() {
+          const P = Math.max(1, parseFloat(String(state.P)) || 1);
+          const n = state.activeCodes.length;
+          const weights = [];
+          for (let i = 0; i < n; i++) {
+            const t = n > 1 ? i / (n - 1) : 0;
+            weights.push(1 + (P - 1) * t);
+          }
+          state.weights = weights;
+          // maj affichage
+          for (let i = 0; i < n; i++) {
+            const el = document.querySelector(
+              `[data-slot-weight-group="${i}"]`
+            );
+            if (el) el.textContent = `w=${weights[i].toFixed(2)}`;
+          }
+        }
+
+        /** Construction UI: grille sélection + règle */
+        function buildUI() {
+          // Grille de sélection
+          refs.grid.innerHTML = "";
+          for (let i = 0; i < NUM_POS; i++) {
+            const code = WMO_CODES[i];
+            const tile = document.createElement("div");
+            tile.className = `tile ${categoryForCode(code)}`;
+            tile.setAttribute("role", "listitem");
+            tile.setAttribute("aria-label", `Code ${code}, position ${i + 1}`);
+            tile.dataset.index = String(i);
+            tile.innerHTML = `
+              <div class="code">Code WMO <strong>${code}</strong></div>
+              <div class="desc">${wmoDesc(code)}</div>
+              <div class="count" data-count="${i}">0</div>
+              <div class="buttons">
+                <button class="btn-secondary btn-circle" data-dec="${i}" aria-label="Retirer 1">−</button>
+              </div>
+            `;
+            // Applique la couleur snippet sur la tuile
+            tile.style.backgroundColor = wmoColorBg(code);
+            tile.addEventListener("click", (e) => {
+              if (state.isAnimating) return;
+              // toute la tuile incrémente sauf le bouton "-"
+              incrementCount(i);
+            });
+            tile
+              .querySelector(`[data-dec="${i}"]`)
+              .addEventListener("click", (e) => {
+                e.stopPropagation();
+                decrementCount(i);
+              });
+            refs.grid.appendChild(tile);
+          }
+
+          // Pas de règle au chargement; on attend une saisie pour déterminer le groupe
+          refs.rule.innerHTML = "";
+          drawTicks(0);
+          if (refs.stackWrap) refs.stackWrap.style.width = `${1 * slotWidth}px`;
+          updateGroupInfo();
+        }
+
+        function rebuildRuleForGroup(groupKey) {
+          const codes = [...GROUPS[groupKey]].sort((a, b) => a - b);
+          state.activeGroup = groupKey;
+          state.activeCodes = codes;
+          const n = codes.length;
+          refs.rule.style.gridTemplateColumns = `repeat(${n}, var(--slot-w))`;
+          // ajuste la largeur du wrapper centré
+          if (refs.stackWrap) refs.stackWrap.style.width = `${n * slotWidth}px`;
+          refs.rule.innerHTML = "";
+          for (let i = 0; i < n; i++) {
+            const slot = document.createElement("div");
+            slot.className = "slot";
+            slot.dataset.index = String(i);
+            slot.innerHTML = `
+              <div class=\"wmo\">${codes[i]}</div>
+              <div class=\"weight\" data-slot-weight-group=\"${i}\">w=1.00</div>
+              <div class=\"index\">${i + 1}</div>
+            `;
+            refs.rule.appendChild(slot);
+          }
+          drawTicks(n);
+        }
+
+        function drawTicks(n = state.activeCodes.length) {
+          while (refs.svg.firstChild) refs.svg.removeChild(refs.svg.firstChild);
+          const y = stackZoneHeight - 2;
+          for (let i = 0; i <= n; i++) {
+            const x = i * slotWidth;
+            const line = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line"
+            );
+            line.setAttribute("x1", String(x));
+            line.setAttribute("x2", String(x));
+            line.setAttribute("y1", String(y - 10));
+            line.setAttribute("y2", String(y));
+            line.setAttribute("stroke", "rgba(255,255,255,0.35)");
+            line.setAttribute("stroke-width", "1");
+            refs.svg.appendChild(line);
+          }
+          // ajuste la largeur du wrapper centré si aucun groupe actif (n peut être 0)
+          if (refs.stackWrap)
+            refs.stackWrap.style.width = `${Math.max(1, n) * slotWidth}px`;
+        }
+
+        function updateSelectionBadge() {
+          const total = state.counts.reduce((a, b) => a + b, 0);
+          refs.selectionCount.textContent = `${total} occurrence${
+            total > 1 ? "s" : ""
+          }`;
+          updateGroupInfo();
+        }
+
+        function incrementCount(i) {
+          state.counts[i] = Math.min(999, state.counts[i] + 1);
+          document.querySelector(`[data-count="${i}"]`).textContent = String(
+            state.counts[i]
+          );
+          updateSelectionBadge();
+        }
+        function decrementCount(i) {
+          state.counts[i] = Math.max(0, state.counts[i] - 1);
+          document.querySelector(`[data-count="${i}"]`).textContent = String(
+            state.counts[i]
+          );
+          updateSelectionBadge();
+          updateGroupInfo();
+        }
+
+        /** Calcul du barycentre sur la portion [imin..imax] */
+        function computeBarycenter() {
+          const counts = state.counts;
+          const weights = state.weights;
+          let imin = -1,
+            imax = -1;
+          for (let i = 0; i < NUM_POS; i++) {
+            if (counts[i] > 0) {
+              imin = i;
+              break;
+            }
+          }
+          for (let i = NUM_POS - 1; i >= 0; i--) {
+            if (counts[i] > 0) {
+              imax = i;
+              break;
+            }
+          }
+          if (imin === -1 || imax === -1) return null;
+
+          let sumMass = 0;
+          let sumMoment = 0;
+          for (let i = imin; i <= imax; i++) {
+            const mass = weights[i] * counts[i];
+            sumMass += mass;
+            sumMoment += (i + 1) * mass; // positions 1..28
+          }
+          if (sumMass === 0) return null;
+          const bary = sumMoment / sumMass;
+          return { bary, imin, imax };
+        }
+
+        function roundPosition(x, mode) {
+          if (mode === "ceil") return Math.min(NUM_POS, Math.ceil(x));
+          // arithmétique: 0.5 et + vers le haut
+          return Math.min(NUM_POS, Math.round(x));
+        }
+
+        // Comptage par groupe
+        function countGroupOccurrences() {
+          const countFor = (arr) =>
+            arr.reduce((sum, code) => {
+              const idx = WMO_CODES.indexOf(code);
+              return sum + (idx >= 0 ? state.counts[idx] : 0);
+            }, 0);
+          return {
+            tempere: countFor(GROUPS.tempere),
+            brouillard: countFor(GROUPS.brouillard),
+            glace: countFor(GROUPS.glace),
+          };
+        }
+
+        // Détermination du groupe dominant: max; tie-break: glace > brouillard > tempere
+        function computeDominantGroup() {
+          const totals = countGroupOccurrences();
+          const items = [
+            { key: "tempere", val: totals.tempere, prio: 0 },
+            { key: "brouillard", val: totals.brouillard, prio: 1 },
+            { key: "glace", val: totals.glace, prio: 2 },
+          ];
+          items.sort((a, b) => b.val - a.val || b.prio - a.prio);
+          const top = items[0];
+          if (top.val === 0) return "—";
+          return top.key;
+        }
+
+        function updateGroupInfo() {
+          const infoEl = document.getElementById("group-info");
+          if (!infoEl) return;
+          const totals = countGroupOccurrences();
+          const total = totals.tempere + totals.brouillard + totals.glace;
+          const dom = total > 0 ? computeDominantGroup() : "—";
+          infoEl.textContent = `Groupes — Tempéré: ${totals.tempere} | Brouillard: ${totals.brouillard} | Glacé: ${totals.glace} — Dominant: ${dom}`;
+        }
+
+        /** Animation des blocs */
+        function clearBlocks() {
+          state.blocks = [];
+          drawTicks();
+        }
+
+        // plus utilisé (remplacé par wmoColorBg)
+
+        function createBlockRect(x, y, size, fill, text) {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          const r = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          r.setAttribute("x", x);
+          r.setAttribute("y", y);
+          r.setAttribute("rx", "4");
+          r.setAttribute("ry", "4");
+          r.setAttribute("width", size);
+          r.setAttribute("height", size);
+          r.setAttribute("class", "block");
+          r.setAttribute("fill", fill);
+          r.style.transition = `y var(--anim-drop-ms) cubic-bezier(.2,.8,.2,1)`;
+          const t = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          t.setAttribute("x", String(x + size / 2));
+          t.setAttribute("y", String(y + size / 2 + 0.5));
+          t.setAttribute("class", "block-text");
+          t.textContent = String(text);
+          g.appendChild(r);
+          g.appendChild(t);
+          refs.svg.appendChild(g);
+          return { group: g, rect: r, text: t };
+        }
+
+        function positionCenterX(i) {
+          return i * slotWidth + slotWidth / 2;
+        }
+
+        async function animateDrops(range) {
+          state.isAnimating = true;
+          clearBlocks();
+          const [imin, imax] = range;
+          // piles courantes en nb de blocs par position (visuel)
+          const stackCounts = Array(NUM_POS).fill(0);
+          const seq = [];
+          for (let i = imin; i <= imax; i++) {
+            for (let n = 0; n < state.counts[i]; n++) {
+              seq.push(i);
+            }
+          }
+          // vitesse
+          const delay = 60; // cadence 2x plus rapide
+          for (let k = 0; k < seq.length; k++) {
+            const i = seq[k];
+            const cx = positionCenterX(i);
+            const size = blockSize;
+            const x = cx - size / 2;
+            const color = wmoColorBg(WMO_CODES[i]);
+            // départ au-dessus de la zone
+            const startY = -28;
+            const targetLevel = stackCounts[i];
+            const targetY = Math.max(
+              6,
+              stackZoneHeight - (targetLevel + 1) * (size + 4)
+            );
+            const block = createBlockRect(x, startY, size, color, WMO_CODES[i]);
+            // animer
+            requestAnimationFrame(() => {
+              block.rect.setAttribute("y", String(targetY));
+              block.text.setAttribute("y", String(targetY + size / 2 + 0.5));
+            });
+            stackCounts[i]++;
+            await new Promise((res) => setTimeout(res, delay));
+          }
+          state.isAnimating = false;
+        }
+
+        function rebuildRuleForGroup(groupKey) {
+          const codes = [...GROUPS[groupKey]].sort((a, b) => a - b);
+          state.activeGroup = groupKey;
+          state.activeCodes = codes;
+          const n = codes.length;
+          refs.rule.style.gridTemplateColumns = `repeat(${n}, var(--slot-w))`;
+          refs.rule.innerHTML = "";
+          for (let i = 0; i < n; i++) {
+            const slot = document.createElement("div");
+            slot.className = "slot";
+            slot.dataset.index = String(i);
+            slot.innerHTML = `
+              <div class="wmo">${codes[i]}</div>
+              <div class="weight" data-slot-weight-group="${i}">w=1.00</div>
+              <div class="index">${i + 1}</div>
+            `;
+            refs.rule.appendChild(slot);
+          }
+          drawTicks(n);
+        }
+
+        async function animateDropsGroup(range) {
+          state.isAnimating = true;
+          clearBlocks();
+          const [imin, imax] = range;
+          const n = state.activeCodes.length;
+          const stackCounts = new Array(n).fill(0);
+          const seq = [];
+          for (let gi = imin; gi <= imax; gi++) {
+            const code = state.activeCodes[gi];
+            const idx = WMO_CODES.indexOf(code);
+            const cnt = idx >= 0 ? state.counts[idx] : 0;
+            for (let t = 0; t < cnt; t++) seq.push(gi);
+          }
+          const delay = 60;
+          for (let k = 0; k < seq.length; k++) {
+            const gi = seq[k];
+            const cx = positionCenterX(gi);
+            const size = blockSize;
+            const x = cx - size / 2;
+            const color = wmoColorBg(state.activeCodes[gi]);
+            const startY = -28;
+            const targetLevel = stackCounts[gi];
+            const targetY = Math.max(
+              6,
+              stackZoneHeight - (targetLevel + 1) * (size + 4)
+            );
+            const block = createBlockRect(
+              x,
+              startY,
+              size,
+              color,
+              state.activeCodes[gi]
+            );
+            requestAnimationFrame(() => {
+              block.rect.setAttribute("y", String(targetY));
+              block.text.setAttribute("y", String(targetY + size / 2 + 0.5));
+            });
+            stackCounts[gi]++;
+            await new Promise((res) => setTimeout(res, delay));
+          }
+          state.isAnimating = false;
+        }
+
+        function computeBarycenterGroup() {
+          const codes = state.activeCodes;
+          const n = codes.length;
+          const occ = new Array(n).fill(0);
+          for (let i = 0; i < n; i++) {
+            const idx = WMO_CODES.indexOf(codes[i]);
+            occ[i] = idx >= 0 ? state.counts[idx] : 0;
+          }
+          let imin = -1,
+            imax = -1;
+          for (let i = 0; i < n; i++) {
+            if (occ[i] > 0) {
+              imin = i;
+              break;
+            }
+          }
+          for (let i = n - 1; i >= 0; i--) {
+            if (occ[i] > 0) {
+              imax = i;
+              break;
+            }
+          }
+          if (imin === -1 || imax === -1) return null;
+          let sumMass = 0,
+            sumMoment = 0;
+          for (let i = imin; i <= imax; i++) {
+            const mass = (state.weights[i] || 1) * occ[i];
+            sumMass += mass;
+            sumMoment += (i + 1) * mass;
+          }
+          if (sumMass === 0) return null;
+          const bary = sumMoment / sumMass;
+          return { bary, imin, imax, occ };
+        }
+
+        /** Déplacement du doigt */
+        function moveFingerToPosition(posFloat) {
+          // Sécurise: clamp entre 1 et NUM_POS
+          const p = Math.min(NUM_POS, Math.max(1, posFloat));
+          const x = (p - 1) * slotWidth + slotWidth / 2 - 14; // centre
+          // Utilise translateX à partir de left:0 pour éviter des cumuls layout
+          refs.finger.style.transform = `translateX(${Math.round(x)}px)`;
+        }
+
+        /** Coupe visuelle de la règle */
+        function applyCrop(range) {
+          const [imin, imax] = range;
+          const slots = refs.rule.querySelectorAll(".slot");
+          slots.forEach((el, idx) => {
+            if (idx < imin || idx > imax) el.classList.add("is-outside");
+            else el.classList.remove("is-outside");
+          });
+          state.cropRange = [imin, imax];
+          // scroll vers la zone
+          const container = document.querySelector(".stage");
+          const left = imin * slotWidth - 40;
+          container.scrollTo({ left, behavior: "smooth" });
+        }
+
+        function clearCrop() {
+          const slots = refs.rule.querySelectorAll(".slot");
+          slots.forEach((el) => el.classList.remove("is-outside"));
+          state.cropRange = [0, NUM_POS - 1];
+        }
+
+        /** Validation principale */
+        async function onValidate() {
+          if (state.isAnimating) return;
+          const group = computeDominantGroup();
+          if (group === "brouillard") {
+            const [c1, c2] = GROUPS.brouillard;
+            const i1 = WMO_CODES.indexOf(c1);
+            const i2 = WMO_CODES.indexOf(c2);
+            const v1 = i1 >= 0 ? state.counts[i1] : 0;
+            const v2 = i2 >= 0 ? state.counts[i2] : 0;
+            const codeFog = v2 > v1 ? c2 : c1;
+            rebuildRuleForGroup("brouillard");
+            recomputeWeights();
+            clearBlocks();
+            const summaryFog = document.getElementById("summary");
+            summaryFog.innerHTML = `Groupe dominant: Brouillard — Code final: <strong>${codeFog}</strong> <span style=\"color:var(--muted); font-weight:600;\">(${wmoDesc(
+              codeFog
+            )})</span>`;
+            const idxFog = state.activeCodes.indexOf(codeFog);
+            const slotsFog = refs.rule.querySelectorAll(".slot");
+            slotsFog.forEach((s, i) => {
+              s.style.outline = i === idxFog ? "3px solid #00d3a7" : "none";
+              s.style.outlineOffset = "-3px";
+            });
+            if (refs.bary) refs.bary.textContent = "–";
+            if (refs.pos) refs.pos.textContent = "–";
+            if (refs.code) refs.code.textContent = String(codeFog);
+            if (refs.codeDesc)
+              refs.codeDesc.textContent = `(${wmoDesc(codeFog)})`;
+            return;
+          }
+
+          rebuildRuleForGroup(group);
+          recomputeWeights();
+          const data = computeBarycenterGroup();
+          if (!data) {
+            if (refs.bary) refs.bary.textContent = "–";
+            if (refs.pos) refs.pos.textContent = "–";
+            if (refs.code) refs.code.textContent = "–";
+            return;
+          }
+          const { bary, imin, imax, occ } = data;
+          if (refs.bary) refs.bary.textContent = bary.toFixed(3);
+          const posRounded = Math.min(
+            state.activeCodes.length,
+            state.roundMode === "ceil" ? Math.ceil(bary) : Math.round(bary)
+          );
+          if (refs.pos) refs.pos.textContent = String(posRounded);
+          const code = state.activeCodes[posRounded - 1];
+          if (refs.code) refs.code.textContent = String(code);
+          if (refs.codeDesc) refs.codeDesc.textContent = `(${wmoDesc(code)})`;
+          const summary = document.getElementById("summary");
+          summary.innerHTML = `Barycentre exact: <strong>${bary.toFixed(
+            3
+          )}</strong>&nbsp;&nbsp;|&nbsp;&nbsp; Position arrondie: <strong>${posRounded}</strong>&nbsp;&nbsp;|&nbsp;&nbsp; Code WMO final: <strong>${code}</strong> <span style=\"color:var(--muted); font-weight:600;\">(${wmoDesc(
+            code
+          )})</span>`;
+
+          // Animation blocs sur règle du groupe
+          await animateDropsGroup([imin, imax]);
+
+          // Encadrement vert sur la position retenue et mise à jour des textes
+          const slots = refs.rule.querySelectorAll(".slot");
+          slots.forEach((s, idx) => {
+            s.style.outline =
+              idx === posRounded - 1 ? "3px solid #00d3a7" : "none";
+            s.style.outlineOffset = "-3px";
+            const codeTxt = s.querySelector(".wmo");
+            const weightTxt = s.querySelector(".weight");
+            const indexTxt = s.querySelector(".index");
+            codeTxt.textContent = String(state.activeCodes[idx]);
+            weightTxt.textContent = `w=${state.weights[idx].toFixed(2)}`;
+            indexTxt.textContent = String(idx + 1);
+            const has = occ[idx] > 0 || idx === posRounded - 1;
+            const opacity = has ? "1" : "0.3";
+            codeTxt.style.opacity = opacity;
+            weightTxt.style.opacity = opacity;
+            indexTxt.style.opacity = opacity;
+          });
+        }
+
+        /** Reset */
+        function onReset() {
+          if (state.isAnimating) return;
+          state.counts = Array(NUM_POS).fill(0);
+          document
+            .querySelectorAll("[data-count]")
+            .forEach((el) => (el.textContent = "0"));
+          if (refs.bary) refs.bary.textContent = "–";
+          if (refs.pos) refs.pos.textContent = "–";
+          if (refs.code) refs.code.textContent = "–";
+          if (refs.codeDesc) refs.codeDesc.textContent = "";
+          state.P = 1;
+          state.roundMode = "arith";
+          recomputeWeights();
+          clearBlocks();
+          clearCrop();
+          refs.rule.innerHTML = "";
+          drawTicks(0);
+          updateSelectionBadge();
+          updateGroupInfo();
+          updateActiveButtons();
+          const summary = document.getElementById("summary");
+          summary.textContent = "—";
+        }
+
+        // Initialisation
+        buildUI();
+        recomputeWeights();
+        updateSelectionBadge();
+        // doigt au milieu par défaut une fois le layout prêt
+        window.requestAnimationFrame(() =>
+          moveFingerToPosition((NUM_POS + 1) / 2)
+        );
+        // Active states des groupes de boutons
+        (function initButtons() {
+          if (typeof updateActiveButtons === "function") updateActiveButtons();
+        })();
+
+        function updateActiveButtons() {
+          refs.pGroup.querySelectorAll(".btn").forEach((btn) => {
+            const val = parseFloat(btn.dataset.p || "");
+            btn.classList.toggle("is-active", val === state.P);
+          });
+          refs.roundGroup.querySelectorAll(".btn").forEach((btn) => {
+            const val = btn.dataset.round;
+            btn.classList.toggle("is-active", val === state.roundMode);
+          });
+        }
+        refs.pGroup.addEventListener("click", (e) => {
+          const target = e.target;
+          if (!(target instanceof HTMLElement)) return;
+          const p = parseFloat(target.dataset.p || "");
+          if (!isNaN(p)) {
+            state.P = p;
+            updateActiveButtons();
+            recomputeWeights();
+          }
+        });
+        refs.roundGroup.addEventListener("click", (e) => {
+          const target = e.target;
+          if (!(target instanceof HTMLElement)) return;
+          const mode = target.dataset.round;
+          if (mode === "arith" || mode === "ceil") {
+            state.roundMode = mode;
+            updateActiveButtons();
+          }
+        });
+        refs.btnValidate.addEventListener("click", onValidate);
+        refs.btnReset.addEventListener("click", onReset);
+        // plus de bouton "Afficher tout"
+      })();
+    </script>
+  </body>
+</html>

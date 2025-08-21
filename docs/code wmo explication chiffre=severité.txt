@@ -1,0 +1,207 @@
+1) “Un code plus élevé = plus sévère” : vrai… mais seulement à l’intérieur d’une même famille
+Dans la table WMO 4677 (temps présent “ww”), les familles 51/53/55 (bruine), 61/63/65 (pluie), 71/73/75 (neige) et 80/81/82 (averses) codent faible → modéré → fort/violent quand le nombre augmente. Idem pour 56/57 (bruine verglaçante légère → modérée/forte), 66/67 (pluie verglaçante légère → modérée/forte) et 85/86 (averses de neige légère → modérée/forte). 
+nodc.noaa.gov
+
+En revanche, on ne peut pas comparer la sévérité entre familles en se basant juste sur le numéro. Exemple : 66 (pluie verglaçante légère) est beaucoup plus dangereux que 61 (pluie faible) malgré un numéro proche. 
+nodc.noaa.gov
+
+Important : les termes faible/modéré/fort ne sont pas normalisés mondialement en mm/h (pluie) ou en visibilité (neige) par le WMO ; différents services nationaux emploient des seuils différents. Autrement dit, l’étiquette d’intensité est qualitative. 
+avsef.gov.au
+
+⚠️ Sur 0–3 : dans la table WMO d’origine, 00–03 décrivent l’évolution de la nébulosité (nuages en formation/dissipation…), pas “ciel clair / peu nuageux / couvert”. Ce dernier triplet vient d’une simplification d’API (Open-Meteo & co), pas du WMO brut. 
+nodc.noaa.gov
+Open Meteo
+
+2) Références utiles (FR/US/UK/DE)
+Table WMO 4677 (texte de référence détaillé) — NOAA/NODC miroir. 
+nodc.noaa.gov
+
+Manuel WMO sur les codes (No. 306) — référentiel officiel. 
+repository.oceanbestpractices.org
+sot.tmd.go.th
+
+Open-Meteo — la table “28 codes” que tu utilises (interprétation “WW” simplifiée). 
+Open Meteo
+
+Infoclimat (forum FR) — fils sur l’association codes WMO ↔ pictos. 
+Les Forums d'Infoclimat
+
+Met Office (UK) — exemples d’icônes par phénomène (utile pour l’UX). 
+Met Office
+
+WMO Aviation Safety — note qu’il n’existe “pas de définitions universelles” des intensités : prudence sur les mm/h. 
+avsef.gov.au
+
+Ressources DE : explications ww/SYNOP (Kachelmannwetter), DWD symboles 4677, page de synthèse. 
+wetterkanal.kachelmannwetter.com
+Deutscher Wetterdienst
+Döbeln-Wöllsdorf
+
+3) “Ressenti” (sévérité perçue) par code — pour tes 28 codes
+Échelle 0→5 (0 = aucune gêne, 5 = très dangereux). C’est une synthèse orientée UX fondée sur l’intensité WMO + le type de phénomène (verglas, grêle, orage). Les libellés “officiels WMO / simplifiés API” renvoient aux sources ci-dessus. 
+nodc.noaa.gov
+Open Meteo
+
+Code	Libellé (WMO / API)	Interprétation clé	Indice de sévérité	Ressenti / impacts typiques
+0	Ciel clair (API)	Aucun phénomène	0	Visibilité excellente, route sèche. 
+Open Meteo
+1	Plutôt clair (API)	Peu nuageux	0	Pas de gêne. 
+Open Meteo
+2	Partiellement nuageux (API)	Nuages épars	0	Pas de gêne. 
+Open Meteo
+3	Couvert (API)	Ciel couvert	0–1	Ambiance sombre, pas de précipitation. 
+Open Meteo
+45	Brouillard	Brouillard (intensité non précisée en API)	2–4	Visibilité réduite, conduite difficile; sévérité variable selon densité (dans 4677, 45 = “ciel invisible”, donc plutôt dense). 
+nodc.noaa.gov
+48	Brouillard déposant du givre	Brouillard + givre	3–4	Visibilité réduite + glace sur routes/objets : beaucoup plus risqué que 45. 
+nodc.noaa.gov
+51	Bruine faible (continue)	Liquide fin, faible	1	Fines gouttes, chaussée humide, visibilité un peu ternie. 
+nodc.noaa.gov
+53	Bruine modérée (continue)		2	Parapluie utile, chaussée bien mouillée. 
+nodc.noaa.gov
+55	Bruine forte (continue)		3	Mouillant rapidement, visière/lunettes gênées. 
+nodc.noaa.gov
+56	Bruine verglaçante faible	Eau surfondue	4	Verglas en formation : danger glissance même avec faible eau. 
+nodc.noaa.gov
+57	Bruine verglaçante mod./forte		5	Verglas marqué, très dangereux. 
+nodc.noaa.gov
+61	Pluie faible (continue)		2	Gêne modérée, flaques locales. 
+nodc.noaa.gov
+63	Pluie modérée (continue)		3	Routes chargées d’eau, risque d’aquaplanage ponctuel. 
+nodc.noaa.gov
+65	Pluie forte (continue)		4	Pluie battante, ruissellement, aquaplanage fréquent. (Seuils exacts varient selon pays.) 
+avsef.gov.au
+66	Pluie verglaçante faible	Eau surfondue	4	Croûte de glace progressive, câbles/arbres routiers touchés. 
+nodc.noaa.gov
+67	Pluie verglaçante mod./forte		5	Verglas rapide et étendu, coupures possibles. 
+nodc.noaa.gov
+71	Neige faible (continue)		2	Tenue au sol limitée, visibilité parfois réduite. (L’intensité neige est souvent évaluée via la visibilité, pas une mesure de mm/h.)
+73	Neige modérée (continue)		3	Accumulation notable, visibilité < 1–2 km.
+75	Neige forte (continue)		4	Chutes denses, visibilité très réduite; conditions de conduite difficiles.
+77	Grains de neige	Très fins cristaux	2	Accumulation faible mais surface très glissante; visibilité peu affectée. 
+nodc.noaa.gov
+80	Averses de pluie faibles	Convectif, bref	2	“Passages” rapides, intensité brève. 
+nodc.noaa.gov
+81	Averses modérées/fortes		3	Rafales, intensité soutenue sur 5–30 min. 
+nodc.noaa.gov
+82	Averses violentes		4	Rideau de pluie, visibilité < 500 m, inondements urbains possibles localement. 
+nodc.noaa.gov
+85	Averses de neige faibles	Convectif	2	“Giboulées” légères, tenue locale. 
+nodc.noaa.gov
+86	Averses de neige mod./fortes		4	Blanchiment rapide, visibilité très variable. 
+nodc.noaa.gov
+95	Orage léger/modéré	Foudre, rafales, averse	4	Éclairs, tonnerre, grains; danger électrique même sans grêle. 
+nodc.noaa.gov
+96	Orage avec grêle faible		5	Grêle : dégâts possibles, conduite dangereuse. 
+Open Meteo
+99	Orage avec grêle forte		5	Grêle violente / orage sévère. (Certains fournisseurs ne sortent ces codes qu’en Europe centrale.) 
+Open Meteo
+
+Notes d’interprétation :
+• Dans 4677, les numéros pairs/impairs distinguent parfois “intermittent/continu” (ex. 50/51, 60/61…). Tu utilises les continus (51/53/55, 61/63/65, 71/73/75), ce qui simplifie l’UX. 
+nodc.noaa.gov
+
+• Les “averses” (80–86) sont convectives (courtes mais intenses) — d’où 82 “violent”, même si la lame d’eau totale peut rester modeste. 
+nodc.noaa.gov
+
+4) Faut-il une icône par code ?
+Pas forcément. Le retour d’expérience (Met Office, DWD, communautés FR/DE) montre qu’une base d’icônes par phénomène + modificateurs transmet mieux l’info que 28 pictos tous différents. 
+Met Office
+Deutscher Wetterdienst
+Les Forums d'Infoclimat
+
+Recommandation pragmatique :
+
+Familles d’icônes : ciel clair / nuageux / brouillard / bruine / pluie / neige / averses / orage.
+
+Modificateurs : intensité (faible/modéré/fort), “verglaçant” (badge flocon+goutte), “grêle” (badge grêlon), “jour/nuit”.
+
+Séparation utile : “continu” vs “averses” (pluie convective) — c’est bien perçu par l’utilisateur.
+
+Option : un picto spécial “brouillard givr.” (48) et “neige grains” (77) si tu vises la précision routière.
+
+Tu arrives alors à ~15–18 variantes lisibles, tout en gardant une correspondance 1→n avec tes 28 codes (même base + modif.). Si tu veux tout de même un set exhaustif ww→icône, il existe des packs “4677” open-source pour s’inspirer. 
+GitHub
+
+Pour aller plus loin / détails techniques
+Table 4677 détaillée (texte officiel) et exemples ligne par ligne. 
+nodc.noaa.gov
+
+Présentation ww vs wawa (automatique, 4680) et correspondances 100–199 (utile si un jour tu ingères des SYNOP automatiques). 
+Döbeln-Wöllsdorf
+meteomatics.com
+
+Intensité et seuils (pluie/neige) : pas d’uniformité internationale → évite d’afficher des mm/h “déduits” d’un code ww seul. 
+avsef.gov.au
+
+Si tu veux, je peux te livrer un petit JSON “code → {famille, intensité, modifs, sévérité}” prêt à brancher dans l’app.
+
+
+
+
+
+
+
+
+
+
+
+
+Sources
+Vous avez dit :
+ok fait moi une table de correspondance (snippet javascript) des 28 code wmo => emoji+badge severité + libélé wmo + description ressenti/impacte
+
+
+ChatGPT a dit :
+Parfait, voici un snippet JavaScript qui mappe tes 28 codes WMO vers :
+
+un emoji principal (pour représenter visuellement le phénomène)
+
+un badge de sévérité (0–5)
+
+le libellé WMO simplifié (comme tu l’utilises)
+
+une description de ressenti / impact (synthèse UX)
+
+js
+Copier
+Modifier
+const wmoWeatherMap = {
+  0:  { emoji: "☀️", severity: 0, label: "Clear sky", desc: "Ciel clair, visibilité excellente, aucune gêne." },
+  1:  { emoji: "🌤️", severity: 0, label: "Mainly clear", desc: "Peu nuageux, pas de précipitation." },
+  2:  { emoji: "⛅", severity: 0, label: "Partly cloudy", desc: "Nuages épars, conditions agréables." },
+  3:  { emoji: "☁️", severity: 0, label: "Overcast", desc: "Ciel couvert, ambiance sombre mais sec." },
+  45: { emoji: "🌫️", severity: 3, label: "Fog", desc: "Brouillard dense, visibilité réduite, conduite difficile." },
+  48: { emoji: "🌫️❄️", severity: 4, label: "Depositing rime fog", desc: "Brouillard givrant, visibilité réduite et surfaces glissantes." },
+  51: { emoji: "🌧️", severity: 1, label: "Light drizzle", desc: "Bruine fine, chaussée humide." },
+  53: { emoji: "🌧️", severity: 2, label: "Moderate drizzle", desc: "Bruine modérée, visibilité légèrement affectée." },
+  55: { emoji: "🌧️", severity: 3, label: "Dense drizzle", desc: "Bruine forte, humidité importante, visière gênée." },
+  56: { emoji: "🌧️🧊", severity: 4, label: "Light freezing drizzle", desc: "Bruine verglaçante légère, début de verglas." },
+  57: { emoji: "🌧️🧊", severity: 5, label: "Dense freezing drizzle", desc: "Bruine verglaçante forte, verglas généralisé." },
+  61: { emoji: "🌦️", severity: 2, label: "Slight rain", desc: "Pluie faible, flaques locales." },
+  63: { emoji: "🌧️", severity: 3, label: "Moderate rain", desc: "Pluie soutenue, chaussées bien mouillées." },
+  65: { emoji: "🌧️💧", severity: 4, label: "Heavy rain", desc: "Pluie battante, ruissellement et aquaplanage." },
+  66: { emoji: "🌧️🧊", severity: 4, label: "Light freezing rain", desc: "Pluie verglaçante légère, surfaces glissantes rapidement." },
+  67: { emoji: "🌧️🧊", severity: 5, label: "Heavy freezing rain", desc: "Verglas massif, risque extrême sur routes." },
+  71: { emoji: "🌨️", severity: 2, label: "Slight snow", desc: "Neige faible, tenue au sol limitée." },
+  73: { emoji: "🌨️", severity: 3, label: "Moderate snow", desc: "Neige modérée, visibilité réduite, accumulation notable." },
+  75: { emoji: "❄️", severity: 4, label: "Heavy snow", desc: "Neige forte, visibilité très réduite, routes dangereuses." },
+  77: { emoji: "❄️", severity: 2, label: "Snow grains", desc: "Petits cristaux secs, surface glissante." },
+  80: { emoji: "🌦️", severity: 2, label: "Slight rain showers", desc: "Averses faibles, courtes mais localement gênantes." },
+  81: { emoji: "🌦️💧", severity: 3, label: "Moderate rain showers", desc: "Averses soutenues, intensité brève mais forte." },
+  82: { emoji: "⛈️💧", severity: 4, label: "Violent rain showers", desc: "Rideau de pluie, visibilité très faible." },
+  85: { emoji: "🌨️", severity: 2, label: "Slight snow showers", desc: "Averses de neige légères, giboulées." },
+  86: { emoji: "❄️💨", severity: 4, label: "Heavy snow showers", desc: "Averses neigeuses fortes, blanchiment rapide." },
+  95: { emoji: "⛈️", severity: 4, label: "Thunderstorm", desc: "Orage modéré, foudre et rafales, averse possible." },
+  96: { emoji: "⛈️🧊", severity: 5, label: "Thunderstorm with slight hail", desc: "Orage avec grêle légère, impacts possibles." },
+  99: { emoji: "⛈️🧊", severity: 5, label: "Thunderstorm with heavy hail", desc: "Orage avec forte grêle, dégâts matériels possibles." }
+};
+Points clés :
+
+emoji → simple et compréhensible au premier coup d’œil (soleil, nuage, pluie, neige, orage, etc.).
+
+severity → 0 à 5, basé sur danger perçu (verglaçant et orage/grêle = max).
+
+label → libellé WMO simplifié, cohérent avec ce que tu affiches déjà.
+
+desc → ressenti utilisateur / impact sur la vie quotidienne, pas de jargon technique.

@@ -1,0 +1,388 @@
+<!-- Module Température -->
+<div class="content-module">
+  <!-- En-tête du module -->
+  <div class="module-header">
+    <h2 class="module-title">
+      <span>🌡️</span>
+      Analyse Température
+    </h2>
+    <p class="module-description">
+      Pondération gaussienne classique (σ=1.5) • Agrégation multi-modèles
+    </p>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="stats-grid" id="temp-stats">
+    <div class="stat-card loading">
+      <div class="stat-value">---</div>
+      <div class="stat-label">Points de données</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--°C</div>
+      <div class="stat-label">Température moyenne</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--</div>
+      <div class="stat-label">Modèles actifs</div>
+    </div>
+  </div>
+
+  <!-- Graphique principal -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📊 Évolution Temporelle (7 jours)</h3>
+      <div class="card-actions">
+        <span class="badge">Temps réel</span>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="temperature-chart" width="800" height="400"></canvas>
+    </div>
+  </div>
+
+  <!-- Tableau des données -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📋 Tableau des Prévisions (J+1 à J+7)</h3>
+      <div class="card-actions">
+        <span class="info-badge">Toutes les 6h</span>
+      </div>
+    </div>
+    <div class="table-container" id="temperature-table">
+      <!-- Le tableau sera injecté ici par JavaScript -->
+      <div class="table-loading">
+        <div class="spinner"></div>
+        <p>Chargement du tableau...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemple de calcul -->
+  <div class="card methodology-card">
+    <div class="card-header">
+      <h3>🧮 Exemple de Calcul Gaussien</h3>
+      <div class="card-actions">
+        <span class="method-badge">Heure +24</span>
+      </div>
+    </div>
+    <div class="methodology-content">
+      <div class="method-grid">
+        <div class="method-section">
+          <h4>📥 Valeurs d'entrée</h4>
+          <div class="method-values">
+            <div class="model-value">
+              <span class="model-name">MF AROME FRANCE</span>
+              <span class="model-val">15.2°C</span>
+            </div>
+            <div class="model-value">
+              <span class="model-name">ICON-EU</span>
+              <span class="model-val">14.8°C</span>
+            </div>
+            <div class="model-value">
+              <span class="model-name">UKMO DETERM 2KM</span>
+              <span class="model-val">15.5°C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="method-section">
+          <h4>⚙️ Traitement gaussien</h4>
+          <div class="method-calculation">
+            <div class="calc-step">
+              <span class="calc-label">Médiane:</span>
+              <span class="calc-value">15.2°C</span>
+            </div>
+            <div class="calc-step">
+              <span class="calc-label">Sigma (σ):</span>
+              <span class="calc-value">1.5</span>
+            </div>
+            <div class="calc-step">
+              <span class="calc-label">Poids:</span>
+              <span class="calc-value">[0.325, 0.35, 0.325]</span>
+            </div>
+            <div class="calc-result">
+              <span class="calc-label">Résultat final:</span>
+              <span class="calc-final">15.1°C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informations méthodologiques -->
+  <div class="alert alert--info">
+    <div class="alert-icon">💡</div>
+    <div>
+      <strong>À propos de l'algorithme gaussien</strong>
+      <p>
+        La pondération gaussienne centre les poids sur la médiane des valeurs,
+        avec un écart-type σ=1.5. Les modèles proches de la médiane reçoivent un
+        poids plus élevé, réduisant l'influence des valeurs aberrantes.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Styles spécifiques au module température */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.25s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-card.loading .stat-value {
+    background: #f1f5f9;
+    border-radius: 4px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .info-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .method-badge {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 1rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .table-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .data-table th {
+    background: #f8fafc;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  .data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .data-table .row-even {
+    background: #fafafa;
+  }
+
+  .data-table .row-odd {
+    background: white;
+  }
+
+  .date-cell .day-name {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .date-cell .time-str {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+
+  .temp-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent-dark);
+  }
+
+  .methodology-card {
+    background: linear-gradient(135deg, #fefefe, #f8fafc);
+    border: 2px solid var(--accent-light);
+  }
+
+  .method-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .method-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .method-values {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .model-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .model-name {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  .model-val {
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+
+  .method-calculation {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .calc-step {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .calc-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+
+  .calc-label {
+    font-size: 0.875rem;
+  }
+
+  .calc-value {
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+  }
+
+  .calc-final {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .method-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
+</style>

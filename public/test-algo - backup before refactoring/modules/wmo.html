@@ -1,0 +1,1796 @@
+<!-- Module WMO -->
+<div class="content-module">
+  <!-- En-tête du module -->
+  <div class="module-header">
+    <h2 class="module-title">
+      <span>🌤️</span>
+      Matrice WMO 168h (7 jours)
+    </h2>
+    <p class="module-description">
+      Vue détaillée par code et modèle sur 7 jours • Tranches de 4h • Interface
+      responsive
+    </p>
+  </div>
+
+  <!-- Statistiques des risques -->
+  <div class="risk-stats-grid" id="wmo-risk-stats">
+    <div class="risk-card loading">
+      <div class="risk-icon">⛈️</div>
+      <div class="risk-content">
+        <div class="risk-value">--</div>
+        <div class="risk-label">Risque Orage</div>
+      </div>
+    </div>
+    <div class="risk-card loading">
+      <div class="risk-icon">🧊</div>
+      <div class="risk-content">
+        <div class="risk-value">--</div>
+        <div class="risk-label">Risque Grêle</div>
+      </div>
+    </div>
+    <div class="risk-card loading">
+      <div class="risk-icon">🧊</div>
+      <div class="risk-content">
+        <div class="risk-value">--</div>
+        <div class="risk-label">Risque Verglas</div>
+      </div>
+    </div>
+    <div class="risk-card loading">
+      <div class="risk-icon">🌫️</div>
+      <div class="risk-content">
+        <div class="risk-value">--</div>
+        <div class="risk-label">Risque Brouillard</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matrice WMO 168h -->
+  <div class="card wmo-matrix-card">
+    <div class="card-header">
+      <h3>📊 Matrice WMO 168h - Détail par Code et Modèle (4h)</h3>
+      <div class="card-actions">
+        <span class="badge matrix-badge" id="wmo-models-count">-- modèles</span>
+        <span class="info-badge">Vue 7 jours × 4h</span>
+      </div>
+    </div>
+    <div class="matrix-container">
+      <div class="wmo-table-container" id="wmo-matrix">
+        <div class="table-loading">
+          <div class="spinner"></div>
+          <p>Construction de la matrice WMO 168h...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Méthodologie avec exemples -->
+  <div class="card methodology-card wmo-methodology">
+    <div class="card-header">
+      <h3>🧠 Méthodologie - Exemples Concrets</h3>
+      <div class="card-actions">
+        <span class="method-badge">Groupes Sévérité</span>
+      </div>
+    </div>
+    <div class="methodology-content">
+      <div class="methodology-intro">
+        <p>
+          Découvrez comment l'algorithme de groupes de sévérité traite
+          différents scénarios météorologiques
+        </p>
+      </div>
+
+      <div class="examples-grid">
+        <!-- Exemple 1: Temps calme -->
+        <div class="example-card calm">
+          <div class="example-header">
+            <div class="example-badge calm">Exemple 1</div>
+            <div class="example-result">
+              <img
+                src="/icons/wmo/cloudy-day-1.svg"
+                alt="Code 1"
+                class="result-icon"
+              />
+            </div>
+          </div>
+          <h4>Temps calme</h4>
+          <p class="example-desc">Tous modèles codes [0,1,2,3]</p>
+
+          <div class="example-codes">
+            <div class="codes-header">Codes des 6 modèles</div>
+            <div class="codes-list">
+              <span class="code-item">0</span>
+              <span class="code-item">1</span>
+              <span class="code-item">2</span>
+              <span class="code-item">1</span>
+              <span class="code-item">3</span>
+              <span class="code-item">0</span>
+            </div>
+          </div>
+
+          <div class="example-calc">
+            <div class="calc-row">
+              <span class="calc-label">Groupes détectés:</span>
+              <span class="calc-value">2</span>
+            </div>
+            <div class="calc-row">
+              <span class="calc-label">Seuil dynamique:</span>
+              <span class="calc-value">40%</span>
+            </div>
+            <div class="calc-row">
+              <span class="calc-label">Groupe retenu:</span>
+              <span class="calc-highlight">Groupe 1 (67%)</span>
+            </div>
+          </div>
+
+          <div class="example-risks">
+            <div class="risk-mini">⛈️ <span>0</span></div>
+            <div class="risk-mini">🧊 <span>0</span></div>
+            <div class="risk-mini">🧊 <span>0</span></div>
+            <div class="risk-mini">🌫️ <span>0</span></div>
+          </div>
+        </div>
+
+        <!-- Exemple 2: Pluie alternée -->
+        <div class="example-card rain">
+          <div class="example-header">
+            <div class="example-badge rain">Exemple 2</div>
+            <div class="example-result">
+              <img
+                src="/icons/wmo/rainy-4.svg"
+                alt="Code 61"
+                class="result-icon"
+              />
+            </div>
+          </div>
+          <h4>Pluie alternée</h4>
+          <p class="example-desc">Codes [51,53,61] dominants</p>
+
+          <div class="example-codes">
+            <div class="codes-header">Codes des 6 modèles</div>
+            <div class="codes-list">
+              <span class="code-item">51</span>
+              <span class="code-item">53</span>
+              <span class="code-item">61</span>
+              <span class="code-item">51</span>
+              <span class="code-item">63</span>
+              <span class="code-item">61</span>
+            </div>
+          </div>
+
+          <div class="example-calc">
+            <div class="calc-row">
+              <span class="calc-label">Groupes détectés:</span>
+              <span class="calc-value">1</span>
+            </div>
+            <div class="calc-row">
+              <span class="calc-label">Seuil dynamique:</span>
+              <span class="calc-value">80%</span>
+            </div>
+            <div class="calc-row">
+              <span class="calc-label">Groupe retenu:</span>
+              <span class="calc-highlight">Groupe 3 (100%)</span>
+            </div>
+          </div>
+
+          <div class="example-risks">
+            <div class="risk-mini">⛈️ <span>0</span></div>
+            <div class="risk-mini">🧊 <span>0</span></div>
+            <div class="risk-mini">🧊 <span>0</span></div>
+            <div class="risk-mini">🌫️ <span>0</span></div>
+          </div>
+        </div>
+
+        <!-- Exemple 3: Orage isolé -->
+        <div class="example-card storm">
+          <div class="example-header">
+            <div class="example-badge storm">Exemple 3</div>
+            <div class="example-result">
+              <img
+                src="/icons/wmo/cloudy-day-1.svg"
+                alt="Code 1"
+                class="result-icon"
+              />
+            </div>
+          </div>
+          <h4>Orage isolé</h4>
+          <p class="example-desc">1 modèle → 95, autres calmes</p>
+
+          <div class="example-codes">
+            <div class="codes-header">Codes des 6 modèles</div>
+            <div class="codes-list">
+              <span class="code-item">1</span>
+              <span class="code-item">2</span>
+              <span class="code-item danger">95</span>
+              <span class="code-item">1</span>
+              <span class="code-item">3</span>
+              <span class="code-item">0</span>
+            </div>
+          </div>
+
+          <div class="example-calc">
+            <div class="calc-row">
+              <span class="calc-label">Groupes détectés:</span>
+              <span class="calc-value">3</span>
+            </div>
+            <div class="calc-row">
+              <span class="calc-label">Seuil dynamique:</span>
+              <span class="calc-value">27%</span>
+            </div>
+            <div class="calc-row">
+              <span class="calc-label">Groupe retenu:</span>
+              <span class="calc-highlight">Groupe 1 (67%)</span>
+            </div>
+          </div>
+
+          <div class="example-risks">
+            <div class="risk-mini active">⛈️ <span>1</span></div>
+            <div class="risk-mini">🧊 <span>0</span></div>
+            <div class="risk-mini">🧊 <span>0</span></div>
+            <div class="risk-mini">🌫️ <span>0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Algorithme résumé -->
+      <div class="algorithm-summary">
+        <h4>🔄 Résumé de l'Algorithme</h4>
+        <div class="algorithm-steps">
+          <div class="algo-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title">Regroupement</div>
+              <div class="step-desc">Codes WMO classés par sévérité</div>
+            </div>
+          </div>
+          <div class="algo-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-title">Seuil adaptatif</div>
+              <div class="step-desc">80 / nb_groupes %</div>
+            </div>
+          </div>
+          <div class="algo-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-title">Sélection</div>
+              <div class="step-desc">Parcours décroissant</div>
+            </div>
+          </div>
+          <div class="algo-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <div class="step-title">Médiane</div>
+              <div class="step-desc">Valeur finale</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nouveau tableau WMO agrégé 168h -->
+  <div class="card wmo-aggregated-table-card">
+    <div class="card-header">
+      <h3>📈 Tableau WMO Agrégé 168h (7 jours × 24h)</h3>
+      <div class="card-actions">
+        <span class="badge aggregated-badge" id="wmo-agg-algorithm"
+          >-- algorithme</span
+        >
+        <span class="info-badge">Vue détaillée par heure</span>
+      </div>
+    </div>
+    <div class="aggregated-table-container">
+      <div class="aggregated-controls">
+        <button id="load-aggregated-btn" class="load-btn">
+          🔄 Charger données agrégées
+        </button>
+        <div class="aggregated-info">
+          <span id="aggregated-coords">lat=47.8322, lon=-4.2967</span>
+        </div>
+      </div>
+
+      <div
+        id="aggregated-loading"
+        class="aggregated-loading"
+        style="display: none"
+      >
+        <div class="spinner"></div>
+        <p>⏳ Chargement et traitement des données WMO agrégées...</p>
+      </div>
+
+      <div
+        id="aggregated-error"
+        class="aggregated-error"
+        style="display: none"
+      ></div>
+
+      <div
+        id="aggregated-table-wrapper"
+        class="aggregated-table-wrapper"
+        style="display: none"
+      >
+        <table id="aggregated-wmo-table" class="aggregated-wmo-table">
+          <thead>
+            <tr>
+              <th rowspan="2" class="day-header-agg">Jour</th>
+              <th rowspan="2" class="hour-start-agg">H début</th>
+              <th colspan="24" class="hours-header-agg">Heures (0-23h)</th>
+            </tr>
+            <tr id="aggregated-hour-headers">
+              <!-- Généré dynamiquement 0-23 -->
+            </tr>
+          </thead>
+          <tbody id="aggregated-wmo-tbody">
+            <!-- Généré dynamiquement -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="aggregated-stats" class="aggregated-stats" style="display: none">
+        <h4>📊 Statistiques du traitement agrégé</h4>
+        <div id="aggregated-stats-content"></div>
+      </div>
+
+      <div class="aggregated-logs">
+        <h4>🔍 Logs de traitement</h4>
+        <div id="aggregated-log-content" class="aggregated-log-content"></div>
+        <button onclick="clearAggregatedLogs()" class="clear-logs-btn">
+          🗑️ Vider logs
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Styles spécifiques au module WMO */
+  .risk-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .risk-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.25s ease;
+  }
+
+  .risk-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .risk-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+  }
+
+  .risk-content {
+    flex: 1;
+  }
+
+  .risk-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin-bottom: 0.25rem;
+  }
+
+  .risk-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .risk-card.loading .risk-value {
+    background: #f1f5f9;
+    border-radius: 4px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .matrix-badge {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+  }
+
+  .wmo-matrix-card {
+    background: linear-gradient(135deg, #fefefe, var(--accent-light));
+    border: 2px solid var(--accent);
+  }
+
+  .matrix-container {
+    padding: 1rem 0;
+  }
+
+  .matrix-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .legend-dot.regional {
+    background: #3b82f6;
+  }
+  .legend-dot.global {
+    background: #f59e0b;
+  }
+  .legend-dot.seamless {
+    background: #8b5cf6;
+  }
+
+  .wmo-methodology {
+    background: linear-gradient(135deg, #fefefe, #f3e8ff);
+    border: 2px solid #c4b5fd;
+  }
+
+  .methodology-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 0.75rem;
+    color: #5b21b6;
+    font-weight: 500;
+  }
+
+  .examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .example-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 2px solid #e2e8f0;
+    transition: all 0.25s ease;
+  }
+
+  .example-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .example-card.calm {
+    border-color: #10b981;
+  }
+  .example-card.rain {
+    border-color: #3b82f6;
+  }
+  .example-card.storm {
+    border-color: #f59e0b;
+  }
+
+  .example-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .example-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .example-badge.calm {
+    background: #10b981;
+  }
+  .example-badge.rain {
+    background: #3b82f6;
+  }
+  .example-badge.storm {
+    background: #f59e0b;
+  }
+
+  .example-result {
+    position: relative;
+  }
+
+  .result-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .example-card h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+
+  .example-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+  }
+
+  .example-codes {
+    margin-bottom: 1rem;
+  }
+
+  .codes-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .codes-list {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    background: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .code-item {
+    padding: 0.25rem 0.5rem;
+    background: white;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+  }
+
+  .code-item.danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+  }
+
+  .example-calc {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .calc-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .calc-label {
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .calc-value {
+    font-weight: 700;
+    color: #1e293b;
+    font-family: "Courier New", monospace;
+  }
+
+  .calc-highlight {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+
+  .example-risks {
+    display: flex;
+    justify-content: space-around;
+    gap: 0.5rem;
+  }
+
+  .risk-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    opacity: 0.6;
+  }
+
+  .risk-mini.active {
+    opacity: 1;
+    color: #dc2626;
+    font-weight: 700;
+  }
+
+  .algorithm-summary {
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 2px solid #c4b5fd;
+  }
+
+  .algorithm-summary h4 {
+    text-align: center;
+    color: #5b21b6;
+    font-weight: 700;
+    margin-bottom: 2rem;
+  }
+
+  .algorithm-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .algo-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .step-number {
+    width: 48px;
+    height: 48px;
+    background: #8b5cf6;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .step-title {
+    font-weight: 600;
+    color: #5b21b6;
+  }
+
+  .step-desc {
+    font-size: 0.875rem;
+    color: #7c3aed;
+  }
+
+  /* ==================== MATRICE WMO ÉTENDUE 168H (42 COLONNES) ==================== */
+
+  .extended-wmo-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: white;
+    max-width: 100%;
+  }
+
+  .extended-wmo-table {
+    width: auto;
+    min-width: 4380px; /* 42 colonnes × 100px + colonne fixe 180px */
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
+
+  .extended-wmo-table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .group-header-extended {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    position: sticky;
+    left: 0;
+    z-index: 11;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  }
+
+  .time-header-extended {
+    width: 100px;
+    min-width: 100px;
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+
+  .group-name-cell-extended {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-right: 2px solid rgba(255, 255, 255, 0.3);
+    color: #2d3748;
+    font-weight: 600;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    position: sticky;
+    left: 0;
+    z-index: 9;
+    background: inherit;
+  }
+
+  .group-name-cell-extended small {
+    display: block;
+    font-size: 0.65rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+    line-height: 1.2;
+  }
+
+  .wmo-panels-cell-extended {
+    padding: 0.5rem;
+    vertical-align: top;
+    background: rgba(255, 255, 255, 0.9);
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+  }
+
+  /* Version redesignée des panels pour 100px colonnes */
+  .wmo-panels-cell-extended .wmo-panels-vertical {
+    gap: 0.5rem;
+  }
+
+  .wmo-panels-cell-extended .wmo-panel {
+    padding: 0.5rem;
+    margin: 0;
+    background: transparent !important; /* Couleur pastel appliquée via JS */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative;
+    transition: none; /* Supprimer l'effet hover zoom */
+  }
+
+  .wmo-panels-cell-extended .wmo-panel:hover {
+    transform: none; /* Supprimer le zoom on hover */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Garder ombre légère */
+  }
+
+  .wmo-panels-cell-extended .wmo-panel-header {
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    z-index: 2;
+  }
+
+  .wmo-panels-cell-extended .wmo-code-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: #7c3aed;
+    color: white;
+    border-radius: 4px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .wmo-panels-cell-extended .wmo-panel-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.5rem;
+    flex: 1;
+  }
+
+  /* Pastille nombre de modèles avec hover interaction */
+  .wmo-panels-cell-extended .model-count {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 50%;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 3;
+  }
+
+  .wmo-panels-cell-extended .model-count:hover {
+    background: #e2e8f0;
+    transform: scale(1.1);
+  }
+
+  .wmo-panels-cell-extended .wmo-panel-icon-60 {
+    width: 60px;
+    height: 60px;
+    margin: 0.25rem 0;
+  }
+
+  /* Pastilles modèles (cachées par défaut, visibles au hover) */
+  .wmo-panels-cell-extended .model-badges {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 4;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.25rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .wmo-panels-cell-extended .model-count:hover ~ .model-badges,
+  .wmo-panels-cell-extended .model-badges:hover {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .wmo-panels-cell-extended .model-badge {
+    font-size: 0.5rem;
+    padding: 0.125rem 0.25rem;
+    border-radius: 3px;
+    min-width: 16px;
+    text-align: center;
+    line-height: 1;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mini affichage pour données vides */
+  .no-data-mini {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.6rem;
+    opacity: 0.6;
+    padding: 0.25rem;
+  }
+
+  /* Mini affichage pour ligne agrégée */
+  .wmo-aggregated-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+  }
+
+  .wmo-icon-mini {
+    width: 80px;
+    height: 80px;
+  }
+
+  .aggregated-code-mini {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  /* Ligne de debug de l'agrégation */
+  .wmo-debug-row {
+    background: linear-gradient(135deg, #fff7ed, #fed7aa) !important;
+    border-top: 2px solid #f97316;
+    font-size: 0.65rem;
+  }
+
+  .wmo-debug-cell {
+    padding: 0.5rem 0.25rem;
+    vertical-align: top;
+    background: rgba(255, 255, 255, 0.9);
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    border-left: 1px solid #e2e8f0;
+  }
+
+  .debug-header {
+    background: linear-gradient(135deg, #fff7ed, #fed7aa) !important;
+  }
+
+  .debug-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: 0.6rem;
+    line-height: 1.2;
+  }
+
+  .debug-threshold {
+    color: #ea580c;
+    font-weight: 600;
+  }
+
+  .debug-group {
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .debug-code {
+    color: #4f46e5;
+    font-weight: 700;
+  }
+
+  .debug-type {
+    color: #64748b;
+    font-style: italic;
+    font-size: 0.55rem;
+  }
+
+  /* ==================== MATRICE WMO SIMPLIFIÉE H0 (FALLBACK) ==================== */
+
+  .simplified-wmo-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: white;
+  }
+
+  .simplified-wmo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .simplified-wmo-table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+  }
+
+  .group-header {
+    width: 25%;
+    min-width: 200px;
+  }
+
+  .time-header {
+    width: 75%;
+    font-size: 1.1rem;
+  }
+
+  .wmo-group-row {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .group-name-cell {
+    padding: 1rem;
+    vertical-align: top;
+    border-right: 2px solid rgba(255, 255, 255, 0.3);
+    color: #2d3748;
+    font-weight: 600;
+  }
+
+  .group-name-cell small {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+  }
+
+  .wmo-panels-cell {
+    padding: 1rem;
+    vertical-align: top;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Disposition verticale des panels WMO */
+  .wmo-panels-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 100%;
+  }
+
+  /* Panel individuel pour chaque code WMO */
+  .wmo-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .wmo-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .wmo-panel-header {
+    position: absolute;
+    top: -8px;
+    left: 8px;
+  }
+
+  .wmo-code-badge {
+    background: #7c3aed;
+    color: white;
+    padding: 0.5rem 0.5rem;
+    border-radius: 4px;
+    /* position: absolute;
+    top: 75px;
+    left: 50px; */
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+  }
+  /*.wmo-code-badge {
+    background-color: #7c3aed; 
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    min-width: 16px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }*/
+
+  .wmo-code-badge.large {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+  }
+
+  .wmo-panel-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .model-count {
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .wmo-panel-icon-60 {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  .wmo-panel-icon-80 {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .model-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    flex: 1;
+  }
+
+  .model-badge {
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .model-badge.unknown {
+    background: #94a3b8;
+    color: white;
+  }
+
+  /* Ligne d'agrégation */
+  .wmo-aggregated-row {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0) !important;
+    border-top: 3px solid #4f46e5;
+  }
+
+  .wmo-aggregated-panel {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 2px solid rgba(79, 70, 229, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .aggregated-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .aggregated-code {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  .aggregated-description {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+  }
+
+  /* État vide */
+  .no-data {
+    text-align: center;
+    color: #64748b;
+    font-style: italic;
+    padding: 1rem;
+    opacity: 0.7;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .risk-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .examples-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .algorithm-steps {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .matrix-legend {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .wmo-panels-vertical {
+      gap: 0.5rem;
+    }
+
+    /* Responsive pour matrice étendue */
+    .extended-wmo-table {
+      min-width: 3600px; /* 42 × 80px + 180px */
+      font-size: 0.7rem;
+    }
+
+    .group-header-extended {
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+    }
+
+    .group-name-cell-extended {
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+      padding: 0.5rem;
+    }
+
+    .time-header-extended {
+      width: 80px;
+      min-width: 80px;
+      font-size: 0.65rem;
+    }
+
+    .wmo-panels-cell-extended {
+      width: 80px;
+      min-width: 80px;
+      max-width: 80px;
+      padding: 0.4rem;
+    }
+
+    .wmo-panels-cell-extended .wmo-panel-icon-60 {
+      width: 45px;
+      height: 45px;
+    }
+
+    .wmo-icon-mini {
+      width: 60px;
+      height: 60px;
+    }
+
+    .group-header {
+      width: 30%;
+      min-width: 120px;
+    }
+
+    .simplified-wmo-table {
+      font-size: 0.8rem;
+    }
+
+    .wmo-panel {
+      padding: 0.5rem;
+    }
+
+    .wmo-panel-content {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .model-badges {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .risk-stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .algorithm-steps {
+      grid-template-columns: 1fr;
+    }
+
+    .risk-card {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .simplified-wmo-table thead th {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .group-name-cell,
+    .wmo-panels-cell {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .wmo-panel-icon-60 {
+      width: 48px;
+      height: 48px;
+    }
+
+    .wmo-panel-icon-80 {
+      width: 64px;
+      height: 64px;
+    }
+
+    .model-count {
+      font-size: 0.75rem;
+      padding: 0.125rem 0.25rem;
+    }
+
+    /* Mobile pour matrice étendue */
+    .extended-wmo-table {
+      min-width: 2520px; /* 42 × 60px + 120px */
+      font-size: 0.65rem;
+    }
+
+    .group-header-extended {
+      width: 120px;
+      min-width: 120px;
+      max-width: 120px;
+      font-size: 0.7rem;
+    }
+
+    .group-name-cell-extended {
+      width: 120px;
+      min-width: 120px;
+      max-width: 120px;
+      padding: 0.5rem 0.25rem;
+    }
+
+    .time-header-extended {
+      width: 60px;
+      min-width: 60px;
+      font-size: 0.55rem;
+      padding: 0.5rem 0.25rem;
+    }
+
+    .wmo-panels-cell-extended {
+      width: 60px;
+      min-width: 60px;
+      max-width: 60px;
+      padding: 0.25rem;
+    }
+
+    .wmo-panels-cell-extended .wmo-code-badge {
+      font-size: 0.6rem;
+      padding: 0.125rem 0.25rem;
+    }
+
+    .wmo-panels-cell-extended .wmo-panel-icon-60 {
+      width: 30px;
+      height: 30px;
+    }
+
+    .wmo-panels-cell-extended .model-count {
+      width: 18px;
+      height: 18px;
+      font-size: 0.65rem;
+      padding: 0;
+    }
+
+    .wmo-icon-mini {
+      width: 40px;
+      height: 40px;
+    }
+
+    .wmo-debug-cell {
+      width: 60px;
+      min-width: 60px;
+      max-width: 60px;
+      padding: 0.25rem 0.125rem;
+    }
+
+    .debug-content {
+      font-size: 0.5rem;
+    }
+  }
+
+  /* ==================== STYLES POUR LE TABLEAU WMO AGRÉGÉ ==================== */
+
+  .wmo-aggregated-table-card {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border: 2px solid #4f46e5;
+    margin-top: 2rem;
+  }
+
+  .aggregated-badge {
+    background: #4f46e5;
+    color: white;
+  }
+
+  .aggregated-table-container {
+    padding: 1.5rem;
+  }
+
+  .aggregated-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .load-btn {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .load-btn:hover {
+    background: #4338ca;
+    transform: translateY(-1px);
+  }
+
+  .load-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .aggregated-info {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-family: "Courier New", monospace;
+  }
+
+  .aggregated-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #64748b;
+  }
+
+  .aggregated-loading .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #4f46e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  .aggregated-error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #ef4444;
+    margin-bottom: 1rem;
+  }
+
+  .aggregated-table-wrapper {
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: white;
+    margin-bottom: 2rem;
+  }
+
+  .aggregated-wmo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    min-width: 1800px; /* 26 colonnes × 70px */
+  }
+
+  .aggregated-wmo-table thead th {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .day-header-agg {
+    width: 80px;
+    min-width: 80px;
+    position: sticky;
+    left: 0;
+    z-index: 11;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  }
+
+  .hour-start-agg {
+    width: 80px;
+    min-width: 80px;
+    position: sticky;
+    left: 80px;
+    z-index: 11;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  }
+
+  .hours-header-agg {
+    text-align: center;
+  }
+
+  .aggregated-wmo-table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .aggregated-wmo-table tbody tr:hover {
+    background: rgba(79, 70, 229, 0.05);
+  }
+
+  .aggregated-day-cell {
+    background: #f8fafc;
+    font-weight: 700;
+    color: #4f46e5;
+    text-align: center;
+    vertical-align: middle;
+    position: sticky;
+    left: 0;
+    z-index: 9;
+    border-right: 2px solid #e2e8f0;
+  }
+
+  .aggregated-hour-start-cell {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #64748b;
+    text-align: center;
+    vertical-align: middle;
+    position: sticky;
+    left: 80px;
+    z-index: 9;
+    border-right: 2px solid #e2e8f0;
+  }
+
+  .aggregated-wmo-cell {
+    padding: 0.5rem;
+    text-align: center;
+    vertical-align: middle;
+    background: white;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+
+  .aggregated-wmo-code {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+
+  .aggregated-algorithm-info {
+    font-size: 0.65rem;
+    color: #64748b;
+    margin-bottom: 0.125rem;
+  }
+
+  .aggregated-debug-info {
+    font-size: 0.6rem;
+    color: #94a3b8;
+  }
+
+  .aggregated-na {
+    color: #cbd5e1;
+    font-style: italic;
+    font-size: 0.75rem;
+  }
+
+  /* Couleurs WMO pour le tableau agrégé */
+  .agg-wmo-0 {
+    background-color: #f0fdf4 !important;
+  } /* Ciel clair */
+  .agg-wmo-1,
+  .agg-wmo-2,
+  .agg-wmo-3 {
+    background-color: #f0f9ff !important;
+  } /* Nuageux */
+  .agg-wmo-45,
+  .agg-wmo-48 {
+    background-color: #fffbeb !important;
+  } /* Brouillard */
+  .agg-wmo-51,
+  .agg-wmo-52,
+  .agg-wmo-53,
+  .agg-wmo-54,
+  .agg-wmo-55,
+  .agg-wmo-61,
+  .agg-wmo-62,
+  .agg-wmo-63,
+  .agg-wmo-64,
+  .agg-wmo-65 {
+    background-color: #eff6ff !important;
+  } /* Pluie */
+  .agg-wmo-56,
+  .agg-wmo-57,
+  .agg-wmo-66,
+  .agg-wmo-67 {
+    background-color: #fefce8 !important;
+  } /* Verglaçant */
+  .agg-wmo-80,
+  .agg-wmo-81,
+  .agg-wmo-82 {
+    background-color: #dbeafe !important;
+  } /* Averses */
+  .agg-wmo-71,
+  .agg-wmo-72,
+  .agg-wmo-73,
+  .agg-wmo-74,
+  .agg-wmo-75,
+  .agg-wmo-76,
+  .agg-wmo-77,
+  .agg-wmo-85,
+  .agg-wmo-86 {
+    background-color: #f0f9ff !important;
+  } /* Neige */
+  .agg-wmo-95 {
+    background-color: #fef7f7 !important;
+  } /* Orage */
+  .agg-wmo-96,
+  .agg-wmo-99 {
+    background-color: #fecaca !important;
+  } /* Orage + grêle */
+
+  .aggregated-stats {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+  }
+
+  .aggregated-stats h4 {
+    color: #4f46e5;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .aggregated-stats-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .aggregated-stat-item {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .aggregated-stat-label {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .aggregated-stat-value {
+    color: #64748b;
+    font-family: "Courier New", monospace;
+  }
+
+  .aggregated-logs {
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    font-family: "Courier New", monospace;
+    font-size: 0.75rem;
+  }
+
+  .aggregated-logs h4 {
+    color: #f1f5f9;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .aggregated-log-content {
+    background: #0f172a;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    border: 1px solid #334155;
+  }
+
+  .aggregated-log-entry {
+    margin: 0.25rem 0;
+    line-height: 1.4;
+  }
+
+  .agg-log-info {
+    color: #60a5fa;
+  }
+  .agg-log-debug {
+    color: #a78bfa;
+  }
+  .agg-log-warn {
+    color: #fbbf24;
+  }
+  .agg-log-error {
+    color: #f87171;
+  }
+
+  .clear-logs-btn {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: background 0.2s ease;
+  }
+
+  .clear-logs-btn:hover {
+    background: #475569;
+  }
+
+  /* Responsive pour le tableau agrégé */
+  @media (max-width: 1024px) {
+    .aggregated-controls {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .aggregated-wmo-table {
+      min-width: 1600px;
+      font-size: 0.7rem;
+    }
+
+    .aggregated-wmo-cell {
+      width: 60px;
+      min-width: 60px;
+      max-width: 60px;
+      padding: 0.375rem;
+    }
+
+    .day-header-agg,
+    .hour-start-agg {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .hour-start-agg {
+      left: 70px;
+    }
+
+    .aggregated-hour-start-cell {
+      left: 70px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .aggregated-wmo-table {
+      min-width: 1400px;
+      font-size: 0.65rem;
+    }
+
+    .aggregated-wmo-cell {
+      width: 50px;
+      min-width: 50px;
+      max-width: 50px;
+      padding: 0.25rem;
+    }
+
+    .day-header-agg,
+    .hour-start-agg {
+      width: 60px;
+      min-width: 60px;
+    }
+
+    .hour-start-agg {
+      left: 60px;
+    }
+
+    .aggregated-hour-start-cell {
+      left: 60px;
+    }
+
+    .aggregated-wmo-code {
+      font-size: 0.875rem;
+    }
+
+    .aggregated-algorithm-info {
+      font-size: 0.6rem;
+    }
+
+    .aggregated-debug-info {
+      font-size: 0.55rem;
+    }
+  }
+</style>

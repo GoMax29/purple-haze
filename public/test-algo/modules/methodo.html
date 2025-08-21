@@ -1,0 +1,825 @@
+<!-- Module Méthodologie -->
+<div class="content-module">
+  <!-- En-tête du module -->
+  <div class="module-header">
+    <h2 class="module-title">
+      <span>🧠</span>
+      Méthodologie & Algorithmes
+    </h2>
+    <p class="module-description">
+      Documentation technique des algorithmes de pondération météorologique
+    </p>
+  </div>
+
+  <!-- Vue d'ensemble -->
+  <div class="card overview-card">
+    <div class="card-header">
+      <h3>🎯 Vue d'Ensemble du Système</h3>
+      <div class="card-actions">
+        <span class="badge overview-badge">Architecture</span>
+      </div>
+    </div>
+    <div class="overview-content">
+      <div class="overview-grid">
+        <div class="overview-item">
+          <div class="overview-icon">📡</div>
+          <h4>Acquisition Données</h4>
+          <p>13 modèles météo européens interrogés en temps réel</p>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">⚙️</div>
+          <h4>Traitement Algorithmique</h4>
+          <p>Pondération gaussienne et groupes de sévérité</p>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">📊</div>
+          <h4>Agrégation Finale</h4>
+          <p>Valeurs consolidées sur 0-168h par paramètre</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Algorithmes détaillés -->
+  <div class="algorithms-section">
+    <h3 class="section-title">🧮 Algorithmes Implémentés</h3>
+
+    <!-- Algorithme Gaussien -->
+    <div class="card algorithm-card gaussian">
+      <div class="card-header">
+        <h4>📈 Pondération Gaussienne Classique</h4>
+        <div class="card-actions">
+          <span class="algo-badge gaussian">σ = 1.5</span>
+        </div>
+      </div>
+      <div class="algorithm-content">
+        <div class="algo-description">
+          <p>
+            <strong>Principe :</strong> Pondération centrée sur la médiane avec
+            écart-type fixe.
+          </p>
+          <p><strong>Usage :</strong> Température, Température apparente</p>
+        </div>
+
+        <div class="algo-formula">
+          <div class="formula-title">Formule mathématique</div>
+          <div class="formula-content">
+            <code
+              >w<sub>i</sub> = exp(-((v<sub>i</sub> - médiane)² / (2σ²)))</code
+            >
+          </div>
+          <div class="formula-vars">
+            <div class="var-item">
+              <span class="var-name">w<sub>i</sub></span>
+              <span class="var-desc">Poids du modèle i</span>
+            </div>
+            <div class="var-item">
+              <span class="var-name">v<sub>i</sub></span>
+              <span class="var-desc">Valeur du modèle i</span>
+            </div>
+            <div class="var-item">
+              <span class="var-name">σ</span>
+              <span class="var-desc">Écart-type (1.5)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="algo-steps">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-text">Calcul de la médiane des valeurs</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-text">Application de la fonction gaussienne</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-text">Normalisation des poids</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-text">Calcul de la moyenne pondérée</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Algorithme Gaussien Adaptatif -->
+    <div class="card algorithm-card adaptive">
+      <div class="card-header">
+        <h4>🎯 Pondération Gaussienne Adaptative</h4>
+        <div class="card-actions">
+          <span class="algo-badge adaptive">σ auto</span>
+        </div>
+      </div>
+      <div class="algorithm-content">
+        <div class="algo-description">
+          <p>
+            <strong>Principe :</strong> Sigma variable selon la dispersion des
+            modèles.
+          </p>
+          <p><strong>Usage :</strong> Humidité relative</p>
+        </div>
+
+        <div class="algo-formula">
+          <div class="formula-title">Formule adaptative</div>
+          <div class="formula-content">
+            <code
+              >σ<sub>adaptatif</sub> = écart_type(valeurs) × multiplier</code
+            >
+          </div>
+          <div class="formula-vars">
+            <div class="var-item">
+              <span class="var-name">multiplier</span>
+              <span class="var-desc">Facteur d'ajustement (2.0)</span>
+            </div>
+            <div class="var-item">
+              <span class="var-name">écart_type</span>
+              <span class="var-desc">Dispersion des valeurs</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="adaptive-advantages">
+          <div class="advantage-item">
+            <div class="advantage-icon">✅</div>
+            <div class="advantage-text">
+              <strong>Forte dispersion :</strong> Sigma élevé, pondération plus
+              uniforme
+            </div>
+          </div>
+          <div class="advantage-item">
+            <div class="advantage-icon">✅</div>
+            <div class="advantage-text">
+              <strong>Faible dispersion :</strong> Sigma réduit, pondération
+              plus sélective
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Algorithme WMO -->
+    <div class="card algorithm-card wmo">
+      <div class="card-header">
+        <h4>🌤️ Groupes de Sévérité WMO</h4>
+        <div class="card-actions">
+          <span class="algo-badge wmo">9 groupes</span>
+        </div>
+      </div>
+      <div class="algorithm-content">
+        <div class="algo-description">
+          <p>
+            <strong>Principe :</strong> Classification hiérarchique avec seuil
+            dynamique.
+          </p>
+          <p><strong>Usage :</strong> Codes météorologiques WMO</p>
+        </div>
+
+        <div class="wmo-groups">
+          <div class="groups-title">
+            Hiérarchie des groupes (sévérité décroissante)
+          </div>
+          <div class="groups-list">
+            <div class="group-item group-8">
+              <div class="group-number">8</div>
+              <div class="group-name">Orage + Grêle</div>
+              <div class="group-codes">[96, 99]</div>
+            </div>
+            <div class="group-item group-7">
+              <div class="group-number">7</div>
+              <div class="group-name">Orage</div>
+              <div class="group-codes">[95]</div>
+            </div>
+            <div class="group-item group-6">
+              <div class="group-number">6</div>
+              <div class="group-name">Neige</div>
+              <div class="group-codes">[71-77, 85-86]</div>
+            </div>
+            <div class="group-item group-5">
+              <div class="group-number">5</div>
+              <div class="group-name">Averses</div>
+              <div class="group-codes">[80-82]</div>
+            </div>
+            <div class="group-item group-4">
+              <div class="group-number">4</div>
+              <div class="group-name">Pluie Verglaçante</div>
+              <div class="group-codes">[56-57, 66-67]</div>
+            </div>
+            <div class="group-item group-3">
+              <div class="group-number">3</div>
+              <div class="group-name">Pluie/Bruine</div>
+              <div class="group-codes">[51-55, 61-65]</div>
+            </div>
+            <div class="group-item group-2">
+              <div class="group-number">2</div>
+              <div class="group-name">Brouillard</div>
+              <div class="group-codes">[45, 48]</div>
+            </div>
+            <div class="group-item group-1">
+              <div class="group-number">1</div>
+              <div class="group-name">Couvert</div>
+              <div class="group-codes">[1-3]</div>
+            </div>
+            <div class="group-item group-0">
+              <div class="group-number">0</div>
+              <div class="group-name">Ciel Clair</div>
+              <div class="group-codes">[0]</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="algo-formula">
+          <div class="formula-title">Seuil dynamique</div>
+          <div class="formula-content">
+            <code>seuil = 80 / nombre_de_groupes (%)</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modèles météo -->
+  <div class="card models-card">
+    <div class="card-header">
+      <h3>🌍 Modèles Météorologiques Intégrés</h3>
+      <div class="card-actions">
+        <span class="badge models-badge">13 modèles</span>
+      </div>
+    </div>
+    <div class="models-content">
+      <div class="models-grid">
+        <div class="model-category">
+          <h4>🇫🇷 Météo-France</h4>
+          <div class="model-list">
+            <div class="model-item">
+              <div class="model-dot mf"></div>
+              <span>AROME FRANCE (2.5km)</span>
+            </div>
+            <div class="model-item">
+              <div class="model-dot mf"></div>
+              <span>AROME FRANCE HD (1.3km)</span>
+            </div>
+            <div class="model-item">
+              <div class="model-dot mf"></div>
+              <span>ARPEGE EUROPE (7.5km)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-category">
+          <h4>🇩🇪 DWD (Allemagne)</h4>
+          <div class="model-list">
+            <div class="model-item">
+              <div class="model-dot dwd"></div>
+              <span>ICON EU (6.5km)</span>
+            </div>
+            <div class="model-item">
+              <div class="model-dot dwd"></div>
+              <span>ICON GLOBAL (13km)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-category">
+          <h4>🇬🇧 UKMO (Royaume-Uni)</h4>
+          <div class="model-list">
+            <div class="model-item">
+              <div class="model-dot ukmo"></div>
+              <span>UKMO 2KM (2km)</span>
+            </div>
+            <div class="model-item">
+              <div class="model-dot ukmo"></div>
+              <span>UKMO GLOBAL (10km)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-category">
+          <h4>🇺🇸 Autres</h4>
+          <div class="model-list">
+            <div class="model-item">
+              <div class="model-dot us"></div>
+              <span>GFS GLOBAL (25km)</span>
+            </div>
+            <div class="model-item">
+              <div class="model-dot us"></div>
+              <span>ECMWF IFS (25km)</span>
+            </div>
+            <div class="model-item">
+              <div class="model-dot other"></div>
+              <span>KNMI HARMONIE (2.5km)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance et limitations -->
+  <div class="card performance-card">
+    <div class="card-header">
+      <h3>⚡ Performance & Limitations</h3>
+    </div>
+    <div class="performance-content">
+      <div class="performance-grid">
+        <div class="perf-section">
+          <h4>✅ Avantages</h4>
+          <ul class="perf-list positive">
+            <li>Réduction des biais par agrégation multi-modèles</li>
+            <li>Pondération intelligente selon la cohérence</li>
+            <li>Adaptation automatique aux conditions météo</li>
+            <li>Traitement temps réel (< 2s par paramètre)</li>
+          </ul>
+        </div>
+
+        <div class="perf-section">
+          <h4>⚠️ Limitations</h4>
+          <ul class="perf-list caution">
+            <li>Dépendance à la qualité des modèles source</li>
+            <li>Algorithme gaussien sensible aux valeurs aberrantes</li>
+            <li>WMO : simplification par groupes de sévérité</li>
+            <li>Pas de prise en compte de l'historique de performance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Styles spécifiques au module méthodologie */
+  .overview-badge {
+    background: #f0f9ff;
+    color: #0369a1;
+  }
+
+  .overview-card {
+    background: linear-gradient(135deg, #fefefe, #f0f9ff);
+    border: 2px solid #bae6fd;
+  }
+
+  .overview-content {
+    padding: 1rem 0;
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+
+  .overview-item {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+  }
+
+  .overview-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .overview-item h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .overview-item p {
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .algorithms-section {
+    margin: 3rem 0;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .algorithm-card {
+    margin-bottom: 2rem;
+  }
+
+  .algorithm-card.gaussian {
+    background: linear-gradient(135deg, #fefefe, #fef3c7);
+    border: 2px solid #fbbf24;
+  }
+
+  .algorithm-card.adaptive {
+    background: linear-gradient(135deg, #fefefe, #d1fae5);
+    border: 2px solid #10b981;
+  }
+
+  .algorithm-card.wmo {
+    background: linear-gradient(135deg, #fefefe, #ede9fe);
+    border: 2px solid #8b5cf6;
+  }
+
+  .algo-badge.gaussian {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .algo-badge.adaptive {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .algo-badge.wmo {
+    background: #ede9fe;
+    color: #5b21b6;
+  }
+
+  .algorithm-content {
+    padding: 1rem 0;
+  }
+
+  .algo-description {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .algo-description p {
+    margin-bottom: 0.5rem;
+    color: #374151;
+  }
+
+  .algo-description strong {
+    color: #1e293b;
+  }
+
+  .algo-formula {
+    background: #1e293b;
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .formula-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #f1f5f9;
+  }
+
+  .formula-content {
+    font-family: "Courier New", monospace;
+    font-size: 1.1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .formula-vars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .var-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+
+  .var-name {
+    font-family: "Courier New", monospace;
+    font-weight: 700;
+    color: #fbbf24;
+  }
+
+  .var-desc {
+    color: #cbd5e1;
+  }
+
+  .algo-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-text {
+    font-size: 0.9rem;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  .adaptive-advantages {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .advantage-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.75rem;
+    border: 1px solid #d1fae5;
+  }
+
+  .advantage-icon {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+  }
+
+  .advantage-text {
+    color: #374151;
+    font-size: 0.9rem;
+  }
+
+  .advantage-text strong {
+    color: #065f46;
+  }
+
+  .wmo-groups {
+    margin-bottom: 2rem;
+  }
+
+  .groups-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #5b21b6;
+    text-align: center;
+  }
+
+  .groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .group-item {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .group-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 0.875rem;
+  }
+
+  .group-item.group-8 .group-number {
+    background: #7e57c2;
+  }
+  .group-item.group-7 .group-number {
+    background: #9575cd;
+  }
+  .group-item.group-6 .group-number {
+    background: #2196f3;
+  }
+  .group-item.group-5 .group-number {
+    background: #03a9f4;
+  }
+  .group-item.group-4 .group-number {
+    background: #00bcd4;
+  }
+  .group-item.group-3 .group-number {
+    background: #4caf50;
+  }
+  .group-item.group-2 .group-number {
+    background: #8bc34a;
+  }
+  .group-item.group-1 .group-number {
+    background: #cddc39;
+  }
+  .group-item.group-0 .group-number {
+    background: #ffeb3b;
+    color: #333;
+  }
+
+  .group-name {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .group-codes {
+    font-family: "Courier New", monospace;
+    font-size: 0.8rem;
+    color: #64748b;
+    background: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .models-card {
+    background: linear-gradient(135deg, #fefefe, #f8fafc);
+    border: 2px solid #e2e8f0;
+  }
+
+  .models-badge {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .models-content {
+    padding: 1rem 0;
+  }
+
+  .models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+
+  .model-category h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .model-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .model-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .model-dot.mf {
+    background: #3b82f6;
+  }
+  .model-dot.dwd {
+    background: #f59e0b;
+  }
+  .model-dot.ukmo {
+    background: #10b981;
+  }
+  .model-dot.us {
+    background: #ef4444;
+  }
+  .model-dot.other {
+    background: #8b5cf6;
+  }
+
+  .performance-card {
+    background: linear-gradient(135deg, #fefefe, #f1f5f9);
+    border: 2px solid #cbd5e1;
+  }
+
+  .performance-content {
+    padding: 1rem 0;
+  }
+
+  .performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .perf-section h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1e293b;
+  }
+
+  .perf-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .perf-list li {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    position: relative;
+    padding-left: 2.5rem;
+  }
+
+  .perf-list.positive li {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .perf-list.positive li::before {
+    content: "✅";
+    position: absolute;
+    left: 0.75rem;
+  }
+
+  .perf-list.caution li {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fed7aa;
+  }
+
+  .perf-list.caution li::before {
+    content: "⚠️";
+    position: absolute;
+    left: 0.75rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .overview-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .models-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .performance-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .algo-steps {
+      grid-template-columns: 1fr;
+    }
+
+    .formula-vars {
+      grid-template-columns: 1fr;
+    }
+
+    .group-item {
+      grid-template-columns: 40px 1fr;
+      gap: 0.75rem;
+    }
+
+    .group-codes {
+      grid-column: 1 / -1;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+  }
+</style>

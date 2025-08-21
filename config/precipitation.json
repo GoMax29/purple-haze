@@ -1,0 +1,118 @@
+{
+  "parameter": "precipitation",
+  "api_parameter": "precipitation",
+  "api_source": "api1",
+  "algorithm": "gaussian_weighted_log_optional",
+  "unit": "mm",
+  "output_format": "hourly_array",
+  "aggregation_params": {
+    "wet_threshold_mm": 0.1,
+    "use_log_transform": true,
+    "epsilon": 0.001,
+    "sigma_ratio": 0.2
+  },
+  "probability_params": {
+    "a": 0.6,
+    "b": 0.3,
+    "c": 0.1,
+    "neutral_mm": 0.3,
+    "mm_max": 3,
+    "epsilon": 0.001,
+    "day_decay_per_day": 0.025
+  },
+  "models": {
+    "meteofrance_arome_france": {
+      "name": "MF AROME FRANCE",
+      "short": "AROME FR",
+      "forecast_hours": [0, 53],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "meteofrance_arome_france_hd": {
+      "name": "MF AROME FRANCE HD",
+      "short": "AROME HD",
+      "forecast_hours": [0, 48],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "knmi_harmonie_arome_europe": {
+      "name": "KNMI HARMONIE AROME EU",
+      "short": "HARMONIE",
+      "forecast_hours": [0, 65],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ukmo_uk_deterministic_2km": {
+      "name": "UKMO DETERM 2KM",
+      "short": "UKMO 2K",
+      "forecast_hours": [0, 53],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "meteofrance_arpege_europe": {
+      "name": "MF ARPEGE EU",
+      "short": "ARPEGE EU",
+      "forecast_hours": [24, 104],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "icon_eu": {
+      "name": "ICON EU",
+      "short": "ICON EU",
+      "forecast_hours": [48, 122],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ukmo_global_deterministic_10km": {
+      "name": "UKMO GLOBAL DETERM 10KM",
+      "short": "UKMO 10K",
+      "forecast_hours": [48, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "gfs_global": {
+      "name": "GFS GLOBAL 0.1°/0.25°",
+      "short": "GFS",
+      "forecast_hours": [96, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "gfs_graphcast025": {
+      "name": "GFS GRAPHCAST",
+      "short": "GRAPHCAST",
+      "forecast_hours": [96, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ecmwf_ifs025": {
+      "name": "ECMWF IFS 0.25°",
+      "short": "ECMWF",
+      "forecast_hours": [60, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "icon_seamless": {
+      "name": "ICON Seamless",
+      "short": "ICON S",
+      "forecast_hours": [0, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "icon_global": {
+      "name": "ICON GLOBAL",
+      "short": "ICON G",
+      "forecast_hours": [96, 167],
+      "weight": 1.0,
+      "enabled": true
+    },
+    "ukmo_seamless": {
+      "name": "UKMO Seamless",
+      "short": "UKMO S",
+      "forecast_hours": [0, 167],
+      "weight": 1.0,
+      "enabled": true
+    }
+  },
+  "description": "Configuration pour le traitement des précipitations (agrégation mm et probabilité PoP simplifiée)",
+  "last_updated": "2025-08-10T00:00:00Z"
+}

@@ -1,0 +1,97 @@
+<div class="container">
+  <div class="card">
+    <div class="header-card">
+      <h2>🌪️ Force du Vent</h2>
+      <p>
+        Analyse de la force moyenne du vent avec pondération gaussienne des
+        modèles météo
+      </p>
+    </div>
+
+    <div class="loading-section">
+      <div id="wind-force-loading" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Chargement des données de force du vent...</p>
+      </div>
+      <div id="wind-force-error" class="error-message" style="display: none">
+        <p>Erreur lors du chargement des données</p>
+      </div>
+    </div>
+
+    <div id="wind-force-content" style="display: none">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Force Min</h3>
+          <p id="wind-force-min" class="stat-value">-- km/h</p>
+        </div>
+        <div class="stat-card">
+          <h3>Force Max</h3>
+          <p id="wind-force-max" class="stat-value">-- km/h</p>
+        </div>
+        <div class="stat-card">
+          <h3>Force Moyenne</h3>
+          <p id="wind-force-avg" class="stat-value">-- km/h</p>
+        </div>
+        <div class="stat-card">
+          <h3>Points de Données</h3>
+          <p id="wind-force-count" class="stat-value">--</p>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <h3>📈 Évolution de la Force du Vent (168h)</h3>
+        <div class="chart-container">
+          <canvas id="wind-force-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="algorithm-section">
+        <h3>🧮 Méthodologie</h3>
+        <div class="algorithm-info">
+          <div class="algorithm-step">
+            <h4>1. Collecte Multi-Modèles</h4>
+            <p>
+              Extraction des données <code>wind_speed_10m</code> depuis 10
+              modèles météo différents selon leurs échéances spécifiques.
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>2. Pondération Gaussienne</h4>
+            <p>
+              Application de l'algorithme <code>gaussian_weighted</code> avec
+              σ=1.5 centré sur la médiane des valeurs.
+            </p>
+          </div>
+          <div class="algorithm-step">
+            <h4>3. Agrégation Temporelle</h4>
+            <p>
+              Calcul heure par heure de 0h à 168h avec fallback vers moyenne
+              simple en cas d'erreur.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-table-section">
+        <h3>📊 Données Détaillées (24 premières heures)</h3>
+        <div class="table-container">
+          <table id="wind-force-table" class="data-table">
+            <thead>
+              <tr>
+                <th>Heure</th>
+                <th>Force (km/h)</th>
+                <th>Tendance</th>
+              </tr>
+            </thead>
+            <tbody id="wind-force-table-body">
+              <!-- Données générées dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

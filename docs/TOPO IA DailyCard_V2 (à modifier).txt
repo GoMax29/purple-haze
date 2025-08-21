@@ -1,0 +1,71 @@
+Implémente un composant météo basé sur DailyCard.tsx appelé DailyCard_V2.tsx et affichant les prévisions journalières comme suit, en te basant sur les données horaires fournies par les fichiers de traitement (incluant : date, heure, température, code WMO, indice UV, précipitations en mm). Les icônes météo sont déterminées par le code WMO agrégé sur chaque tranche horaire via l’algorithme du barycentre.
+
+Affichage par jour :
+
+Chaque jour est affiché sous forme d’un bandeau horizontal. (cf mock-up dans l'image en screenshot) 
+
+Format texte du titre :
+
+Pour le jour actuel → "Auj."
+
+Pour les autres jours → initiale du jour (L., M., Me., J., V., S., D.) + date (JJ).
+
+Dans chaque bandeau, affichage des tranches horaires :
+
+Nuit (00h-08h) → icône WMO agrégée.
+
+08h-12h → icône WMO agrégée.
+
+12h-16h → icône WMO agrégée plus grande que les autres, fond plus clair que le reste du bandeau pour mettre en avant cette tranche.
+
+16h-20h → icône WMO agrégée.
+
+20h-00h → icône WMO agrégée.
+
+Températures min et max affichées en fin de ligne (min° / max°).
+
+UV max et précipitations totales de la journée (UV en valeur numérique, mm en valeur numérique avec unité).
+
+Différence jour actuel vs jours suivants :
+
+Jour actuel (Auj.) → toutes les infos visibles par défaut : texte jour, toutes les icônes de tranches horaires, min/max, UV, mm.
+
+Autres jours → affichent seulement : texte jour/date, icône de la tranche 12h-16h, températures min et max.
+Les autres icônes et infos existent en arrière-plan mais sont masquées par un bandeau semi-transparent bleu foncé (opacité 85%).
+Au survol (hover) ou clic sur le bandeau → le bandeau disparaît (ou se réduit en fondu) pour révéler toutes les infos.
+
+Détails visuels :
+
+Bandeaux en fond bleu foncé.
+
+Pour 12-16h → fond plus clair (contraste net), icône WMO plus grande (environ 150% de la taille standard).
+
+Les autres tranches → icônes de taille standard.
+
+Les unités (°, mm) sont toujours affichées avec la valeur.
+
+Disposition responsive : icônes et texte restent alignés même sur petit écran.
+
+Interactions :
+
+Par défaut : seul "Auj." est complètement affiché.
+
+Clic sur un autre jour → le bandeau Auj. se transforme comme les autres jours de la semaine (opacité 85% sur info secondaire)  ce jour affiche toutes les infos (opacité 0%) 
+
+Données :
+
+Les données proviennent des fichiers horaires, déjà traitées pour que chaque heure ait : date ISO, heure locale, température, code WMO, UV, précipitations mm.
+
+L’agrégation WMO par tranche horaire doit être faite par barycentre (moyenne pondérée sur 4h ou 8h selon la tranche).
+
+Temp min/max → calculées sur la journée.
+
+UV max → maximum de la journée.
+
+mm totaux → somme sur la journée.
+
+Bonus / précision : 
+implémente le tout dans test-ui et 
+Sous le label "Prévisions 7 jours"
+affiche la légende (cf image screenshot "|Nuit| 8-12 | etc.." ) aligné au bon emplacement, juste après la date.
+ne harcode aucune donnée ! (sauf légende) et branche nos fichier de traitement sur l'app : les boutons PlomeurLa Torche Plonéour Surzur Montaigu-Vendée Ploudal-Maison doivent marcher également ! 

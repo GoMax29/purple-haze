@@ -1,0 +1,11 @@
+---
+description: "File and folder architecture rules for the weather/surf app"
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- Main structure: `/src/app`, `/src/components`, `/src/store`, `/src/shared`, `/src/styles`
+- Group components by feature (`/forecast`, `/spot`) or type (`/ui`, `/charts`)
+- Place API routes in `/pages/api/` or `/app/api/` (Next.js 13+)
+- Put generic UI elements in `/components/ui/`, domain-specific in `/components/feature/`
+- Store Zustand state logic inside `/src/store`

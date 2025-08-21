@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .weather-card {
+    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20;
+  }
+
+  .surf-card {
+    @apply bg-surf-50/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-surf-200/20;
+  }
+
+  .gradient-ocean {
+    @apply bg-gradient-to-br from-ocean-500 to-ocean-700;
+  }
+
+  .gradient-surf {
+    @apply bg-gradient-to-br from-surf-500 to-surf-700;
+  }
+}

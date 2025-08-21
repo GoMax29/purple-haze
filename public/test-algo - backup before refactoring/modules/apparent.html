@@ -1,0 +1,276 @@
+<!-- Module Température Apparente -->
+<div class="content-module">
+  <!-- En-tête du module -->
+  <div class="module-header">
+    <h2 class="module-title">
+      <span>🌡️</span>
+      Analyse Température Apparente
+    </h2>
+    <p class="module-description">
+      Température ressentie avec pondération gaussienne multi-modèles (σ=1.5)
+    </p>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="stats-grid" id="apparent-stats">
+    <div class="stat-card loading">
+      <div class="stat-value">---</div>
+      <div class="stat-label">Points de données</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--°C</div>
+      <div class="stat-label">Sensation moyenne</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--°C</div>
+      <div class="stat-label">Écart max/min</div>
+    </div>
+  </div>
+
+  <!-- Graphique principal -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📊 Évolution de la Sensation Thermique (7 jours)</h3>
+      <div class="card-actions">
+        <span class="badge">Feels Like</span>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="apparent-temperature-chart" width="800" height="400"></canvas>
+    </div>
+  </div>
+
+  <!-- Tableau des données -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📋 Tableau des Sensations Thermiques</h3>
+      <div class="card-actions">
+        <span class="info-badge">Toutes les 6h</span>
+      </div>
+    </div>
+    <div class="table-container" id="apparent-temperature-table">
+      <div class="table-loading">
+        <div class="spinner"></div>
+        <p>Chargement du tableau...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparaison Température vs Apparente -->
+  <div class="card comparison-card">
+    <div class="card-header">
+      <h3>🔄 Comparaison T° réelle vs ressentie</h3>
+      <div class="card-actions">
+        <span class="method-badge">Analyse différentielle</span>
+      </div>
+    </div>
+    <div class="comparison-content">
+      <div class="comparison-grid">
+        <div class="comparison-section">
+          <h4>🌡️ Température Réelle</h4>
+          <div class="temp-display">
+            <span class="temp-value-large" id="real-temp">--°C</span>
+            <span class="temp-label">Mesure directe</span>
+          </div>
+        </div>
+
+        <div class="comparison-arrow">
+          <span>→</span>
+        </div>
+
+        <div class="comparison-section">
+          <h4>🌬️ Température Ressentie</h4>
+          <div class="temp-display">
+            <span class="temp-value-large apparent" id="apparent-temp"
+              >--°C</span
+            >
+            <span class="temp-label">Avec vent & humidité</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="difference-indicator">
+        <div class="diff-label">Différence ressentie:</div>
+        <div class="diff-value" id="temp-difference">--°C</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemple de calcul -->
+  <div class="card methodology-card">
+    <div class="card-header">
+      <h3>🧮 Exemple de Calcul (h+24)</h3>
+      <div class="card-actions">
+        <span class="method-badge">Gaussien</span>
+      </div>
+    </div>
+    <div class="methodology-content">
+      <div class="method-grid">
+        <div class="method-section">
+          <h4>📥 Valeurs brutes des modèles</h4>
+          <div class="method-values">
+            <div class="model-value">
+              <span class="model-name">MF AROME FRANCE</span>
+              <span class="model-val">13.8°C</span>
+            </div>
+            <div class="model-value">
+              <span class="model-name">ICON-EU</span>
+              <span class="model-val">13.4°C</span>
+            </div>
+            <div class="model-value">
+              <span class="model-name">UKMO DETERM 2KM</span>
+              <span class="model-val">14.1°C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="method-section">
+          <h4>⚙️ Calcul gaussien</h4>
+          <div class="method-calculation">
+            <div class="calc-step">
+              <span class="calc-label">Médiane:</span>
+              <span class="calc-value">13.8°C</span>
+            </div>
+            <div class="calc-step">
+              <span class="calc-label">Poids:</span>
+              <span class="calc-value">[0.325, 0.35, 0.325]</span>
+            </div>
+            <div class="calc-result">
+              <span class="calc-label">Résultat final:</span>
+              <span class="calc-final">13.8°C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informations spécifiques -->
+  <div class="alert alert--info">
+    <div class="alert-icon">💡</div>
+    <div>
+      <strong>À propos de la température apparente</strong>
+      <p>
+        La température apparente (ou "feels like") prend en compte l'effet du
+        vent, de l'humidité et d'autres facteurs pour estimer la sensation
+        thermique réelle ressentie par le corps humain. Elle peut différer
+        significativement de la température mesurée, notamment par vent fort ou
+        forte humidité.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Styles spécifiques au module température apparente */
+  .comparison-card {
+    background: linear-gradient(135deg, #fefefe, #fef3c7);
+    border: 2px solid var(--accent-light);
+  }
+
+  .comparison-content {
+    padding: 1rem 0;
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .comparison-section {
+    text-align: center;
+  }
+
+  .comparison-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+  }
+
+  .temp-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+  }
+
+  .temp-value-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+  }
+
+  .temp-value-large.apparent {
+    color: #f59e0b;
+  }
+
+  .temp-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .comparison-arrow {
+    font-size: 2rem;
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  .difference-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(
+      135deg,
+      var(--accent-light),
+      rgba(251, 191, 36, 0.1)
+    );
+    border-radius: 0.75rem;
+    border: 1px solid var(--accent);
+  }
+
+  .diff-label {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .diff-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    font-family: "Courier New", monospace;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .comparison-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .comparison-arrow {
+      transform: rotate(90deg);
+      font-size: 1.5rem;
+    }
+
+    .difference-indicator {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .temp-value-large {
+      font-size: 2rem;
+    }
+  }
+</style>

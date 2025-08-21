@@ -1,0 +1,23 @@
+---
+description: "Rules for documentation and debugging"
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- All external APIs (e.g., weather, swell) must be documented in `docs/Documentation.md`:
+
+  - endpoint structure
+  - used parameters
+  - example request/response
+
+- Any custom algorithm (e.g., Gaussian, swell/precip weighting) must be documented in markdown.
+
+- Update `docs/Project.md` with:
+
+  - milestones
+  - current task
+  - TODO / IN PROGRESS / DONE list
+
+- Maintain a local `this.log` file for runtime debugging output (pasted by the user when needed).
+
+- Maintain a `docs/index.json` file (grep-based) to quickly reference existing markdown content.

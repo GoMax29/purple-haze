@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interface Test Météorologique - Algorithmes Avancés</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- CSS Variables pour les thèmes -->
+    <style>
+      :root {
+        --accent: #f97316;
+        --accent-light: #ffedd5;
+        --accent-dark: #ea580c;
+      }
+    </style>
+  </head>
+  <body class="theme-temp">
+    <!-- Header Principal -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="header-left">
+            <div class="logo">
+              <span class="logo-icon">🌩️</span>
+              <div class="logo-text">
+                <h1>Interface Test Météorologique</h1>
+                <p>Analyse des algorithmes de pondération avancés</p>
+              </div>
+            </div>
+          </div>
+          <div class="header-right">
+            <div class="location-badge">
+              <div class="status-dot"></div>
+              <span>📍 Plomeur, Bretagne (47.8322°N, -4.2967°W)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation des Onglets -->
+    <nav class="tabs-nav" role="tablist">
+      <div class="container">
+        <div class="tabs-wrapper">
+          <button
+            class="tab-button active"
+            data-tab="temp"
+            role="tab"
+            aria-selected="true"
+            aria-controls="content"
+          >
+            <div class="tab-icon">🌡️</div>
+            <div class="tab-content">
+              <div class="tab-label">Température</div>
+              <div class="tab-unit">°C</div>
+            </div>
+          </button>
+
+          <button
+            class="tab-button"
+            data-tab="apparent"
+            role="tab"
+            aria-selected="false"
+            aria-controls="content"
+          >
+            <div class="tab-icon">🌡️</div>
+            <div class="tab-content">
+              <div class="tab-label">Temp. Apparente</div>
+              <div class="tab-unit">°C</div>
+            </div>
+          </button>
+
+          <button
+            class="tab-button"
+            data-tab="humidite"
+            role="tab"
+            aria-selected="false"
+            aria-controls="content"
+          >
+            <div class="tab-icon">💧</div>
+            <div class="tab-content">
+              <div class="tab-label">Humidité</div>
+              <div class="tab-unit">%</div>
+            </div>
+          </button>
+
+          <button
+            class="tab-button"
+            data-tab="wmo"
+            role="tab"
+            aria-selected="false"
+            aria-controls="content"
+          >
+            <div class="tab-icon">🌤️</div>
+            <div class="tab-content">
+              <div class="tab-label">Code WMO</div>
+              <div class="tab-unit">code</div>
+            </div>
+          </button>
+
+          <button
+            class="tab-button"
+            data-tab="methodo"
+            role="tab"
+            aria-selected="false"
+            aria-controls="content"
+          >
+            <div class="tab-icon">🧠</div>
+            <div class="tab-content">
+              <div class="tab-label">Méthodologie</div>
+              <div class="tab-unit">docs</div>
+            </div>
+          </button>
+
+          <!-- Indicateur actif -->
+          <div class="tab-indicator" aria-hidden="true"></div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main class="main-content">
+      <div class="container">
+        <div id="content" class="content-area" role="tabpanel">
+          <!-- Le contenu des onglets sera injecté ici -->
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement des données...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="milestone-info">
+            <div class="milestone-icon">⚡</div>
+            <div class="milestone-text">
+              <h4>Milestone 2 - Traitement Modulaire</h4>
+              <p>Architecture métier séparée de l'affichage</p>
+            </div>
+          </div>
+          <div class="footer-stats">
+            <div class="stat-item">
+              <span class="stat-dot stat-success"></span>
+              <span>Fonctions de traitement modularisées</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-dot stat-info"></span>
+              <span>APIs multi-modèles (13 modèles actifs)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+  </body>
+</html>

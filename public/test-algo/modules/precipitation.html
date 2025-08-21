@@ -1,0 +1,540 @@
+<!-- Module Précipitations mm/% -->
+<div class="content-module">
+  <!-- En-tête du module -->
+  <div class="module-header">
+    <h2 class="module-title">
+      <span>🌧️</span>
+      Analyse Précipitations mm/%
+    </h2>
+    <p class="module-description">
+      Agrégation gaussienne logarithmique • Probabilité PoP • Analyse sur 168h
+      (7 jours)
+    </p>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="stats-grid" id="precip-stats">
+    <div class="stat-card loading">
+      <div class="stat-value">---</div>
+      <div class="stat-label">Points de données</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--mm</div>
+      <div class="stat-label">Précip. maximale</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--%</div>
+      <div class="stat-label">PoP moyenne</div>
+    </div>
+    <div class="stat-card loading">
+      <div class="stat-value">--</div>
+      <div class="stat-label">Heures mouillantes</div>
+    </div>
+  </div>
+
+  <!-- PARTIE 1: Chart barres empilées -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📊 Barres empilées — Précipitations (168h)</h3>
+      <div class="card-actions"></div>
+    </div>
+    <div class="chart-container" style="position: relative">
+      <button
+        id="precip-zoom-reset"
+        style="
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          display: none;
+          padding: 6px 10px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          background: #2563eb;
+          color: #fff;
+          cursor: pointer;
+          font-size: 12px;
+        "
+      >
+        Reset Zoom
+      </button>
+      <canvas id="precipitation-chart" width="1200" height="500"></canvas>
+    </div>
+    <div
+      id="precip-hour-stats"
+      style="
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 10px 0 4px 0;
+        font-size: 12px;
+      "
+    >
+      <!-- Stats heure courante: PoP, proportion, IQR, CI → mis à jour au survol -->
+    </div>
+    <!-- Légende native Chart.js affichée au-dessus du graphique (aucune légende custom) -->
+  </div>
+
+  <!-- PARTIE 2: Panel widget - 6 méthodes de visualisation -->
+  <div class="card">
+    <div class="card-header">
+      <h3>🎨 Panel Widget - 6 Méthodes de Visualisation</h3>
+      <div class="card-actions">
+        <span class="info-badge">Heures mouillantes uniquement</span>
+      </div>
+    </div>
+
+    <div class="visualization-grid">
+      <!-- Méthode 1: Simple barre mm + % -->
+      <div class="viz-method" data-method="simple">
+        <div class="method-header">
+          <h4>1. Simple barre mm + %</h4>
+          <p>Barre agrégée + pastille PoP</p>
+        </div>
+        <div class="method-content" id="viz-simple">
+          <!-- Contenu généré par JS -->
+        </div>
+      </div>
+
+      <!-- Méthode 2: Empilement par modèle -->
+      <div class="viz-method" data-method="stacked">
+        <div class="method-header">
+          <h4>2. Empilement par modèle</h4>
+          <p>Barres empilées du moins au plus mouillant</p>
+        </div>
+        <div class="method-content" id="viz-stacked">
+          <!-- Contenu généré par JS -->
+        </div>
+      </div>
+
+      <!-- Méthode 3: Palette unique + translation verticale -->
+      <div class="viz-method" data-method="spaghetti">
+        <div class="method-header">
+          <h4>3. Palette unique + spaghetti</h4>
+          <p>Agrégé en fond + lignes décalées</p>
+        </div>
+        <div class="method-content" id="viz-spaghetti">
+          <!-- Contenu généré par JS -->
+        </div>
+      </div>
+
+      <!-- Méthode 4: Histogramme / densité -->
+      <div class="viz-method" data-method="histogram">
+        <div class="method-header">
+          <h4>4. Histogramme / densité</h4>
+          <p>Mini-histogramme vertical par heure</p>
+        </div>
+        <div class="method-content" id="viz-histogram">
+          <!-- Contenu généré par JS -->
+        </div>
+      </div>
+
+      <!-- Méthode 5: Envelope + médiane + points -->
+      <div class="viz-method" data-method="envelope">
+        <div class="method-header">
+          <h4>5. Envelope + médiane + points</h4>
+          <p>Couloir min-max + médiane + modèles</p>
+        </div>
+        <div class="method-content" id="viz-envelope">
+          <!-- Contenu généré par JS -->
+        </div>
+      </div>
+
+      <!-- Méthode 6: Polar Area comparaison par modèles (slider 0-168h) -->
+      <div class="viz-method" data-method="polar">
+        <div class="method-header">
+          <h4>6. Polar Area — Comparaison par modèles</h4>
+          <p>Un graphique par heure, navigation avec le slider</p>
+        </div>
+        <div
+          class="method-content"
+          id="viz-polar"
+          style="flex-direction: column; gap: 12px"
+        >
+          <div style="width: 100%; display: flex; justify-content: center">
+            <canvas id="precip-polar-canvas" width="360" height="360"></canvas>
+          </div>
+          <div
+            style="
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <input
+              id="precip-polar-slider"
+              type="range"
+              min="0"
+              max="168"
+              step="1"
+              value="0"
+              style="width: 80%"
+            />
+            <div
+              id="precip-polar-label"
+              style="font-size: 12px; color: #374151"
+            >
+              Heure: --
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTIE 3: Explication détaillée sur une heure -->
+  <div class="card detailed-analysis">
+    <div class="card-header">
+      <h3>🔍 Analyse Détaillée - Heure la Plus Mouillante</h3>
+      <div class="card-actions">
+        <span class="method-badge" id="selected-hour-badge">H+--</span>
+      </div>
+    </div>
+
+    <div class="detailed-content">
+      <!-- Résumé de l'heure -->
+      <div class="hour-summary" id="hour-summary">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">Heure</div>
+            <div class="summary-value" id="selected-hour">--</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">mm agrégé</div>
+            <div class="summary-value" id="selected-mm">--</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Modèles mouillants</div>
+            <div class="summary-value" id="selected-wet-count">--</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">CI (%)</div>
+            <div class="summary-value" id="selected-ci">--</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">IQR (mm)</div>
+            <div class="summary-value" id="selected-iqr">--</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">PoP (%)</div>
+            <div class="summary-value" id="selected-pop">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détail des modèles mouillants -->
+      <div class="models-detail">
+        <h4>📋 Modèles Mouillants</h4>
+        <div class="models-table" id="wet-models-table">
+          <!-- Tableau généré par JS -->
+        </div>
+      </div>
+
+      <!-- Calculs pas-à-pas -->
+      <div class="calculation-steps">
+        <h4>🧮 Calculs Pas-à-Pas</h4>
+        <div class="steps-container" id="calculation-steps">
+          <!-- Étapes générées par JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informations méthodologiques -->
+  <div class="alert alert--info">
+    <div class="alert-icon">💡</div>
+    <div>
+      <strong>À propos de l'algorithme de précipitations</strong>
+      <p>
+        L'agrégation utilise une pondération gaussienne avec transformation
+        logarithmique optionnelle. Les modèles "mouillants" (> seuil configuré)
+        sont pondérés selon leur distance à la médiane. La probabilité PoP
+        combine la proportion de modèles mouillants, l'intensité agrégée et
+        l'échéance temporelle.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Styles spécifiques au module précipitations */
+
+  /* Grille des statistiques */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Chart container */
+  .chart-container {
+    position: relative;
+    height: 500px;
+    margin-bottom: 1rem;
+  }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: white;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  /* Grille des méthodes de visualisation */
+  .visualization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .viz-method {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.25s ease;
+  }
+
+  .viz-method:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .method-header {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .method-header h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .method-header p {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .method-content {
+    padding: 1rem;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+  }
+
+  /* Analyse détaillée */
+  .detailed-analysis {
+    background: linear-gradient(135deg, #fefefe, #f0f9ff);
+    border: 2px solid var(--accent-light);
+  }
+
+  .detailed-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .hour-summary {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .summary-item {
+    text-align: center;
+  }
+
+  .summary-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .summary-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+  }
+
+  .models-detail,
+  .calculation-steps {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .models-detail h4,
+  .calculation-steps h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .models-table {
+    overflow-x: auto;
+  }
+
+  .wet-models {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .wet-models th,
+  .wet-models td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .wet-models th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .model-color-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .calc-step {
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--accent);
+  }
+
+  .step-title {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .step-content {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-family: "Courier New", monospace;
+  }
+
+  .step-result {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    border-left-color: white;
+  }
+
+  .step-result .step-title,
+  .step-result .step-content {
+    color: white;
+  }
+
+  /* Actions et boutons */
+  .btn-action {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-action:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  .btn-action.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .visualization-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-container {
+      height: 300px;
+    }
+
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+
+  /* Thème spécifique aux précipitations */
+  .theme-precipitation {
+    --accent: #3b82f6;
+    --accent-light: #dbeafe;
+    --accent-dark: #1e40af;
+  }
+</style>

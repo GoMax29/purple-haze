@@ -1,0 +1,17 @@
+---
+description: "React, JavaScript and Tailwind coding conventions"
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+alwaysApply: true
+---
+
+- Use functional components and React hooks (`useState`, `useEffect`, etc.)
+- Only use `use client` when strictly required
+- Prefer reusable hooks (`useFetchForecast`, `useSpotData`)
+- Prefer `const MyComponent = () => {}`; use `function` only if it improves clarity
+- Callback functions must be clearly named (`handleClick`, `toggleModal`)
+- Keep each component single-responsibility and testable
+- Avoid unnecessary dependencies
+- Never leave `console.log` in production code (use `this.log` if debugging temporarily)
+- Use TailwindCSS for all styling (no inline styles unless minor exceptions)
+- Always prefer Tailwind class names over dynamic class generation
+- Follow accessible UI principles (`aria-*`, `tabIndex`, responsive layout)

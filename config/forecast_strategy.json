@@ -1,0 +1,125 @@
+{
+  "temperature": {
+    "0-48h": {
+      "models": ["arome", "graphcast", "icon_eu"],
+      "method": "mean_trimmed",
+      "trim_percent": 0.2
+    },
+    "48-120h": {
+      "models": ["ecmwf", "ukmo", "gfs"],
+      "method": "median"
+    },
+    "120h+": {
+      "models": ["ecmwf", "gfs", "gem"],
+      "method": "weighted_average",
+      "weights": {
+        "ecmwf": 0.5,
+        "gfs": 0.3,
+        "gem": 0.2
+      }
+    }
+  },
+  "precipitation": {
+    "0-24h": {
+      "models": ["arome_hd", "knmi", "arp"],
+      "method": "weighted_average",
+      "weights": {
+        "arome_hd": 0.5,
+        "knmi": 0.3,
+        "arp": 0.2
+      }
+    },
+    "24-72h": {
+      "models": ["arome", "icon_eu", "ecmwf"],
+      "method": "mean_trimmed",
+      "trim_percent": 0.15
+    },
+    "72h+": {
+      "models": ["ecmwf", "gfs", "ukmo"],
+      "method": "median"
+    }
+  },
+  "wind": {
+    "0-48h": {
+      "models": ["arome", "icon_eu", "knmi", "graphcast"],
+      "method": "median"
+    },
+    "48-120h": {
+      "models": ["ecmwf", "ukmo", "gfs"],
+      "method": "gaussian_weighted",
+      "sigma": 1.2
+    },
+    "120h+": {
+      "models": ["ecmwf", "gfs", "gem", "icon_global"],
+      "method": "mean_trimmed",
+      "trim_percent": 0.25
+    }
+  },
+  "pressure": {
+    "0-120h": {
+      "models": ["ecmwf", "gfs", "arome", "ukmo"],
+      "method": "gaussian_weighted",
+      "sigma": 1.5
+    },
+    "120h+": {
+      "models": ["ecmwf", "gfs", "gem"],
+      "method": "weighted_average",
+      "weights": {
+        "ecmwf": 0.6,
+        "gfs": 0.25,
+        "gem": 0.15
+      }
+    }
+  },
+  "humidity": {
+    "0-48h": {
+      "models": ["arome", "arome_hd", "knmi"],
+      "method": "mean_trimmed",
+      "trim_percent": 0.2
+    },
+    "48h+": {
+      "models": ["ecmwf", "ukmo", "gfs", "arp"],
+      "method": "median"
+    }
+  },
+  "config_metadata": {
+    "version": "1.0.0",
+    "created_at": "2024-01-15T10:00:00Z",
+    "description": "Configuration de stratégie pour prévisions météo Bretagne",
+    "last_modified": "2024-01-15T10:00:00Z",
+    "author": "Weather Surf Team",
+    "validation_rules": {
+      "min_models_per_horizon": 2,
+      "max_trim_percent": 0.4,
+      "supported_methods": [
+        "mean",
+        "median",
+        "mean_trimmed",
+        "weighted_average",
+        "gaussian_weighted",
+        "max",
+        "min",
+        "first_available",
+        "best_model"
+      ]
+    },
+    "model_priorities": {
+      "short_term": ["arome_hd", "arome", "graphcast", "knmi"],
+      "medium_term": ["ecmwf", "icon_eu", "ukmo", "arp"],
+      "long_term": ["ecmwf", "gfs", "ukmo", "gem", "icon_global"]
+    },
+    "regional_adjustments": {
+      "bretagne": {
+        "coastal_influence": true,
+        "precipitation_boost": {
+          "models": ["arome_hd", "knmi"],
+          "multiplier": 1.1
+        },
+        "wind_coastal_correction": {
+          "enabled": true,
+          "factor": 0.85
+        }
+      }
+    }
+  }
+}

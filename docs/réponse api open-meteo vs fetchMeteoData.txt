@@ -1,0 +1,106 @@
+code wmo api direct : 
+"weather_code_ecmwf_ifs025": [2, 1, 0,
+"weather_code_icon_global": [3, 3, 2,
+"weather_code_icon_eu": [3, 3, 3
+"weather_code_gfs_global": [51, 3, 3,
+"weather_code_gfs_graphcast025": [51, 51, 51,
+"weather_code_meteofrance_arpege_europe": [51, 3, 3
+"weather_code_meteofrance_arome_france_hd": [null, null, null
+"weather_code_meteofrance_arome_france": [3, 3, 0,
+"weather_code_ukmo_global_deterministic_10km": [51, 3, 2,
+"weather_code_ukmo_uk_deterministic_2km": [51, 51, 3,
+"weather_code_knmi_harmonie_arome_europe": [51, 3, 0,
+
+code wmo renvoyé par fetchMeteoData.js
+
+
+"weather_code_ecmwf_ifs025": [
+        2,
+        1,
+        0,
+"weather_code_gfs_global": [
+        3,
+        3,
+        0,
+
+ "weather_code_gfs_graphcast025": [
+        0,
+        0,
+        0,
+
+"weather_code_icon_global": [
+        3,
+        3,
+        2,
+
+"weather_code_icon_eu": [
+        3,
+        3,
+        3,
+
+
+ "weather_code_knmi_harmonie_arome_europe": [
+        51,
+        3,
+        0,
+
+
+ "weather_code_meteofrance_arpege_europe": [
+        3,
+        2,
+        2,
+
+
+"weather_code_meteofrance_arome_france": [
+        3,
+        0,
+        0,
+
+
+ "weather_code_meteofrance_arome_france_hd": [
+        null,
+        null,
+        null,
+
+
+"weather_code_ukmo_global_deterministic_10km": [
+        3,
+        3,
+        3,
+
+
+ "weather_code_ukmo_uk_deterministic_2km": [
+        51,
+        3,
+        3,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
