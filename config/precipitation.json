@@ -6,7 +6,7 @@
   "unit": "mm",
   "output_format": "hourly_array",
   "aggregation_params": {
-    "wet_threshold_mm": 0.1,
+    "wet_threshold_mm": 0.0,
     "use_log_transform": true,
     "epsilon": 0.001,
     "sigma_ratio": 0.2

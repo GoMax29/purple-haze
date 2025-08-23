@@ -4,6 +4,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { DailyWeatherData } from "@/types/dailyData";
 import { getDayNightStateAt } from "@/utils/dayNight";
 import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
+import {
+  TimezoneInfo,
+  formatHourSlot,
+  getCurrentHourInTimezone,
+  isCurrentHourInTimezone,
+  getCurrentDateStringInTimezone,
+} from "@/utils/timezoneHelper";
 
 interface HourlySlot {
   time: string; // ISO string
@@ -18,12 +25,14 @@ interface HourlySectionProps {
   selectedDayIndex: number;
   dailyData: DailyWeatherData[];
   hourlyData: any[]; // Données horaires pré-calculées (168h)
+  timezoneInfo?: TimezoneInfo;
 }
 
 const HourlySlotsSection: React.FC<HourlySectionProps> = ({
   selectedDayIndex,
   dailyData,
   hourlyData,
+  timezoneInfo,
 }) => {
   const [hourlySlots, setHourlySlots] = useState<HourlySlot[]>([]);
   const [title, setTitle] = useState("Aujourd'hui");
@@ -48,14 +57,25 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
       const slots = generateHourlySlots(hourlyData, selectedDayIndex);
       setHourlySlots(slots);
     }
-  }, [selectedDayIndex, hourlyData?.length, dailyData?.length]); // Dépendances optimisées
+  }, [
+    selectedDayIndex,
+    hourlyData?.length,
+    dailyData?.length,
+    timezoneInfo?.timezone,
+  ]); // Recalcule quand la timezone arrive
 
   useEffect(() => {
-    // Scroll initial à 08h quand on change de jour (sauf pour aujourd'hui)
-    if (selectedDayIndex > 0 && scrollRef.current && hourlySlots.length > 0) {
+    if (!scrollRef.current || hourlySlots.length === 0) return;
+
+    if (selectedDayIndex === 0) {
+      // Aujourd'hui: centrer sur l'heure courante (slot "maint.")
+      const h = getCurrentHourInTimezone(timezoneInfo?.timezone);
+      scrollToHour(h);
+    } else {
+      // Autres jours: afficher à 08h par défaut
       scrollToHour(8);
     }
-  }, [selectedDayIndex, hourlySlots]);
+  }, [selectedDayIndex, hourlySlots, timezoneInfo?.timezone]);
 
   const updateTitle = () => {
     if (selectedDayIndex === 0) {
@@ -100,31 +120,18 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
   ): HourlySlot[] => {
     if (!hourlyData.length) return [];
 
-    const now = new Date();
-    const currentHour = now.getHours();
     const slots: HourlySlot[] = [];
 
-    if (dayIndex === 0) {
-      // Aujourd'hui : démarrer à l'heure courante, 24h suivantes
-      const startIndex = Math.min(currentHour, hourlyData.length - 24);
-      for (let i = 0; i < 24 && startIndex + i < hourlyData.length; i++) {
-        const hourData = hourlyData[startIndex + i];
-        if (hourData) {
-          slots.push(
-            createHourlySlot(hourData, hourlyData, startIndex + i, dayIndex)
-          );
-        }
-      }
-    } else {
-      // Autres jours : 24h complètes (00h → 23h)
-      const dayStartIndex = dayIndex * 24;
-      for (let i = 0; i < 24 && dayStartIndex + i < hourlyData.length; i++) {
-        const hourData = hourlyData[dayStartIndex + i];
-        if (hourData) {
-          slots.push(
-            createHourlySlot(hourData, hourlyData, dayStartIndex + i, dayIndex)
-          );
-        }
+    // Calcul du point de départ
+    const currentHour = getCurrentHourInTimezone(timezoneInfo?.timezone);
+    const startIndex = dayIndex === 0 ? currentHour : dayIndex * 24;
+
+    for (let i = 0; i < 24 && startIndex + i < hourlyData.length; i++) {
+      const hourData = hourlyData[startIndex + i];
+      if (hourData) {
+        slots.push(
+          createHourlySlot(hourData, hourlyData, startIndex + i, dayIndex)
+        );
       }
     }
 
@@ -137,27 +144,40 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
     hourIndex: number,
     dayIndex: number
   ): HourlySlot => {
-    const date = new Date(hourData.time);
-    const hour = date.getHours();
-    const isCurrentHour = dayIndex === 0 && hour === new Date().getHours();
+    // Parser ISO local "YYYY-MM-DDTHH:mm" pour éviter l'interprétation UTC
+    const y = Number(hourData.time.slice(0, 4));
+    const mo = Number(hourData.time.slice(5, 7));
+    const d = Number(hourData.time.slice(8, 10));
+    const h = Number(hourData.time.slice(11, 13));
+    const mi = Number(hourData.time.slice(14, 16));
+    const date = new Date(y, mo - 1, d, h, mi);
 
-    // Format de l'heure
-    const hourDisplay = isCurrentHour ? "maint." : `${hour}h`;
+    // Vérifier si c'est l'heure courante en utilisant la timezone
+    const isCurrentHour =
+      dayIndex === 0 &&
+      isCurrentHourInTimezone(hourData.time, timezoneInfo?.timezone);
+
+    // Format de l'heure selon la timezone
+    const hourDisplay = formatHourSlot(
+      hourData.time,
+      timezoneInfo?.timezone,
+      isCurrentHour
+    );
 
     // Détecter si cette heure appartient à J+1 (pour "Aujourd'hui")
-    const slotDate = date.toISOString().slice(0, 10); // YYYY-MM-DD de l'heure
+    const slotDate = hourData.time.slice(0, 10); // YYYY-MM-DD (déjà locale)
 
     // Trouver le bon dayData selon la date de l'heure
     let targetDayData = dailyData[dayIndex];
 
     // Si "Aujourd'hui" et que l'heure est de J+1, utiliser les données de J+1
     if (dayIndex === 0) {
-      const todayDate = new Date().toISOString().slice(0, 10);
+      const todayDate = getCurrentDateStringInTimezone(timezoneInfo?.timezone);
       if (slotDate !== todayDate) {
         // Cette heure est de J+1, utiliser les données sunrise/sunset de J+1
         targetDayData = dailyData[1] || dailyData[0];
         console.log(
-          `🌅 [HourlySlotsSection] Heure ${hour}h de J+1 détectée, utilisation sunrise/sunset de J+1`
+          `🌅 [HourlySlotsSection] Heure ${date.getHours()}h de J+1 détectée, utilisation sunrise/sunset de J+1`
         );
       }
     }
@@ -190,8 +210,8 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
 
     // Trouver l'index du slot correspondant à l'heure cible
     const targetIndex = hourlySlots.findIndex((slot) => {
-      const date = new Date(slot.time);
-      return date.getHours() === targetHour;
+      const hour = parseInt(slot.time.slice(11, 13), 10);
+      return hour === targetHour;
     });
 
     if (targetIndex >= 0) {

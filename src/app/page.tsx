@@ -9,6 +9,7 @@ import {
 } from "@/services/localStorage";
 import { fetchForecastData } from "@/services/forecastService";
 import { DailyWeatherData } from "@/types/dailyData";
+import { fetchCurrentWeather } from "@/lib/fetchMeteoData.js";
 // Import des anciens composants (à adapter selon la structure existante)
 // import NowForecast from "@/components/NowForecast";
 // import HourlyForecast from "@/components/HourlyForecast";
@@ -26,6 +27,8 @@ export default function HomePage() {
   );
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [currentTime, setCurrentTime] = useState<string>("--:--");
+  const [currentWeatherData, setCurrentWeatherData] = useState<any>(null);
+  const [loadingCurrentWeather, setLoadingCurrentWeather] = useState(false);
 
   const DEFAULT_LOCATION: LocationData = {
     id: "plomeur-default",
@@ -44,6 +47,7 @@ export default function HomePage() {
     const location = savedLocation || DEFAULT_LOCATION;
     setCurrentLocation(location);
     fetchWeatherData(location.lat, location.lon);
+    fetchCurrentWeatherData(location.lat, location.lon, location.name);
     // Heures côté client uniquement pour éviter les mismatches SSR/CSR
     const update = () =>
       setCurrentTime(
@@ -66,10 +70,41 @@ export default function HomePage() {
     }
   };
 
+  const fetchCurrentWeatherData = async (
+    lat: number,
+    lon: number,
+    locationName: string
+  ) => {
+    setLoadingCurrentWeather(true);
+    try {
+      console.log(
+        `🔄 Récupération données current pour ${locationName} (${lat}, ${lon})`
+      );
+      const currentData = await fetchCurrentWeather(lat, lon, {
+        name: locationName,
+        forceRefresh: false,
+      });
+      setCurrentWeatherData(currentData);
+      console.log(
+        `✅ Données current récupérées pour ${locationName}`,
+        currentData
+      );
+    } catch (error) {
+      console.error(
+        `❌ Erreur lors de la récupération des données current:`,
+        error
+      );
+      setCurrentWeatherData(null);
+    } finally {
+      setLoadingCurrentWeather(false);
+    }
+  };
+
   const handleLocationSelect = (location: LocationData) => {
     setCurrentLocation(location);
     SelectedLocationService.setSelectedLocation(location);
     fetchWeatherData(location.lat, location.lon);
+    fetchCurrentWeatherData(location.lat, location.lon, location.name);
   };
 
   return (
@@ -97,21 +132,53 @@ export default function HomePage() {
                     : "Maintenant"
                 }
                 currentTime={currentTime}
-                temperature={21}
-                emoji="🌤️"
-                condition="Partiellement nuageux"
-                feelsLike={20}
+                // Utiliser les données current weather si disponibles, sinon valeurs par défaut
+                temperature={
+                  currentWeatherData?.current?.temperature_2m
+                    ? Math.round(currentWeatherData.current.temperature_2m)
+                    : 21
+                }
+                emoji={currentWeatherData?.current?.weather_emoji || "🌤️"}
+                condition={
+                  currentWeatherData?.current?.weather_description ||
+                  (loadingCurrentWeather
+                    ? "Chargement..."
+                    : "Partiellement nuageux")
+                }
+                feelsLike={
+                  currentWeatherData?.current?.apparent_temperature
+                    ? Math.round(
+                        currentWeatherData.current.apparent_temperature
+                      )
+                    : 20
+                }
                 uvIndex={5}
                 uvDescription="Modéré"
-                humidity={65}
+                humidity={
+                  currentWeatherData?.current?.relative_humidity_2m || 65
+                }
                 aqi={42}
                 aqiDescription="Correct"
-                precipitation={0.2}
-                windSpeed={15}
-                windDirection="SW"
+                precipitation={
+                  currentWeatherData?.current?.precipitation || 0.2
+                }
+                windSpeed={
+                  currentWeatherData?.current?.wind_speed_10m
+                    ? Math.round(currentWeatherData.current.wind_speed_10m)
+                    : 15
+                }
+                windDirection={
+                  currentWeatherData?.current?.wind_direction_text || "SW"
+                }
                 dailyData={dailyWeatherData}
                 selectedDayIndex={selectedDayIndex}
                 onDaySelect={setSelectedDayIndex}
+                currentLocation={currentLocation}
+                // Passer les coordonnées et activer l'API current
+                latitude={currentLocation?.lat}
+                longitude={currentLocation?.lon}
+                useCurrentApi={true}
+                isDay={currentWeatherData?.current?.is_day}
               />
             </div>
           </div>

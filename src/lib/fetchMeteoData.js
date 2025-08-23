@@ -85,10 +85,73 @@ const PREDEFINED_SPOTS = {
 // Interrupteur pour activer/désactiver le cache
 const USE_CACHE = true; // Mettre à false pour désactiver le cache
 
-// Cache mémoire avec TTL
+// Cache mémoire avec TTL pour les données forecast
 const cache = new Map();
 const TTL_MINUTES = 15;
 const TTL_MS = TTL_MINUTES * 60 * 1000;
+
+// Cache séparé pour les données "current" avec TTL plus court
+const currentCache = new Map();
+const CURRENT_TTL_MINUTES = 5;
+const CURRENT_TTL_MS = CURRENT_TTL_MINUTES * 60 * 1000;
+
+// Mapping WMO Weather Codes vers descriptions françaises
+const WMO_WEATHER_CODES = {
+  0: { description: "Ciel clair", emoji: "☀️" },
+  1: { description: "Principalement clair", emoji: "🌤️" },
+  2: { description: "Partiellement nuageux", emoji: "⛅" },
+  3: { description: "Couvert", emoji: "☁️" },
+  45: { description: "Brouillard", emoji: "🌫️" },
+  48: { description: "Brouillard givrant", emoji: "🌫️" },
+  51: { description: "Bruine légère", emoji: "🌦️" },
+  53: { description: "Bruine modérée", emoji: "🌦️" },
+  55: { description: "Bruine dense", emoji: "🌧️" },
+  56: { description: "Bruine verglaçante légère", emoji: "🌧️" },
+  57: { description: "Bruine verglaçante dense", emoji: "🌧️" },
+  61: { description: "Pluie faible", emoji: "🌧️" },
+  63: { description: "Pluie modérée", emoji: "🌧️" },
+  65: { description: "Pluie forte", emoji: "🌧️" },
+  66: { description: "Pluie verglaçante légère", emoji: "🌧️" },
+  67: { description: "Pluie verglaçante forte", emoji: "🌧️" },
+  71: { description: "Neige faible", emoji: "🌨️" },
+  73: { description: "Neige modérée", emoji: "❄️" },
+  75: { description: "Neige forte", emoji: "❄️" },
+  77: { description: "Grains de neige", emoji: "❄️" },
+  80: { description: "Averses faibles", emoji: "🌦️" },
+  81: { description: "Averses modérées", emoji: "🌧️" },
+  82: { description: "Averses violentes", emoji: "⛈️" },
+  85: { description: "Averses de neige faibles", emoji: "🌨️" },
+  86: { description: "Averses de neige fortes", emoji: "❄️" },
+  95: { description: "Orage", emoji: "⛈️" },
+  96: { description: "Orage avec grêle légère", emoji: "⛈️" },
+  99: { description: "Orage avec grêle forte", emoji: "⛈️" },
+};
+
+/**
+ * Convertit un code WMO en description et emoji
+ * @param {number} wmoCode - Code WMO
+ * @param {boolean} isDay - True si c'est le jour, false si c'est la nuit
+ * @returns {Object} Objet avec description et emoji
+ */
+function getWeatherDescription(wmoCode, isDay = true) {
+  const weather = WMO_WEATHER_CODES[wmoCode];
+  if (!weather) {
+    return { description: "Conditions inconnues", emoji: "❓" };
+  }
+
+  // Adapter l'emoji pour la nuit pour certains codes
+  let emoji = weather.emoji;
+  if (!isDay) {
+    if (wmoCode === 0) emoji = "🌙"; // Ciel clair la nuit
+    if (wmoCode === 1) emoji = "🌙"; // Principalement clair la nuit
+    if (wmoCode === 2) emoji = "☁️"; // Partiellement nuageux la nuit
+  }
+
+  return {
+    description: weather.description,
+    emoji: emoji,
+  };
+}
 
 /**
  * Génère les URLs pour les APIs en fonction des coordonnées GPS
@@ -102,13 +165,16 @@ function generateApiUrls(latitude, longitude) {
   // API 1 - Données principales météo (multi-modèles) + daily sunrise/sunset
   const api1Url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=sunrise,sunset&models=ecmwf_ifs025,gfs_global,gfs_graphcast025,icon_global,icon_eu,knmi_harmonie_arome_europe,meteofrance_arpege_europe,meteofrance_arome_france,meteofrance_arome_france_hd,ukmo_global_deterministic_10km,ukmo_uk_deterministic_2km&timezone=${timezone}`;
 
-  // API 2 - UV et qualité de l'air
-  const api2Url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=european_aqi,uv_index,uv_index_clear_sky&timezone=${timezone}`;
+  // API 2 - UV et qualité de l'air + current
+  const api2Url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=european_aqi,uv_index,uv_index_clear_sky&current=european_aqi,uv_index&timezone=${timezone}`;
 
   // API 3 - Données de houle (DÉSACTIVÉ temporairement)
   const api3Url = null; // Désactivé pour économiser les appels
 
-  return { api1Url, api2Url, api3Url };
+  // API Current (Now) - Conditions météo actuelles
+  const apiCurrentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=${timezone}`;
+
+  return { api1Url, api2Url, api3Url, apiCurrentUrl };
 }
 
 /**
@@ -121,12 +187,22 @@ function isCacheValid(cacheEntry) {
 }
 
 /**
+ * Vérifie si les données current en cache sont encore valides
+ * @param {Object} cacheEntry - Entrée du cache current
+ * @returns {boolean} True si les données sont encore valides
+ */
+function isCurrentCacheValid(cacheEntry) {
+  return cacheEntry && Date.now() - cacheEntry.timestamp < CURRENT_TTL_MS;
+}
+
+/**
  * Effectue une requête HTTP avec gestion d'erreur
  * @param {string} url - URL à appeler
  * @param {string} apiName - Nom de l'API pour les logs
+ * @param {boolean} expectCurrent - True si on attend des données current au lieu de hourly
  * @returns {Promise<Object>} Données de l'API
  */
-async function fetchWithErrorHandling(url, apiName) {
+async function fetchWithErrorHandling(url, apiName, expectCurrent = false) {
   try {
     const response = await fetch(url);
 
@@ -138,8 +214,19 @@ async function fetchWithErrorHandling(url, apiName) {
 
     const data = await response.json();
 
-    if (!data || !data.hourly) {
-      throw new Error(`${apiName}: Structure de données invalide`);
+    if (!data) {
+      throw new Error(`${apiName}: Réponse vide`);
+    }
+
+    // Validation selon le type de données attendues
+    if (expectCurrent) {
+      if (!data.current) {
+        throw new Error(`${apiName}: Structure de données current invalide`);
+      }
+    } else {
+      if (!data.hourly) {
+        throw new Error(`${apiName}: Structure de données hourly invalide`);
+      }
     }
 
     return data;
@@ -180,6 +267,113 @@ function generateCacheKey(latitude, longitude) {
   const latRounded = Math.round(latitude * 10000) / 10000;
   const lonRounded = Math.round(longitude * 10000) / 10000;
   return `${latRounded},${lonRounded}`;
+}
+
+/**
+ * Fonction spécialisée : récupère les données météo actuelles (current)
+ * @param {number} latitude - Latitude du spot/lieu
+ * @param {number} longitude - Longitude du spot/lieu
+ * @param {Object} options - Options supplémentaires
+ * @param {string} options.name - Nom du spot (optionnel, pour les logs)
+ * @param {boolean} options.forceRefresh - Force le rafraîchissement du cache
+ * @returns {Promise<Object>} Données current avec descriptions WMO
+ */
+export async function fetchCurrentWeather(latitude, longitude, options = {}) {
+  // Validation des paramètres
+  validateCoordinates(latitude, longitude);
+
+  // Génération de la clé de cache
+  const cacheKey = generateCacheKey(latitude, longitude);
+  const cachedData = currentCache.get(cacheKey);
+
+  // Nom du spot pour les logs
+  const spotName =
+    options.name || `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+
+  if (USE_CACHE && !options.forceRefresh && isCurrentCacheValid(cachedData)) {
+    console.log(
+      `Cache HIT (current) pour ${spotName} (${CURRENT_TTL_MINUTES}min TTL)`
+    );
+    return cachedData.data;
+  }
+
+  console.log(
+    `Cache MISS (current) pour ${spotName} - Récupération données actuelles...`
+  );
+
+  try {
+    // Initialiser le compteur d'appels si côté client
+    await initApiCounter();
+
+    // Génération de l'URL pour l'API current
+    const { apiCurrentUrl } = generateApiUrls(latitude, longitude);
+
+    // Enregistrer l'appel API dans le compteur
+    if (apiCallsCounter) {
+      apiCallsCounter.recordApiCall();
+    }
+
+    // Appel à l'API current
+    const currentData = await fetchWithErrorHandling(
+      apiCurrentUrl,
+      "API Current Weather",
+      true
+    );
+
+    // Enrichir les données current avec les descriptions WMO
+    const current = currentData.current;
+    const weather = getWeatherDescription(current.weather_code, current.is_day);
+
+    const enrichedCurrentData = {
+      coordinates: { lat: latitude, lon: longitude },
+      spot_name: spotName,
+      timestamp: new Date().toISOString(),
+      ttl_minutes: CURRENT_TTL_MINUTES,
+      current: {
+        ...current,
+        weather_description: weather.description,
+        weather_emoji: weather.emoji,
+        // Convertir la direction du vent en texte
+        wind_direction_text: getWindDirection(current.wind_direction_10m),
+      },
+      source: "open-meteo.com/forecast/current",
+      description: "Conditions météo actuelles",
+    };
+
+    // Mise en cache
+    if (USE_CACHE) {
+      currentCache.set(cacheKey, {
+        data: enrichedCurrentData,
+        timestamp: Date.now(),
+      });
+    }
+
+    console.log(
+      `Données current récupérées ${
+        USE_CACHE ? "et mises en cache" : "(cache désactivé)"
+      } pour ${spotName}`
+    );
+    return enrichedCurrentData;
+  } catch (error) {
+    console.error(
+      `Erreur lors de la récupération des données current pour ${spotName}:`,
+      error.message
+    );
+    throw error;
+  }
+}
+
+/**
+ * Convertit une direction du vent en degrés vers un texte
+ * @param {number} degrees - Direction en degrés (0-360)
+ * @returns {string} Direction textuelle (N, NE, E, SE, S, SW, W, NW)
+ */
+function getWindDirection(degrees) {
+  if (degrees == null || isNaN(degrees)) return "--";
+
+  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  const index = Math.round((degrees % 360) / 45) % 8;
+  return directions[index];
 }
 
 /**
@@ -315,7 +509,8 @@ export async function fetchMeteoData(latitude, longitude, options = {}) {
  */
 export function clearCache() {
   cache.clear();
-  console.log("Cache vidé manuellement");
+  currentCache.clear();
+  console.log("Caches vidés manuellement (forecast + current)");
 }
 
 /**
@@ -326,12 +521,26 @@ export function getCacheStats() {
   const entries = Array.from(cache.entries());
   const validEntries = entries.filter(([, entry]) => isCacheValid(entry));
 
+  const currentEntries = Array.from(currentCache.entries());
+  const validCurrentEntries = currentEntries.filter(([, entry]) =>
+    isCurrentCacheValid(entry)
+  );
+
   return {
-    total_entries: cache.size,
-    valid_entries: validEntries.length,
-    expired_entries: cache.size - validEntries.length,
-    coordinates_cached: validEntries.map(([coords]) => coords),
-    ttl_minutes: TTL_MINUTES,
+    forecast_cache: {
+      total_entries: cache.size,
+      valid_entries: validEntries.length,
+      expired_entries: cache.size - validEntries.length,
+      coordinates_cached: validEntries.map(([coords]) => coords),
+      ttl_minutes: TTL_MINUTES,
+    },
+    current_cache: {
+      total_entries: currentCache.size,
+      valid_entries: validCurrentEntries.length,
+      expired_entries: currentCache.size - validCurrentEntries.length,
+      coordinates_cached: validCurrentEntries.map(([coords]) => coords),
+      ttl_minutes: CURRENT_TTL_MINUTES,
+    },
   };
 }
 
@@ -374,6 +583,28 @@ export async function fetchMeteoDataBySpot(spotId, options = {}) {
   return fetchMeteoData(spot.lat, spot.lon, { name: spot.name, ...options });
 }
 
+/**
+ * Fonction helper : récupère les données météo actuelles par nom de spot prédéfini
+ * @param {string} spotId - Identifiant du spot prédéfini
+ * @returns {Promise<Object>} Données météo actuelles du spot
+ */
+export async function fetchCurrentWeatherBySpot(spotId, options = {}) {
+  const spot = getSpotCoordinates(spotId);
+  if (!spot) {
+    const availableSpots = Object.keys(PREDEFINED_SPOTS);
+    throw new Error(
+      `Spot '${spotId}' non trouvé. Spots disponibles: ${availableSpots.join(
+        ", "
+      )}`
+    );
+  }
+
+  return fetchCurrentWeather(spot.lat, spot.lon, {
+    name: spot.name,
+    ...options,
+  });
+}
+
 // Export par défaut pour compatibilité Next.js API routes
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -382,7 +613,8 @@ export default async function handler(req, res) {
       .json({ error: "Méthode non autorisée. Utilisez GET." });
   }
 
-  const { lat, lon, latitude, longitude, spot, forceRefresh } = req.query;
+  const { lat, lon, latitude, longitude, spot, forceRefresh, current } =
+    req.query;
 
   // Support multiple formats de paramètres
   const finalLat = lat || latitude;
@@ -392,7 +624,10 @@ export default async function handler(req, res) {
   if (spot) {
     try {
       const options = { forceRefresh: forceRefresh === "true" };
-      const data = await fetchMeteoDataBySpot(spot, options);
+      const data =
+        current === "true"
+          ? await fetchCurrentWeatherBySpot(spot, options)
+          : await fetchMeteoDataBySpot(spot, options);
       return res.status(200).json(data);
     } catch (error) {
       return res.status(400).json({
@@ -410,6 +645,8 @@ export default async function handler(req, res) {
         "/api/fetchMeteoData?lat=48.3903&lon=-4.4863",
         "/api/fetchMeteoData?latitude=48.3903&longitude=-4.4863",
         "/api/fetchMeteoData?spot=brest",
+        "/api/fetchMeteoData?spot=brest&current=true",
+        "/api/fetchMeteoData?lat=48.3903&lon=-4.4863&current=true",
       ],
       predefined_spots: Object.keys(PREDEFINED_SPOTS),
     });
@@ -424,7 +661,10 @@ export default async function handler(req, res) {
     }
 
     const options = { forceRefresh: forceRefresh === "true" };
-    const data = await fetchMeteoData(lat, lon, options);
+    const data =
+      current === "true"
+        ? await fetchCurrentWeather(lat, lon, options)
+        : await fetchMeteoData(lat, lon, options);
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({
@@ -432,6 +672,7 @@ export default async function handler(req, res) {
       examples: [
         "/api/fetchMeteoData?lat=48.3903&lon=-4.4863",
         "/api/fetchMeteoData?spot=brest",
+        "/api/fetchMeteoData?spot=brest&current=true",
       ],
     });
   }

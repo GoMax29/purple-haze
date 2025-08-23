@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { fetchCurrentWeather } from "../../lib/fetchMeteoData.js";
+import { TimezoneInfo } from "@/utils/timezoneHelper";
 
 interface NowSectionProps {
   locationName?: string;
@@ -21,6 +23,26 @@ interface NowSectionProps {
   latitude?: number;
   longitude?: number;
   elevation?: number | null;
+  // Nouvelles props pour utiliser l'API current
+  useCurrentApi?: boolean;
+  spotId?: string; // Pour utiliser un spot prédéfini
+  // Informations de timezone
+  timezoneInfo?: TimezoneInfo;
+}
+
+interface CurrentWeatherData {
+  temperature_2m: number;
+  relative_humidity_2m: number;
+  apparent_temperature: number;
+  is_day: boolean;
+  precipitation: number;
+  weather_code: number;
+  wind_speed_10m: number;
+  wind_direction_10m: number;
+  wind_gusts_10m: number;
+  weather_description: string;
+  weather_emoji: string;
+  wind_direction_text: string;
 }
 
 const NowSection: React.FC<NowSectionProps> = ({
@@ -41,7 +63,83 @@ const NowSection: React.FC<NowSectionProps> = ({
   latitude,
   longitude,
   elevation,
+  useCurrentApi = false,
+  spotId,
+  timezoneInfo,
 }) => {
+  const [currentWeather, setCurrentWeather] =
+    useState<CurrentWeatherData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fonction pour récupérer les données current
+  const fetchCurrentData = async () => {
+    if (!useCurrentApi) return;
+
+    if (!spotId && (!latitude || !longitude)) {
+      setError("Coordonnées ou spotId requis pour l'API current");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      let data;
+      if (spotId) {
+        const { fetchCurrentWeatherBySpot } = await import(
+          "../../lib/fetchMeteoData.js"
+        );
+        data = await fetchCurrentWeatherBySpot(spotId);
+      } else {
+        data = await fetchCurrentWeather(latitude!, longitude!, {
+          name: locationName,
+          forceRefresh: false,
+        });
+      }
+
+      setCurrentWeather(data.current);
+    } catch (err) {
+      console.error("Erreur lors de la récupération des données current:", err);
+      setError(err instanceof Error ? err.message : "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // useEffect pour récupérer les données au montage et lors de changements
+  useEffect(() => {
+    fetchCurrentData();
+  }, [useCurrentApi, spotId, latitude, longitude]);
+
+  // Déterminer les valeurs à afficher (API current ou props)
+  const displayData = currentWeather
+    ? {
+        temperature: Math.round(currentWeather.temperature_2m),
+        emoji: currentWeather.weather_emoji,
+        condition: currentWeather.weather_description,
+        feelsLike: Math.round(currentWeather.apparent_temperature),
+        humidity: currentWeather.relative_humidity_2m,
+        precipitation: currentWeather.precipitation,
+        windSpeed: Math.round(currentWeather.wind_speed_10m),
+        windDirection: currentWeather.wind_direction_text,
+        isDay: currentWeather.is_day,
+      }
+    : {
+        temperature,
+        emoji,
+        condition: loading
+          ? "Chargement..."
+          : error
+          ? `Erreur: ${error}`
+          : condition,
+        feelsLike,
+        humidity,
+        precipitation,
+        windSpeed,
+        windDirection,
+        isDay: true, // Par défaut jour si pas de données API
+      };
   const getUvColor = (uv: number): string => {
     if (uv <= 2) return "#51f1e6";
     if (uv <= 5) return "#50ccaa";
@@ -58,12 +156,31 @@ const NowSection: React.FC<NowSectionProps> = ({
     return "#970033";
   };
 
+  // Fonction pour obtenir les couleurs de fond jour/nuit
+  const getBackgroundStyle = (isDay: boolean) => {
+    if (isDay) {
+      // Thème jour - dégradé bleu clair
+      return {
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      };
+    } else {
+      // Thème nuit - dégradé sombre
+      return {
+        background: "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)",
+      };
+    }
+  };
+
   return (
     <div
       className="now-section"
       style={{
+        ...getBackgroundStyle(displayData.isDay),
         padding: "20px",
         borderBottom: "2px solid rgba(255, 255, 255, 0.1)",
+        borderRadius: "12px",
+        margin: "10px",
+        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
       }}
     >
       {/* Ligne 1: Météo + ville à gauche, heure à droite */}
@@ -130,7 +247,7 @@ const NowSection: React.FC<NowSectionProps> = ({
         }}
       >
         <div className="main-emoji" style={{ fontSize: "3.2em" }}>
-          {emoji}
+          {displayData.emoji}
         </div>
         <div
           className="main-temp"
@@ -141,7 +258,7 @@ const NowSection: React.FC<NowSectionProps> = ({
             color: "white",
           }}
         >
-          {temperature}°
+          {displayData.temperature}°
         </div>
         <div
           className="condition-desc"
@@ -151,7 +268,7 @@ const NowSection: React.FC<NowSectionProps> = ({
             color: "rgba(255, 255, 255, 0.95)",
           }}
         >
-          {condition}
+          {displayData.condition}
         </div>
       </div>
 
@@ -187,7 +304,7 @@ const NowSection: React.FC<NowSectionProps> = ({
               color: "white",
             }}
           >
-            {feelsLike}°
+            {displayData.feelsLike}°
           </span>
         </div>
 
@@ -266,7 +383,7 @@ const NowSection: React.FC<NowSectionProps> = ({
               color: "#87ceeb",
             }}
           >
-            {humidity}%
+            {displayData.humidity}%
           </span>
         </div>
 
@@ -345,7 +462,7 @@ const NowSection: React.FC<NowSectionProps> = ({
               color: "#4da6ff",
             }}
           >
-            {precipitation}mm
+            {displayData.precipitation}mm
           </span>
         </div>
 
@@ -371,7 +488,7 @@ const NowSection: React.FC<NowSectionProps> = ({
               color: "white",
             }}
           >
-            {windSpeed} km/h • {windDirection}
+            {displayData.windSpeed} km/h • {displayData.windDirection}
           </span>
         </div>
       </div>
