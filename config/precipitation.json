@@ -24,7 +24,7 @@
     "meteofrance_arome_france": {
       "name": "MF AROME FRANCE",
       "short": "AROME FR",
-      "forecast_hours": [0, 53],
+      "forecast_hours": [0, 60],
       "weight": 1.0,
       "enabled": true
     },
@@ -38,56 +38,56 @@
     "knmi_harmonie_arome_europe": {
       "name": "KNMI HARMONIE AROME EU",
       "short": "HARMONIE",
-      "forecast_hours": [0, 65],
+      "forecast_hours": [0, 48],
       "weight": 1.0,
       "enabled": true
     },
     "ukmo_uk_deterministic_2km": {
       "name": "UKMO DETERM 2KM",
       "short": "UKMO 2K",
-      "forecast_hours": [0, 53],
+      "forecast_hours": [0, 36],
       "weight": 1.0,
       "enabled": true
     },
     "meteofrance_arpege_europe": {
       "name": "MF ARPEGE EU",
       "short": "ARPEGE EU",
-      "forecast_hours": [24, 104],
+      "forecast_hours": [36, 96],
       "weight": 1.0,
       "enabled": true
     },
     "icon_eu": {
       "name": "ICON EU",
       "short": "ICON EU",
-      "forecast_hours": [48, 122],
+      "forecast_hours": [0, 108],
       "weight": 1.0,
       "enabled": true
     },
     "ukmo_global_deterministic_10km": {
       "name": "UKMO GLOBAL DETERM 10KM",
       "short": "UKMO 10K",
-      "forecast_hours": [48, 167],
+      "forecast_hours": [49, 120],
       "weight": 1.0,
       "enabled": true
     },
     "gfs_global": {
       "name": "GFS GLOBAL 0.1°/0.25°",
       "short": "GFS",
-      "forecast_hours": [96, 167],
+      "forecast_hours": [121, 167],
       "weight": 1.0,
       "enabled": true
     },
     "gfs_graphcast025": {
       "name": "GFS GRAPHCAST",
       "short": "GRAPHCAST",
-      "forecast_hours": [96, 167],
+      "forecast_hours": [97, 167],
       "weight": 1.0,
       "enabled": true
     },
     "ecmwf_ifs025": {
       "name": "ECMWF IFS 0.25°",
       "short": "ECMWF",
-      "forecast_hours": [60, 167],
+      "forecast_hours": [97, 167],
       "weight": 1.0,
       "enabled": true
     },
@@ -101,7 +101,7 @@
     "icon_global": {
       "name": "ICON GLOBAL",
       "short": "ICON G",
-      "forecast_hours": [96, 167],
+      "forecast_hours": [109, 167],
       "weight": 1.0,
       "enabled": true
     },

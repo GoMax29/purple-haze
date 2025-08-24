@@ -41,16 +41,16 @@ const HourlyScroll: React.FC<HourlyScrollProps> = ({
       className="hourly-container"
       style={{
         position: "relative",
-        marginBottom: "20px",
+        marginBottom: "20px", //size
       }}
     >
       <div
         className="hourly-scroll"
         style={{
           display: "flex",
-          gap: "12px",
+          gap: "12px", //size of
           overflowX: "auto",
-          padding: "10px 0",
+          padding: "10px 0", //size of the
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}

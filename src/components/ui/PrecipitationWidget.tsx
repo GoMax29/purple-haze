@@ -24,7 +24,7 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
           textAlign: "center",
         }}
       >
-        {mixMm.toFixed(1)}mm
+        {mixMm.toFixed(1)} mm
       </div>
     );
   }
@@ -39,7 +39,7 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
         justifyContent: "space-around",
         alignItems: "flex-end",
         gap: "12px",
-        height: "220px", // Hauteur pour contenir les jauges de 200px + icônes
+        height: "150px", // Hauteur pour contenir les jauges de 200px + icônes
       }}
     >
       {/* Jauge Mix Verticale */}
@@ -48,17 +48,17 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          width: "35%",
+          width: "40%",
         }}
       >
         {/* Icône Mix */}
-        <div style={{ fontSize: "22px", marginBottom: "4px" }}>🧪</div>
+        <div style={{ fontSize: "22px", marginBottom: "2px" }}>🧪</div>
 
         {/* Jauge verticale Mix */}
         <div
           style={{
-            width: "50px", // Largeur demandée
-            height: "200px", // Hauteur demandée
+            width: "35px", // Largeur demandée
+            height: "100px", // Hauteur demandée
             backgroundColor: "#374151",
             borderRadius: "8px",
             position: "relative",
@@ -89,7 +89,7 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
                 color: "#9ca3af",
               }}
             >
-              N/A
+              {/* N/A */}
             </div>
           )}
         </div>
@@ -103,7 +103,7 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
             fontWeight: "bold",
           }}
         >
-          {mixMm != null ? `${mixMm.toFixed(1)}mm` : "N/A"}
+          {mixMm != null ? `${mixMm.toFixed(1)}mm` : ""}
         </div>
       </div>
 
@@ -113,7 +113,7 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          width: "35%",
+          width: "40%",
         }}
       >
         {/* Logo Google */}
@@ -141,8 +141,8 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
         {/* Jauge verticale GraphCast */}
         <div
           style={{
-            width: "50px", // Largeur demandée
-            height: "200px", // Hauteur demandée
+            width: "35px", // Largeur demandée
+            height: "100px", // Hauteur demandée
             backgroundColor: "#374151",
             borderRadius: "8px",
             position: "relative",
@@ -173,7 +173,7 @@ const PrecipitationWidget: React.FC<PrecipitationWidgetProps> = ({
                 color: "#9ca3af",
               }}
             >
-              N/A
+              {/* N/A */}
             </div>
           )}
         </div>

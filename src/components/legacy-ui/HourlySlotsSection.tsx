@@ -270,9 +270,9 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
     });
 
     if (targetIndex >= 0) {
-      const slotWidth = 95; // Largeur approximative d'un slot
+      const slotWidth = 73; // Largeur approximative d'un slot
       const scrollPosition = targetIndex * slotWidth;
-      scrollRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
+      scrollRef.current.scrollTo({ left: scrollPosition, behavior: "instant" });
     }
   };
 
@@ -365,7 +365,7 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
         ref={scrollRef}
         style={{
           display: "flex",
-          gap: "8px",
+          gap: "3px",
           overflowX: "auto",
           paddingBottom: "10px",
           scrollBehavior: "smooth",
@@ -375,16 +375,16 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
           <div
             key={`${slot.time}-${index}`}
             style={{
-              minWidth: isExpanded ? "160px" : "85px",
-              maxWidth: isExpanded ? "160px" : "85px",
+              minWidth: isExpanded ? "90px" : "70px",
+              maxWidth: isExpanded ? "90px" : "70px",
               background: getSlotBackground(slot.variant),
               borderRadius: "12px",
-              padding: isExpanded ? "16px 12px" : "12px 8px",
+              padding: isExpanded ? "12px 8px" : "12px 8px",
               textAlign: "center",
               fontSize: "0.85em",
               display: "flex",
               flexDirection: "column",
-              gap: isExpanded ? "8px" : "6px",
+              gap: isExpanded ? "7px" : "5px",
               border:
                 slot.hour === "maint."
                   ? "2px solid #fbbf24"
@@ -489,8 +489,23 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
                   className="text-xs font-medium"
                   style={{ color: "#9ca3af" }}
                 >
-                  {slot.apparentTemperature}°
+                  ✋{slot.apparentTemperature}°
                 </div>
+
+                {/* Probabilité précipitations avec ☔ */}
+                <div
+                  className="text-xs font-medium"
+                  style={{ color: "#a78bfa", marginBottom: "8px" }}
+                >
+                  ☔ {slot.precipitationProbability}%
+                </div>
+
+                {/* Précipitations avec widget Mix/GraphCast */}
+                <PrecipitationWidget
+                  mixMm={slot.precipitation}
+                  graphcastMm={slot.graphcastPrecipitation}
+                  isExpanded={true}
+                />
 
                 {/* Direction du vent avec format W • ➤ */}
                 <div
@@ -518,24 +533,10 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
                       fontStyle: "italic",
                     }}
                   >
-                    🌬 {slot.windGust} km/h
+                    {/* windgust line */}
+                    {slot.windGust} km/h
                   </div>
                 )}
-
-                {/* Probabilité précipitations avec ☔ */}
-                <div
-                  className="text-xs font-medium"
-                  style={{ color: "#a78bfa", marginBottom: "8px" }}
-                >
-                  ☔ {slot.precipitationProbability}%
-                </div>
-
-                {/* Précipitations avec widget Mix/GraphCast */}
-                <PrecipitationWidget
-                  mixMm={slot.precipitation}
-                  graphcastMm={slot.graphcastPrecipitation}
-                  isExpanded={true}
-                />
 
                 {/* Humidité avec 💦 */}
                 <div
