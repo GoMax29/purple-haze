@@ -5,7 +5,10 @@ import { DailyWeatherData } from "@/types/dailyData";
 import { getDayNightStateAt } from "@/utils/dayNight";
 import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
 import { getTemperatureColor } from "../../utils/temperatureColors";
-import { degreesToCompass } from "../../utils/windDirection";
+import {
+  degreesToCompass,
+  degreesToCompassWithArrow,
+} from "../../utils/windDirection";
 import PrecipitationWidget from "../ui/PrecipitationWidget";
 import {
   TimezoneInfo,
@@ -250,7 +253,7 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
       uvIndex: Math.round(hourData.uvIndex || 0),
       aqi: Math.round(hourData.aqi || 0),
       windSpeed: Math.round(hourData.wind?.speed || 0),
-      windDirection: degreesToCompass(hourData.wind?.direction),
+      windDirection: degreesToCompassWithArrow(hourData.wind?.direction),
       windGust: Math.round(hourData.wind?.gust || 0),
       wmo: hourData.wmo || 0,
       variant: variant,
@@ -481,15 +484,15 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
             {isExpanded ? (
               // Mode étendu - afficher toutes les informations détaillées
               <>
-                {/* Température ressentie */}
+                {/* Température ressentie en gris clair */}
                 <div
                   className="text-xs font-medium"
-                  style={{ color: "#fb923c" }}
+                  style={{ color: "#9ca3af" }}
                 >
                   {slot.apparentTemperature}°
                 </div>
 
-                {/* Direction du vent */}
+                {/* Direction du vent avec format W • ➤ */}
                 <div
                   className="text-xs font-medium"
                   style={{ color: "#ffffff" }}
@@ -505,22 +508,26 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
                   {slot.windSpeed} km/h
                 </div>
 
-                {/* Rafales */}
+                {/* Rafales en rouge vif + gras + italique */}
                 {slot.windGust > 0 && (
                   <div
-                    className="text-xs font-medium"
-                    style={{ color: "#f87171" }}
+                    className="text-xs"
+                    style={{
+                      color: "#dc2626",
+                      fontWeight: "bold",
+                      fontStyle: "italic",
+                    }}
                   >
-                    {slot.windGust} km/h
+                    🌬 {slot.windGust} km/h
                   </div>
                 )}
 
-                {/* Probabilité précipitations */}
+                {/* Probabilité précipitations avec ☔ */}
                 <div
                   className="text-xs font-medium"
-                  style={{ color: "#a78bfa" }}
+                  style={{ color: "#a78bfa", marginBottom: "8px" }}
                 >
-                  {slot.precipitationProbability}%
+                  ☔ {slot.precipitationProbability}%
                 </div>
 
                 {/* Précipitations avec widget Mix/GraphCast */}
@@ -530,12 +537,12 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
                   isExpanded={true}
                 />
 
-                {/* Humidité */}
+                {/* Humidité avec 💦 */}
                 <div
                   className="text-xs font-medium"
                   style={{ color: "#f472b6" }}
                 >
-                  {slot.humidity}%
+                  💦 {slot.humidity}%
                 </div>
 
                 {/* Conteneur centré pour les badges */}
@@ -599,46 +606,46 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
         ))}
       </div>
 
-      {/* Bouton d'expansion/compression - ROND et CENTRÉ */}
+      {/* Bouton d'expansion/compression - collé en bas */}
       <div
         style={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           width: "100%",
-          marginTop: "16px",
-          marginBottom: "8px",
+          marginTop: "-8px", // Chevauche légèrement
+          marginBottom: "4px",
         }}
       >
         <button
           onClick={toggleExpanded}
           style={{
-            width: "56px",
-            height: "56px",
-            borderRadius: "50%", // ROND !
+            width: "38px",
+            height: "38px",
+            borderRadius: "50%",
             background:
               "linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #6d28d9 100%)",
-            border: "3px solid rgba(255,255,255,0.3)",
+            border: "2px solid rgba(255,255,255,0.3)",
             color: "#ffffff",
-            fontSize: "32px",
+            fontSize: "20px",
             fontWeight: "bold",
             cursor: "pointer",
             transition: "all 0.3s ease",
             boxShadow:
-              "0 8px 25px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
+              "0 4px 15px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.1)";
+            e.currentTarget.style.transform = "scale(1.05)";
             e.currentTarget.style.boxShadow =
-              "0 12px 35px rgba(124, 58, 237, 0.6)";
+              "0 6px 20px rgba(124, 58, 237, 0.6)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "scale(1)";
             e.currentTarget.style.boxShadow =
-              "0 8px 25px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)";
+              "0 4px 15px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)";
           }}
           aria-label={
             isExpanded ? "Masquer les détails" : "Afficher les détails"

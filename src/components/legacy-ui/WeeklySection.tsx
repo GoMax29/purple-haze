@@ -127,7 +127,7 @@ const WeeklySection: React.FC<WeeklySectionProps> = ({
     <div
       className="weekly-section"
       style={{
-        padding: "20px",
+        padding: "6px 20px 20px 20px", // Réduit le padding top pour rapprocher de la section Hourly
       }}
     >
       {/* Titre + Toggle simple/détail */}
