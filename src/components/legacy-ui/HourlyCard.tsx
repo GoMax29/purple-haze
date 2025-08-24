@@ -1,6 +1,11 @@
 "use client";
 
 import React from "react";
+import {
+  getTemperatureColor,
+  getContrastTextColor,
+} from "../../utils/temperatureColors";
+import PrecipitationWidget from "../ui/PrecipitationWidget";
 
 interface HourlyCardProps {
   time: string;
@@ -9,13 +14,17 @@ interface HourlyCardProps {
   feelsLike?: number;
   windSpeed?: number;
   windDirection?: string;
+  windDirectionDegrees?: number;
   precipitation?: number;
   precipitationProbability?: number;
+  graphcastPrecipitation?: number;
+  graphcastProbability?: number;
   humidity?: number;
   uvIndex?: number;
   aqi?: number;
   isSelected?: boolean;
   isCurrent?: boolean;
+  isExpanded?: boolean;
   onClick?: () => void;
 }
 
@@ -26,13 +35,17 @@ const HourlyCard: React.FC<HourlyCardProps> = ({
   feelsLike,
   windSpeed = 0,
   windDirection = "--",
+  windDirectionDegrees,
   precipitation = 0,
   precipitationProbability = 0,
+  graphcastPrecipitation = 0,
+  graphcastProbability = 0,
   humidity = 0,
   uvIndex = 0,
   aqi,
   isSelected = false,
   isCurrent = false,
+  isExpanded = false,
   onClick,
 }) => {
   const getAqiColor = (aqi: number): string => {
@@ -59,18 +72,23 @@ const HourlyCard: React.FC<HourlyCardProps> = ({
     .filter(Boolean)
     .join(" ");
 
+  // Déterminer la couleur de fond basée sur la température
+  const tempColor = getTemperatureColor(temperature);
+  const textColor = getContrastTextColor(tempColor);
+
   return (
     <div
       className={cardClasses}
       onClick={onClick}
       style={{
-        minWidth: "140px",
+        minWidth: isExpanded ? "160px" : "140px",
+        maxHeight: isExpanded ? "auto" : "350px",
         background:
           isSelected || isCurrent
             ? "linear-gradient(135deg, #7c3aed, #9333ea)"
             : "rgba(255, 255, 255, 0.08)",
         borderRadius: "16px",
-        padding: "12px 8px",
+        padding: isExpanded ? "16px 12px" : "12px 8px",
         textAlign: "center",
         border:
           isSelected || isCurrent
@@ -80,11 +98,12 @@ const HourlyCard: React.FC<HourlyCardProps> = ({
         backdropFilter: "blur(10px)",
         display: "flex",
         flexDirection: "column",
-        gap: "3px",
+        gap: isExpanded ? "8px" : "3px",
         cursor: onClick ? "pointer" : "default",
         boxShadow:
           isSelected || isCurrent ? "0 0 15px rgba(251, 191, 36, 0.4)" : "none",
         position: "relative",
+        overflow: "hidden",
       }}
       onMouseEnter={(e) => {
         if (onClick && !isSelected && !isCurrent) {
@@ -154,143 +173,70 @@ const HourlyCard: React.FC<HourlyCardProps> = ({
           fontSize: "1em",
           fontWeight: isCurrent ? "800" : "700",
           marginBottom: "4px",
-          color: "white",
+          color: tempColor,
+          backgroundColor: isExpanded ? `${tempColor}20` : "transparent",
+          borderRadius: isExpanded ? "8px" : "0",
+          padding: isExpanded ? "4px 8px" : "0",
+          textShadow: "0 1px 2px rgba(0, 0, 0, 0.5)",
         }}
       >
         {temperature}°
       </div>
 
-      {/* Température ressentie */}
-      {feelsLike !== undefined && (
-        <div
-          className="hour-feels-like"
-          style={{
-            fontSize: "0.7em",
-            opacity: "0.8",
-            margin: "1px 0",
-            color: "#ffa500",
-          }}
-        >
-          {feelsLike}°
-        </div>
-      )}
+      {isExpanded ? (
+        // Mode étendu - afficher toutes les informations détaillées
+        <>
+          {/* Température ressentie */}
+          {feelsLike !== undefined && (
+            <div className="text-xs opacity-80 text-orange-300">
+              Ressenti: {feelsLike}°
+            </div>
+          )}
 
-      {/* Vent */}
-      <div
-        className="hour-wind"
-        style={{
-          fontSize: "0.7em",
-          opacity: "0.7",
-          color: "white",
-        }}
-      >
-        <div
-          className="hour-wind-dir"
-          style={{
-            color: "#4caf50",
-            fontWeight: "500",
-          }}
-        >
-          {windDirection}
-        </div>
-        <div
-          className="hour-wind-speed"
-          style={{
-            color: "#4caf50",
-            fontWeight: "500",
-          }}
-        >
-          {windSpeed}km/h
-        </div>
-      </div>
+          {/* Direction du vent */}
+          <div className="text-xs opacity-80 text-green-300">
+            Direction: {windDirection}
+          </div>
 
-      {/* Précipitations */}
-      <div
-        className="hour-precip"
-        style={{
-          fontSize: "0.7em",
-          opacity: "0.8",
-          margin: "1px 0",
-          color: "#64b5f6",
-        }}
-      >
-        {precipitation}mm
-      </div>
+          {/* Vitesse du vent */}
+          <div className="text-xs opacity-80 text-green-300">
+            Vent: {windSpeed} km/h
+          </div>
 
-      {/* Probabilité précipitations */}
-      <div
-        className="hour-precip-prob"
-        style={{
-          fontSize: "0.7em",
-          opacity: "0.8",
-          margin: "1px 0",
-          color: "#90caf9",
-        }}
-      >
-        {precipitationProbability}%
-      </div>
+          {/* Probabilité précipitations */}
+          <div className="text-xs opacity-80 text-blue-300">
+            Probabilité: {precipitationProbability}%
+          </div>
 
-      {/* Humidité */}
-      <div
-        className="hour-humidity"
-        style={{
-          fontSize: "0.7em",
-          opacity: "0.8",
-          margin: "1px 0",
-          color: "white",
-        }}
-      >
-        {humidity}%
-      </div>
+          {/* Précipitations avec widget Mix/GraphCast */}
+          <PrecipitationWidget
+            mixMm={precipitation}
+            graphcastMm={graphcastPrecipitation}
+            isExpanded={true}
+          />
 
-      {/* UV Index si > 0 */}
-      {uvIndex > 0 && (
-        <div
-          className="uv-badge-small"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "20px",
-            height: "20px",
-            borderRadius: "50%",
-            color: "white",
-            fontWeight: "bold",
-            fontSize: "10px",
-            textShadow: "0 1px 1px rgba(0, 0, 0, 0.3)",
-            boxShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            margin: "2px auto 0",
-            background: getUvColor(uvIndex),
-          }}
-        >
-          {uvIndex}
-        </div>
-      )}
+          {/* Humidité */}
+          <div className="text-xs opacity-80 text-white">
+            Humidité: {humidity}%
+          </div>
 
-      {/* AQI si disponible */}
-      {aqi !== undefined && (
-        <div
-          className="aqi-badge-small"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "20px",
-            height: "20px",
-            borderRadius: "50%",
-            color: "white",
-            fontWeight: "bold",
-            fontSize: "10px",
-            textShadow: "0 1px 1px rgba(0, 0, 0, 0.3)",
-            boxShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            margin: "2px auto 0",
-            background: getAqiColor(aqi),
-          }}
-        >
-          {aqi}
-        </div>
+          {/* UV Index */}
+          <div className="text-xs opacity-80 text-yellow-300">
+            UV: {uvIndex > 0 ? uvIndex : "N/A"}
+          </div>
+
+          {/* Indice qualité de l'air */}
+          {aqi !== undefined && (
+            <div className="text-xs opacity-80 text-purple-300">AQI: {aqi}</div>
+          )}
+        </>
+      ) : (
+        // Mode compact - afficher uniquement les précipitations
+        <PrecipitationWidget
+          mixMm={precipitation}
+          graphcastMm={graphcastPrecipitation}
+          isExpanded={false}
+        />
       )}
     </div>
   );

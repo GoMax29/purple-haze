@@ -165,6 +165,9 @@ function generateApiUrls(latitude, longitude) {
   // API 1 - Données principales météo (multi-modèles) + daily sunrise/sunset
   const api1Url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=sunrise,sunset&models=ecmwf_ifs025,gfs_global,gfs_graphcast025,icon_global,icon_eu,knmi_harmonie_arome_europe,meteofrance_arpege_europe,meteofrance_arome_france,meteofrance_arome_france_hd,ukmo_global_deterministic_10km,ukmo_uk_deterministic_2km&timezone=${timezone}`;
 
+  // API Probabilité précipitations - Best Match
+  const apiPrecipProbaUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=precipitation_probability&models=best_match&timezone=${timezone}`;
+
   // API 2 - UV et qualité de l'air + current
   const api2Url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=european_aqi,uv_index,uv_index_clear_sky&current=european_aqi,uv_index&timezone=${timezone}`;
 
@@ -174,7 +177,7 @@ function generateApiUrls(latitude, longitude) {
   // API Current (Now) - Conditions météo actuelles
   const apiCurrentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=${timezone}`;
 
-  return { api1Url, api2Url, api3Url, apiCurrentUrl };
+  return { api1Url, api2Url, api3Url, apiCurrentUrl, apiPrecipProbaUrl };
 }
 
 /**
@@ -409,17 +412,23 @@ export async function fetchMeteoData(latitude, longitude, options = {}) {
     await initApiCounter();
 
     // Génération des URLs
-    const { api1Url, api2Url, api3Url } = generateApiUrls(latitude, longitude);
+    const { api1Url, api2Url, api3Url, apiPrecipProbaUrl } = generateApiUrls(
+      latitude,
+      longitude
+    );
 
-    // Enregistrer l'appel API1 dans le compteur
+    // Enregistrer les appels API dans le compteur
     if (apiCallsCounter) {
-      apiCallsCounter.recordApiCall();
+      apiCallsCounter.recordApiCall(); // API1
+      apiCallsCounter.recordApiCall(); // API2
+      apiCallsCounter.recordApiCall(); // API Precip Proba
     }
 
     // Appels parallèles aux APIs (API3 désactivée)
     const apiCalls = [
       fetchWithErrorHandling(api1Url, "API Météo Principale"),
       fetchWithErrorHandling(api2Url, "API UV/Qualité Air"),
+      fetchWithErrorHandling(apiPrecipProbaUrl, "API Précipitations GraphCast"),
     ];
 
     // Ajouter API3 seulement si activée
@@ -428,7 +437,7 @@ export async function fetchMeteoData(latitude, longitude, options = {}) {
     }
 
     const results = await Promise.allSettled(apiCalls);
-    const [api1Res, api2Res, api3Res] = results;
+    const [api1Res, api2Res, apiPrecipProbaRes, api3Res] = results;
 
     if (api1Res.status === "rejected") {
       // Sans API1 impossible de continuer
@@ -438,6 +447,8 @@ export async function fetchMeteoData(latitude, longitude, options = {}) {
     }
     const api1Data = api1Res.value;
     const api2Data = api2Res.status === "fulfilled" ? api2Res.value : null;
+    const apiPrecipProbaData =
+      apiPrecipProbaRes.status === "fulfilled" ? apiPrecipProbaRes.value : null;
     const api3Data =
       api3Res && api3Res.status === "fulfilled" ? api3Res.value : null;
 
@@ -470,6 +481,13 @@ export async function fetchMeteoData(latitude, longitude, options = {}) {
         description: "UV et qualité de l'air (heure par heure)",
         parameters: ["european_aqi", "uv_index", "uv_index_clear_sky"],
         data: api2Data,
+      },
+      api_precip_proba: {
+        source: "api.open-meteo.com/forecast",
+        description: "Probabilités précipitations Best Match",
+        model: "best_match",
+        parameters: ["precipitation_probability"],
+        data: apiPrecipProbaData,
       },
       api3: {
         source: "marine-api.open-meteo.com",

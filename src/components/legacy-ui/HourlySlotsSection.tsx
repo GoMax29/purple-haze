@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { DailyWeatherData } from "@/types/dailyData";
 import { getDayNightStateAt } from "@/utils/dayNight";
 import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
+import { getTemperatureColor } from "../../utils/temperatureColors";
+import { degreesToCompass } from "../../utils/windDirection";
+import PrecipitationWidget from "../ui/PrecipitationWidget";
 import {
   TimezoneInfo,
   formatHourSlot,
@@ -16,7 +19,16 @@ interface HourlySlot {
   time: string; // ISO string
   hour: string; // Format "14h" ou "maint."
   temperature: number;
+  apparentTemperature: number;
   precipitation: number; // précipitations de l'heure suivante (preceding hour)
+  graphcastPrecipitation: number; // précipitations GraphCast
+  precipitationProbability: number;
+  humidity: number;
+  uvIndex: number;
+  aqi: number;
+  windSpeed: number;
+  windDirection: string;
+  windGust: number; // rafales
   wmo: number;
   variant: "day" | "night" | "transition";
 }
@@ -36,6 +48,7 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
 }) => {
   const [hourlySlots, setHourlySlots] = useState<HourlySlot[]>([]);
   const [title, setTitle] = useState("Aujourd'hui");
+  const [isExpanded, setIsExpanded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,6 +125,28 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
       "Décembre",
     ];
     return months[new Date().getMonth()];
+  };
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  // Fonctions pour les couleurs des badges (selon le snippet fourni)
+  const getUvColor = (uv: number): string => {
+    if (uv <= 2) return "#8BC34A";
+    if (uv <= 5) return "#FFEB3B";
+    if (uv <= 7) return "#FF9800";
+    if (uv <= 10) return "#F44336";
+    return "#9C27B0";
+  };
+
+  const getAqiColor = (aqi: number): string => {
+    if (aqi <= 20) return "#51f1e6";
+    if (aqi <= 40) return "#50ccaa";
+    if (aqi <= 60) return "#f1e741";
+    if (aqi <= 80) return "#ff5151";
+    if (aqi <= 100) return "#970033";
+    return "#7d2080";
   };
 
   const generateHourlySlots = (
@@ -195,11 +230,28 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
         ? allHourlyData[nextHourIndex]?.precipitation?.mm || 0
         : 0;
 
+    // Données GraphCast pour précipitations
+    const graphcastPrecipitation =
+      nextHourIndex < allHourlyData.length
+        ? allHourlyData[nextHourIndex]?.precipitation?.graphcast_mm || 0
+        : 0;
+
     return {
       time: hourData.time,
       hour: hourDisplay,
       temperature: Math.round(hourData.temperature || 0),
+      apparentTemperature: Math.round(hourData.apparentTemperature || 0),
       precipitation: Math.round(precipitation * 10) / 10, // Arrondi à 1 décimale
+      graphcastPrecipitation: Math.round(graphcastPrecipitation * 10) / 10, // Arrondi à 1 décimale
+      precipitationProbability: Math.round(
+        hourData.precipitation?.probability || 0
+      ),
+      humidity: Math.round(hourData.humidity || 0),
+      uvIndex: Math.round(hourData.uvIndex || 0),
+      aqi: Math.round(hourData.aqi || 0),
+      windSpeed: Math.round(hourData.wind?.speed || 0),
+      windDirection: degreesToCompass(hourData.wind?.direction),
+      windGust: Math.round(hourData.wind?.gust || 0),
       wmo: hourData.wmo || 0,
       variant: variant,
     };
@@ -320,16 +372,16 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
           <div
             key={`${slot.time}-${index}`}
             style={{
-              minWidth: "85px",
-              maxWidth: "85px",
+              minWidth: isExpanded ? "160px" : "85px",
+              maxWidth: isExpanded ? "160px" : "85px",
               background: getSlotBackground(slot.variant),
               borderRadius: "12px",
-              padding: "12px 8px",
+              padding: isExpanded ? "16px 12px" : "12px 8px",
               textAlign: "center",
               fontSize: "0.85em",
               display: "flex",
               flexDirection: "column",
-              gap: "6px",
+              gap: isExpanded ? "8px" : "6px",
               border:
                 slot.hour === "maint."
                   ? "2px solid #fbbf24"
@@ -338,6 +390,7 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
                 slot.hour === "maint."
                   ? "0 0 15px rgba(251, 191, 36, 0.4)"
                   : "none",
+              transition: "all 0.3s ease",
             }}
           >
             {/* Heure */}
@@ -408,44 +461,192 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
               <span style={{ display: "none", fontSize: "24px" }}></span>
             </div>
 
-            {/* Température */}
+            {/* Température avec couleur dynamique */}
             <div
               style={{
                 fontSize: "1em",
                 fontWeight: "700",
-                color: "white",
+                color: getTemperatureColor(slot.temperature),
+                textShadow: "0 1px 2px rgba(0, 0, 0, 0.5)",
+                backgroundColor: isExpanded
+                  ? `${getTemperatureColor(slot.temperature)}20`
+                  : "transparent",
+                borderRadius: isExpanded ? "8px" : "0",
+                padding: isExpanded ? "4px 8px" : "0",
               }}
             >
               {slot.temperature}°
             </div>
 
-            {/* Précipitations */}
-            <div
-              style={{
-                fontSize: "0.75em",
-                color: "#64b5f6",
-                opacity: 0.9,
-              }}
-            >
-              {slot.precipitation}mm
-            </div>
+            {isExpanded ? (
+              // Mode étendu - afficher toutes les informations détaillées
+              <>
+                {/* Température ressentie */}
+                <div
+                  className="text-xs font-medium"
+                  style={{ color: "#fb923c" }}
+                >
+                  {slot.apparentTemperature}°
+                </div>
+
+                {/* Direction du vent */}
+                <div
+                  className="text-xs font-medium"
+                  style={{ color: "#ffffff" }}
+                >
+                  {slot.windDirection}
+                </div>
+
+                {/* Vitesse du vent */}
+                <div
+                  className="text-xs font-medium"
+                  style={{ color: "#ffffff" }}
+                >
+                  {slot.windSpeed} km/h
+                </div>
+
+                {/* Rafales */}
+                {slot.windGust > 0 && (
+                  <div
+                    className="text-xs font-medium"
+                    style={{ color: "#f87171" }}
+                  >
+                    {slot.windGust} km/h
+                  </div>
+                )}
+
+                {/* Probabilité précipitations */}
+                <div
+                  className="text-xs font-medium"
+                  style={{ color: "#a78bfa" }}
+                >
+                  {slot.precipitationProbability}%
+                </div>
+
+                {/* Précipitations avec widget Mix/GraphCast */}
+                <PrecipitationWidget
+                  mixMm={slot.precipitation}
+                  graphcastMm={slot.graphcastPrecipitation}
+                  isExpanded={true}
+                />
+
+                {/* Humidité */}
+                <div
+                  className="text-xs font-medium"
+                  style={{ color: "#f472b6" }}
+                >
+                  {slot.humidity}%
+                </div>
+
+                {/* Conteneur centré pour les badges */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "6px",
+                    width: "100%",
+                  }}
+                >
+                  {/* UV Index Badge - ROND */}
+                  <div
+                    style={{
+                      backgroundColor: getUvColor(slot.uvIndex || 0),
+                      color: "#ffffff",
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%", // ROND !
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      textShadow: "0 1px 2px rgba(0,0,0,0.5)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {slot.uvIndex != null ? slot.uvIndex : "N/A"}
+                  </div>
+
+                  {/* AQI Badge - Carré arrondi */}
+                  <div
+                    style={{
+                      backgroundColor: getAqiColor(slot.aqi || 0),
+                      color: "#ffffff",
+                      width: "30px",
+                      height: "22px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      textShadow: "0 1px 2px rgba(0,0,0,0.5)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {slot.aqi != null ? slot.aqi : "N/A"}
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Mode compact - afficher uniquement les précipitations
+              <PrecipitationWidget
+                mixMm={slot.precipitation}
+                graphcastMm={slot.graphcastPrecipitation}
+                isExpanded={false}
+              />
+            )}
           </div>
         ))}
       </div>
 
-      {/* Indicateur de scroll */}
-      {hourlySlots.length > 5 && (
-        <div
+      {/* Bouton d'expansion/compression - ROND et CENTRÉ */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "8px",
+        }}
+      >
+        <button
+          onClick={toggleExpanded}
           style={{
-            textAlign: "center",
-            marginTop: "10px",
-            fontSize: "0.75em",
-            color: "rgba(255, 255, 255, 0.6)",
+            width: "56px",
+            height: "56px",
+            borderRadius: "50%", // ROND !
+            background:
+              "linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #6d28d9 100%)",
+            border: "3px solid rgba(255,255,255,0.3)",
+            color: "#ffffff",
+            fontSize: "32px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            boxShadow:
+              "0 8px 25px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.1)";
+            e.currentTarget.style.boxShadow =
+              "0 12px 35px rgba(124, 58, 237, 0.6)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow =
+              "0 8px 25px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)";
+          }}
+          aria-label={
+            isExpanded ? "Masquer les détails" : "Afficher les détails"
+          }
         >
-          Faites défiler horizontalement pour voir plus d'heures
-        </div>
-      )}
+          {isExpanded ? "−" : "+"}
+        </button>
+      </div>
     </div>
   );
 };

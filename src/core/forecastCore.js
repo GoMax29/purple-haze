@@ -219,6 +219,13 @@ export const buildForecastFromCoordinates = async (lat, lon) => {
     const uvHourly = meteoData?.api2?.data?.hourly?.uv_index || [];
     const aqiHourly = meteoData?.api2?.data?.hourly?.european_aqi || [];
 
+    // 2.1. Récupération des données GraphCast et probabilités
+    const graphcastPrecipHourly =
+      meteoData?.api1?.data?.hourly?.precipitation_gfs_graphcast025 || [];
+    const precipProbaHourly =
+      meteoData?.api_precip_proba?.data?.hourly?.precipitation_probability ||
+      [];
+
     // 3. Appel de tous les modules de traitement en parallèle
     console.log(`🔄 [ForecastCore] Appel des modules de traitement...`);
     const [
@@ -290,6 +297,8 @@ export const buildForecastFromCoordinates = async (lat, lon) => {
           CI: precipEntry?.CI || null,
           IQR: precipEntry?.IQR || null,
           PoP: precipEntry?.PoP || 0,
+          graphcast_mm: pickValueAt(graphcastPrecipHourly, h),
+          probability: pickValueAt(precipProbaHourly, h),
         },
         wind: {
           speed: ventEntry?.speed || null,

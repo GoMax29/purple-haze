@@ -40,6 +40,7 @@ const HourlySection: React.FC<HourlySectionProps> = ({
   onDurationChange,
 }) => {
   const [localSelectedHour, setLocalSelectedHour] = useState(selectedHourIndex);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleHourClick = (index: number) => {
     setLocalSelectedHour(index);
@@ -58,8 +59,12 @@ const HourlySection: React.FC<HourlySectionProps> = ({
     handleHourClick(index);
   };
 
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <div className="day-section mb-6">
+    <div className="day-section mb-3">
       {/* Widget durée d'activité */}
       <ActivityWidget
         selectedDuration={selectedDuration}
@@ -67,8 +72,8 @@ const HourlySection: React.FC<HourlySectionProps> = ({
       />
 
       {/* Timeline horaire scrollable */}
-      <div className="mb-4">
-        <h3 className="text-sm font-medium text-purple-200 mb-3">
+      <div className="mb-2">
+        <h3 className="text-sm font-medium text-purple-200 mb-2">
           Prévisions horaires
         </h3>
         <div className="hourly-scroll overflow-x-auto">
@@ -84,23 +89,32 @@ const HourlySection: React.FC<HourlySectionProps> = ({
                 windDirection={data.windDirection.toString()}
                 precipitation={data.precipitation}
                 precipitationProbability={50}
+                graphcastPrecipitation={0} // TODO: mapper depuis les données réelles
+                graphcastProbability={0} // TODO: mapper depuis les données réelles
                 humidity={65}
                 uvIndex={data.uvIndex}
                 aqi={data.aqi}
                 isSelected={index === localSelectedHour}
+                isExpanded={isExpanded}
                 onClick={() => handleHourClick(index)}
               />
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Barre de précipitations - temporairement désactivée pour compatibilité TypeScript */}
-      {/* <PrecipitationBar
-        precipitationData={precipitationData}
-        selectedTimeIndex={localSelectedHour}
-        onTimeSelect={handlePrecipitationTimeSelect}
-      /> */}
+        {/* Bouton d'expansion/compression */}
+        <div className="flex justify-center mt-3">
+          <button
+            onClick={toggleExpanded}
+            className="bg-white/10 hover:bg-white/20 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all duration-300 backdrop-blur-sm border border-white/20"
+            aria-label={
+              isExpanded ? "Masquer les détails" : "Afficher les détails"
+            }
+          >
+            {isExpanded ? "−" : "+"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
