@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { searchLocations, LocationData } from "../../services/geocoding";
 import {
   FavoritesService,
@@ -33,6 +34,12 @@ const LocationSearchModal: React.FC<
   const searchInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Assurer que le composant est monté côté client
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Chargement initial des données
   useEffect(() => {
@@ -253,9 +260,27 @@ const LocationSearchModal: React.FC<
     );
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !isMounted) return null;
 
-  return (
+  // Fonction pour gérer TOUS les événements du bouton X
+  const handleClearClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSearchQuery("");
+    setTimeout(() => searchInputRef.current?.focus(), 10);
+  };
+
+  const handleClearTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleClearMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const modalContent = (
     <div
       style={{
         position: "fixed",
@@ -263,12 +288,13 @@ const LocationSearchModal: React.FC<
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "#4938ce",
+        backgroundColor: "rgba(73, 56, 206, 0.8)",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        zIndex: 9999,
+        zIndex: 999999,
         paddingTop: `${anchorTop}px`,
+        backdropFilter: "blur(4px)",
       }}
     >
       <div
@@ -342,6 +368,8 @@ const LocationSearchModal: React.FC<
                 fontSize: "16px",
                 outline: "none",
                 transition: "border-color 0.2s ease",
+                backgroundColor: "#ffffff",
+                color: "#111111",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.5)";
@@ -350,10 +378,13 @@ const LocationSearchModal: React.FC<
                 e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
               }}
             />
-            {/* Bouton pour effacer le texte */}
+            {/* Bouton pour effacer le texte - Gestion événements robuste */}
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={handleClearClick}
+                onMouseDown={handleClearMouseDown}
+                onTouchStart={handleClearTouchStart}
+                onTouchEnd={handleClearClick}
                 style={{
                   position: "absolute",
                   right: isLoading ? "36px" : "12px",
@@ -363,7 +394,7 @@ const LocationSearchModal: React.FC<
                   border: "none",
                   fontSize: "18px",
                   cursor: "pointer",
-                  color: "rgba(255, 255, 255, 0.6)",
+                  color: "#000000",
                   width: "20px",
                   height: "20px",
                   display: "flex",
@@ -371,15 +402,16 @@ const LocationSearchModal: React.FC<
                   justifyContent: "center",
                   borderRadius: "50%",
                   transition: "all 0.2s ease",
+                  zIndex: 10,
+                  touchAction: "manipulation",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    "rgba(255, 255, 255, 0.1)";
-                  e.currentTarget.style.color = "white";
+                  e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.06)";
+                  e.currentTarget.style.color = "#000000";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.6)";
+                  e.currentTarget.style.color = "#000000";
                 }}
               >
                 ✕
@@ -526,6 +558,9 @@ const LocationSearchModal: React.FC<
       </div>
     </div>
   );
+
+  // Utiliser un portal pour rendre la modal au niveau de document.body
+  return createPortal(modalContent, document.body);
 };
 
 export default LocationSearchModal;

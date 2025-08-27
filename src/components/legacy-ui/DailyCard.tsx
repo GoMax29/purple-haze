@@ -89,7 +89,7 @@ const DailyCard: React.FC<DailyCardProps> = ({
           alignItems: "center",
           justifyContent: "center",
           cursor: "help",
-          zIndex: 10,
+          zIndex: 1,
           animation: "pulse 2s infinite",
         }}
         title={riskAnalysis.riskTooltip}

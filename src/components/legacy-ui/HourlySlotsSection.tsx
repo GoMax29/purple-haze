@@ -317,6 +317,7 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
         padding: "20px",
         margin: "20px 0",
         color: "white",
+        position: "relative",
       }}
     >
       {/* En-tête avec titre et bouton infos */}

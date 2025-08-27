@@ -104,6 +104,7 @@ const NewHeader: React.FC<NewHeaderProps> = ({
           justifyContent: "center",
           marginBottom: "16px",
           padding: "0 25px", // Espace de 25px de chaque côté sur mobile
+          background: "transparent",
         }}
       >
         <div
