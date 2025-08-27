@@ -445,34 +445,6 @@ La sortie est cohérente, normalisée et injectée facilement dans l’UI
 
 ## Aucun duplicata de logique dans un coreProcessor intermédiaire
 
-##### legacy milestone 3
-
-🟡 Milestone 3 — Module central mainCoreProcessor.js
-🎯 Objectif :
-Fusionner tous les mini-coreProcessors dans un orchestrateur unique, lisant en une fois la réponse API et retournant un objet complet, prêt à injecter dans le front.
-
-✅ Étapes :
-Créer /shared/mainCoreProcessor.js
-
-Appeler tous les xxx_coreProcessor.js dynamiquement (par paramètre)
-
-Retourner un objet standardisé, par exemple :
-{
-ts
-Copier
-Modifier
-{}
-temperature: Output[],
-vent: Output[],
-pluie: Output[],
-...
-}
-(Optionnel) Mutualiser les appels redondants ou les traitements partagés
-
-✅ Critère de succès :
-L’appel à mainCoreProcessor(lat, lon) retourne tous les paramètres météo, traités proprement, en une seule passe.
-
-####
 
 Milestone 3 — Core orchestrateur météo
 Créer src/core/forecastCore.js exportant une fonction buildForecastFromHourly(hourly, dailyExtras) qui retourne :
@@ -505,9 +477,15 @@ Remplacer les données hardcodées ou mockées
 
 S'assurer du bon fonctionnement :
 
-des sliders
-
+des bandeau jours
 du bandeau horaire
+des slot horaire
+de la cohérence parametre "instant" et "preceding hour"
+de l'affichage par tranche horaire des code wmo
+de la bascule mode simple/mode détaillé
+de la bascule emoji WMO / emoji de recommandation
+
+
 
 des tooltips, transitions, etc.
 

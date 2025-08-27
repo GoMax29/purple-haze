@@ -150,16 +150,18 @@ const LocationSearchModal: React.FC<
           borderRadius: "8px",
           cursor: "pointer",
           backgroundColor: isSelected
-            ? "rgba(102, 126, 234, 0.1)"
+            ? "rgba(255, 255, 255, 0.1)"
             : "transparent",
-          border: isSelected ? "2px solid #667eea" : "2px solid transparent",
+          border: isSelected
+            ? "2px solid rgba(255, 255, 255, 0.3)"
+            : "2px solid transparent",
           marginBottom: "4px",
           transition: "all 0.2s ease",
         }}
         onClick={() => handleLocationSelect(location)}
         onMouseEnter={(e) => {
           if (!isSelected) {
-            e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.05)";
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
           }
         }}
         onMouseLeave={(e) => {
@@ -181,7 +183,7 @@ const LocationSearchModal: React.FC<
               const fallback = document.createElement("div");
               fallback.textContent = location.country;
               fallback.style.cssText =
-                "font-size: 10px; color: #666; text-align: center; width: 24px; height: 18px; line-height: 18px; border: 1px solid #ddd; border-radius: 2px;";
+                "font-size: 10px; color: rgba(255, 255, 255, 0.7); text-align: center; width: 24px; height: 18px; line-height: 18px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 2px;";
               e.currentTarget.parentNode?.appendChild(fallback);
             }}
           />
@@ -191,10 +193,11 @@ const LocationSearchModal: React.FC<
           <div
             style={{
               fontWeight: "600",
-              color: "#333",
+              color: "white",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
+              textShadow: "0 1px 1px rgba(0, 0, 0, 0.1)",
             }}
           >
             {location.name}
@@ -202,7 +205,7 @@ const LocationSearchModal: React.FC<
           <div
             style={{
               fontSize: "0.85em",
-              color: "#666",
+              color: "rgba(255, 255, 255, 0.8)",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -213,7 +216,7 @@ const LocationSearchModal: React.FC<
           <div
             style={{
               fontSize: "0.75em",
-              color: "#999",
+              color: "rgba(255, 255, 255, 0.6)",
               marginTop: "2px",
             }}
           >
@@ -260,18 +263,18 @@ const LocationSearchModal: React.FC<
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backgroundColor: "#4938ce",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        zIndex: 1000,
+        zIndex: 9999,
         paddingTop: `${anchorTop}px`,
       }}
     >
       <div
         ref={modalRef}
         style={{
-          backgroundColor: "white",
+          background: "linear-gradient(135deg, #667ce7 0%, #744fa6 100%)",
           borderRadius: "16px",
           width: "100%",
           maxWidth: "600px",
@@ -286,8 +289,8 @@ const LocationSearchModal: React.FC<
         <div
           style={{
             padding: "20px",
-            borderBottom: "1px solid #eee",
-            backgroundColor: "#f8f9fa",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            backgroundColor: "#4938ce",
           }}
         >
           <div
@@ -302,8 +305,9 @@ const LocationSearchModal: React.FC<
                 margin: 0,
                 flex: 1,
                 fontSize: "1.5em",
-                color: "#333",
+                color: "white",
                 fontWeight: "600",
+                textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               }}
             >
               Rechercher une ville
@@ -316,7 +320,7 @@ const LocationSearchModal: React.FC<
                 fontSize: "24px",
                 cursor: "pointer",
                 padding: "4px",
-                color: "#666",
+                color: "rgba(255, 255, 255, 0.8)",
               }}
             >
               ✕
@@ -332,20 +336,55 @@ const LocationSearchModal: React.FC<
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: "100%",
-                padding: "12px 16px",
-                border: "2px solid #ddd",
+                padding: "12px 44px 12px 16px", // Espace pour le bouton X
+                border: "2px solid rgba(255, 255, 255, 0.2)",
                 borderRadius: "8px",
                 fontSize: "16px",
                 outline: "none",
                 transition: "border-color 0.2s ease",
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#667eea";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.5)";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#ddd";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
               }}
             />
+            {/* Bouton pour effacer le texte */}
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                style={{
+                  position: "absolute",
+                  right: isLoading ? "36px" : "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                  color: "rgba(255, 255, 255, 0.6)",
+                  width: "20px",
+                  height: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "50%",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 0.1)";
+                  e.currentTarget.style.color = "white";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.6)";
+                }}
+              >
+                ✕
+              </button>
+            )}
             {isLoading && (
               <div
                 style={{
@@ -365,7 +404,7 @@ const LocationSearchModal: React.FC<
             <div
               style={{
                 marginTop: "8px",
-                color: "#e74c3c",
+                color: "#ff6b6b",
                 fontSize: "0.9em",
               }}
             >
@@ -389,8 +428,9 @@ const LocationSearchModal: React.FC<
                 style={{
                   margin: "0 0 12px 0",
                   fontSize: "1.1em",
-                  color: "#333",
+                  color: "white",
                   fontWeight: "600",
+                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 Résultats de recherche
@@ -408,7 +448,7 @@ const LocationSearchModal: React.FC<
                 <div
                   style={{
                     textAlign: "center",
-                    color: "#666",
+                    color: "rgba(255, 255, 255, 0.7)",
                     padding: "20px",
                     fontStyle: "italic",
                   }}
@@ -426,8 +466,9 @@ const LocationSearchModal: React.FC<
                 style={{
                   margin: "0 0 12px 0",
                   fontSize: "1.1em",
-                  color: "#333",
+                  color: "white",
                   fontWeight: "600",
+                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 ⭐ Favoris
@@ -449,8 +490,9 @@ const LocationSearchModal: React.FC<
                 style={{
                   margin: "0 0 12px 0",
                   fontSize: "1.1em",
-                  color: "#333",
+                  color: "white",
                   fontWeight: "600",
+                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 🕐 Recherches récentes
@@ -472,7 +514,7 @@ const LocationSearchModal: React.FC<
               <div
                 style={{
                   textAlign: "center",
-                  color: "#666",
+                  color: "rgba(255, 255, 255, 0.7)",
                   padding: "40px 20px",
                   fontStyle: "italic",
                 }}

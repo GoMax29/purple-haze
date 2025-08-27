@@ -20,7 +20,7 @@ function quantile(sortedValues, q) {
 export function aggregatePrecipMm(modelsValues, config) {
   const agg = config.aggregation_params || {};
   const wetThreshold =
-    typeof agg.wet_threshold_mm === "number" ? agg.wet_threshold_mm : 0.0;
+    typeof agg.wet_threshold_mm === "number" ? agg.wet_threshold_mm : 0.1;
   const useLog = !!agg.use_log_transform;
   const eps = typeof agg.epsilon === "number" ? agg.epsilon : 0.001;
   const sigmaRatio =
@@ -78,3 +78,33 @@ export function aggregatePrecipMm(modelsValues, config) {
 
   return { mm_agg, mouillant, CI, IQR };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

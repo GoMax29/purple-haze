@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
     SELECTED_LOCATION: 'weather_app_selected_location'
 } as const;
 
-const MAX_RECENT_SEARCHES = 10;
+const MAX_RECENT_SEARCHES = 5;
 const MAX_FAVORITES = 20;
 
 /**

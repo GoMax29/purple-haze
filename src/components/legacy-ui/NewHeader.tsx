@@ -103,6 +103,7 @@ const NewHeader: React.FC<NewHeaderProps> = ({
           display: "flex",
           justifyContent: "center",
           marginBottom: "16px",
+          padding: "0 25px", // Espace de 25px de chaque côté sur mobile
         }}
       >
         <div
@@ -121,8 +122,8 @@ const NewHeader: React.FC<NewHeaderProps> = ({
               "linear-gradient(135deg, #4338ca 0%, #7c3aed 50%, #9333ea 100%)",
             borderRadius: "25px",
             cursor: "pointer",
-            minWidth: "300px",
-            maxWidth: "500px",
+            minWidth: "250px",
+            maxWidth: "450px",
             width: "100%",
             boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
             transition: "all 0.3s ease",
@@ -180,67 +181,6 @@ const NewHeader: React.FC<NewHeaderProps> = ({
               : "Rechercher une ville dans le monde..."}
           </div>
         </div>
-      </div>
-
-      {/* Section des boutons d'accès rapide - sous le champ de recherche */}
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          justifyContent: "center",
-          maxWidth: "500px",
-          margin: "0 auto",
-        }}
-      >
-        {QUICK_ACCESS_CITIES.map((city) => {
-          const isSelected =
-            isCurrentLocation(city) || selectedCity === city.name;
-
-          return (
-            <button
-              key={city.id}
-              onClick={() => handleQuickCitySelect(city)}
-              style={{
-                padding: "8px 12px",
-                background: isSelected
-                  ? "linear-gradient(45deg, #7c3aed, #9333ea)"
-                  : city.color,
-                color: "white",
-                border: "none",
-                borderRadius: "16px",
-                cursor: "pointer",
-                fontSize: "0.75em",
-                fontWeight: "500",
-                boxShadow: isSelected
-                  ? "0 3px 10px rgba(124, 58, 237, 0.4)"
-                  : "0 2px 6px rgba(0, 0, 0, 0.1)",
-                transform: isSelected ? "scale(1.05)" : "none",
-                transition: "all 0.3s ease",
-                flex: 1,
-                minWidth: 0,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-              onMouseEnter={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 3px 8px rgba(0, 0, 0, 0.2)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.transform = "none";
-                  e.currentTarget.style.boxShadow =
-                    "0 2px 6px rgba(0, 0, 0, 0.1)";
-                }
-              }}
-            >
-              {city.name}
-            </button>
-          );
-        })}
       </div>
 
       {/* Modal de recherche */}
