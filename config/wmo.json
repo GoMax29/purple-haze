@@ -77,13 +77,13 @@
     },
     "ukmo_uk_deterministic_2km": {
       "name": "UKMO DETERM 2KM",
-      "forecast_hours": [0, 36],
+      "forecast_hours": [0, 48],
       "weight": 1.0,
       "enabled": true
     },
     "meteofrance_arpege_europe": {
       "name": "MF ARPEGE EU",
-      "forecast_hours": [37, 96],
+      "forecast_hours": [0, 96],
       "weight": 1.0,
       "enabled": true
     },
@@ -95,31 +95,31 @@
     },
     "ukmo_global_deterministic_10km": {
       "name": "UKMO GLOBAL DETERM 10KM",
-      "forecast_hours": [49, 120],
+      "forecast_hours": [0, 120],
       "weight": 1.0,
       "enabled": true
     },
     "gfs_global": {
       "name": "GFS GLOBAL 0.1°/0.25°",
-      "forecast_hours": [121, 167],
+      "forecast_hours": [0, 167],
       "weight": 1.0,
       "enabled": true
     },
     "gfs_graphcast025": {
       "name": "GFS GRAPHCAST",
-      "forecast_hours": [96, 167],
+      "forecast_hours": [0, 167],
       "weight": 1.0,
       "enabled": true
     },
     "ecmwf_ifs025": {
       "name": "ECMWF IFS 0.25°",
-      "forecast_hours": [97, 167],
+      "forecast_hours": [0, 167],
       "weight": 1.0,
       "enabled": true
     },
     "icon_global": {
       "name": "ICON GLOBAL",
-      "forecast_hours": [109, 167],
+      "forecast_hours": [0, 167],
       "weight": 1.0,
       "enabled": true
     }

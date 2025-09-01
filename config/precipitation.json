@@ -73,7 +73,7 @@
     "gfs_global": {
       "name": "GFS GLOBAL 0.1°/0.25°",
       "short": "GFS",
-      "forecast_hours": [121, 167],
+      "forecast_hours": [0, 167],
       "weight": 1.0,
       "enabled": true
     },
