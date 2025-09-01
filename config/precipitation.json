@@ -52,7 +52,7 @@
     "meteofrance_arpege_europe": {
       "name": "MF ARPEGE EU",
       "short": "ARPEGE EU",
-      "forecast_hours": [36, 96],
+      "forecast_hours": [0, 96],
       "weight": 1.0,
       "enabled": true
     },
@@ -66,7 +66,7 @@
     "ukmo_global_deterministic_10km": {
       "name": "UKMO GLOBAL DETERM 10KM",
       "short": "UKMO 10K",
-      "forecast_hours": [49, 120],
+      "forecast_hours": [0, 120],
       "weight": 1.0,
       "enabled": true
     },
@@ -87,7 +87,7 @@
     "ecmwf_ifs025": {
       "name": "ECMWF IFS 0.25°",
       "short": "ECMWF",
-      "forecast_hours": [97, 167],
+      "forecast_hours": [0, 167],
       "weight": 1.0,
       "enabled": true
     },
