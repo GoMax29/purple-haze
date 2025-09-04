@@ -184,22 +184,18 @@ const WeatherSummary: React.FC<WeatherSummaryProps> = ({
     <div
       className="weather-summary"
       style={{
-        background:
-          "linear-gradient(145deg, #1a1f3a 0%, #2d1b69 50%, #3b0764 100%)",
-        borderRadius: "20px",
-        margin: "20px 0",
-        overflow: "hidden",
-        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+        background: "transparent",
+        borderRadius: "0",
+        margin: "0",
+        overflow: "visible",
+        boxShadow: "none",
         color: "white",
       }}
     >
       {/* Section conditions actuelles */}
       <div
         style={{
-          background:
-            isDay !== undefined && !isDay
-              ? "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)" // Nuit
-              : "linear-gradient(135deg, #4338ca 0%, #7c3aed 50%, #9333ea 100%)", // Jour
+          background: "transparent",
         }}
       >
         <NowSection
@@ -242,9 +238,9 @@ const WeatherSummary: React.FC<WeatherSummaryProps> = ({
             padding: "20px",
             textAlign: "center",
             color: "white",
-            background: "rgba(255, 255, 255, 0.05)",
-            borderRadius: "16px",
-            margin: "20px 0",
+            background: "transparent",
+            borderRadius: "0",
+            margin: "0",
           }}
         >
           Chargement optimisé des prévisions horaires...

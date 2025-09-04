@@ -1,0 +1,403 @@
+[
+  {
+    "model": "ECMWF IFS 0.25°",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "ECMWF IFS NRT 0.25° dataset overview (Google Earth Engine)",
+    "source_url": "https://developers.google.com/earth-engine/datasets/catalog/ECMWF_NRT_FORECAST_IFS_OPER",
+    "notes": "Open-data subset of IFS at 0.25° on a regular lat/lon grid (global)."
+  },
+  {
+    "model": "ECMWF AIFS 0.25° Single",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "ECMWF AIFS machine learning data",
+    "source_url": "https://www.ecmwf.int/en/forecasts/dataset/aifs-machine-learning-data",
+    "notes": "Forecasts produced on ~0.25° regular lat/lon grid (global)."
+  },
+  {
+    "model": "CMA GRAPES Global",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter (source officielle demandée)."
+  },
+  {
+    "model": "BOM ACCESS Global",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter (source officielle demandée)."
+  },
+  {
+    "model": "NCEP GFS Seamless",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "NCEP GFS products page (NCO)",
+    "source_url": "https://www.nco.ncep.noaa.gov/pmb/products/gfs/",
+    "notes": "Global longitude–latitude grids (0.25°, 0.5°, 1.0° variants)."
+  },
+  {
+    "model": "NCEP GFS Global 0.11°/0.25°",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "NCEP GFS products page (NCO)",
+    "source_url": "https://www.nco.ncep.noaa.gov/pmb/products/gfs/",
+    "notes": "0.25° is standard open-data global grid. 0.11° is experimental/high-res subsets; verify availability."
+  },
+  {
+    "model": "NCEP HRRR U.S. CONUS",
+    "bbox": {
+      "lat_min": 21.13812,
+      "lat_max": 47.84364,
+      "lon_min": -134.0986,
+      "lon_max": -60.90137
+    },
+    "source": "HRRR_conus.domain.txt (NOAA model spec via Unidata RAMADDA)",
+    "source_url": "https://www.unidata.ucar.edu/software/awips2/doc/radarmet/HRRR_conus.domain.txt",
+    "notes": "Bounding box derived from official HRRR CONUS domain corner coordinates."
+  },
+  {
+    "model": "NCEP NBM U.S. CONUS",
+    "bbox": null,
+    "source": "Herbie docs show LCC grid parameters for NBM",
+    "source_url": "https://herbie.readthedocs.io/en/2023.12.4/user_guide/_model_notebooks/nbm.html",
+    "notes": "Exact lat/lon bbox not listed in source; grid is Lambert Conformal (≈2.54 km). À compléter si besoin d'un bbox exact."
+  },
+  {
+    "model": "NCEP NAM U.S. CONUS (12 km)",
+    "bbox": {
+      "lat_min": 12.1899,
+      "lat_max": 61.3095,
+      "lon_min": -152.8787,
+      "lon_max": -49.4154
+    },
+    "source": "NCEP NAM 12 km Analysis (UCAR/NCAR DASH)",
+    "source_url": "https://data.ucar.edu/dataset/ncep-north-american-mesoscale-nam-12-km-analysis",
+    "notes": "Dataset metadata provides bounding box for the NAM 12-km CONUS grid."
+  },
+  {
+    "model": "GFS GraphCast",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "Registry of Open Data on AWS: GraphCastGFS",
+    "source_url": "https://registry.opendata.aws/noaa-nws-graphcastgfs-pds/",
+    "notes": "Global 0.25° grid."
+  },
+  {
+    "model": "JMA Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "JMA MSM (Japan)",
+    "bbox": null,
+    "source": "JMA Numerical weather prediction page",
+    "source_url": "https://www.jma.go.jp/jma/jma-eng/jma-center/nwp/outline-nwp/index.htm",
+    "notes": "MSM covers Japan and adjacent areas on a limited-area grid; exact bbox not listed here. À compléter."
+  },
+  {
+    "model": "JMA GSM Global",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "JMA GSM model description",
+    "source_url": "https://www.jma.go.jp/jma/jma-eng/jma-center/nwp/outline-nwp/outline-nwp.html",
+    "notes": "Global spectral model (GSM)."
+  },
+  {
+    "model": "KMA Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "KMA LDPS",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "KMA GDPS",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "DWD ICON Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "DWD ICON Global",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "DWD ICON NWP products overview",
+    "source_url": "https://www.dwd.de/EN/ourservices/nwp_forecast_data/nwp_forecast_data.html",
+    "notes": "ICON global model (icosahedral grid)."
+  },
+  {
+    "model": "DWD ICON EU",
+    "bbox": {
+      "lat_min": 29.5,
+      "lat_max": 70.5,
+      "lon_min": -23.5,
+      "lon_max": 45.0
+    },
+    "source": "DWD NWP forecast data (ICON-EU domain given)",
+    "source_url": "https://www.dwd.de/EN/ourservices/nwp_forecast_data/nwp_forecast_data.html",
+    "notes": "ICON-EU nest domain from DWD page (open-data subset)."
+  },
+  {
+    "model": "DWD ICON D2 (Germany)",
+    "bbox": {
+      "lat_min": 42.6,
+      "lat_max": 58.64,
+      "lon_min": -4.39,
+      "lon_max": 20.0
+    },
+    "source": "DWD ICON-D2 description",
+    "source_url": "https://www.dwd.de/EN/ourservices/nwp_forecast_data/icon_d2_en.html",
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "GEM Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "GEM Global",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "GEM Regional",
+    "bbox": {
+      "lat_min": 25.0,
+      "lat_max": 75.0,
+      "lon_min": -145.0,
+      "lon_max": -50.0
+    },
+    "source": null,
+    "source_url": null,
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "GEM HRDPS Continental",
+    "bbox": {
+      "lat_min": 35.0,
+      "lat_max": 70.0,
+      "lon_min": -145.0,
+      "lon_max": -50.0
+    },
+    "source": null,
+    "source_url": null,
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "Météo-France Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "Météo-France ARPEGE World",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "ARPEGE World on AWS Open Data",
+    "source_url": "https://registry.opendata.aws/mf-arpege-world/",
+    "notes": "Global ARPEGE grid."
+  },
+  {
+    "model": "Météo-France ARPEGE Europe",
+    "bbox": {
+      "lat_min": 25.0,
+      "lat_max": 72.0,
+      "lon_min": -30.0,
+      "lon_max": 45.0
+    },
+    "source": null,
+    "source_url": null,
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "Météo-France AROME France",
+    "bbox": {
+      "lat_min": 41.0,
+      "lat_max": 52.0,
+      "lon_min": -6.0,
+      "lon_max": 10.0
+    },
+    "source": null,
+    "source_url": null,
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "Météo-France AROME France HD",
+    "bbox": {
+      "lat_min": 41.0,
+      "lat_max": 52.0,
+      "lon_min": -6.0,
+      "lon_max": 10.0
+    },
+    "source": null,
+    "source_url": null,
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "ItaliaMeteo ARPAE ICON 2I",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "MET Norway Nordic Seamless (with ECMWF)",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "MET Norway Nordic",
+    "bbox": {
+      "lat_min": 54.5,
+      "lat_max": 72.5,
+      "lon_min": -5.0,
+      "lon_max": 35.0
+    },
+    "source": null,
+    "source_url": null,
+    "notes": "Bornes extrapolées d’après capture d’écran (approx., marge de sécurité incluse)."
+  },
+  {
+    "model": "KNMI Seamless (with ECMWF)",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "KNMI Harmonie Arome Europe",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "KNMI Harmonie Arome Netherlands",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "DMI Seamless (with ECMWF)",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "DMI Harmonie Arome Europe",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "UK Met Office Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "UK Met Office Global 10km",
+    "bbox": {
+      "lat_min": -90.0,
+      "lat_max": 90.0,
+      "lon_min": -180.0,
+      "lon_max": 180.0
+    },
+    "source": "Met Office global NWP (general)",
+    "source_url": "https://www.metoffice.gov.uk/services/data/met-office-weather-datahub",
+    "notes": "Global model (~10 km). Verify exact grid and coverage for the specific feed."
+  },
+  {
+    "model": "UK Met Office UK 2km (UKV)",
+    "bbox": {
+      "lat_min": 47.9,
+      "lat_max": 62.25,
+      "lon_min": -12.33,
+      "lon_max": 2.89
+    },
+    "source": "Met Office UKV Data Sheet (cordex)",
+    "source_url": "https://www.metoffice.gov.uk/binaries/content/assets/metofficegovuk/pdf/business/data/data-sheets/tech/ukv_data_sheet.pdf",
+    "notes": "UKV 2.2-km domain; bounding box taken from data sheet (corners)."
+  },
+  {
+    "model": "MeteoSwiss ICON Seamless",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "MeteoSwiss ICON CH1",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  },
+  {
+    "model": "MeteoSwiss ICON CH2",
+    "bbox": null,
+    "source": null,
+    "source_url": null,
+    "notes": "À compléter."
+  }
+]

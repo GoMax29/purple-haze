@@ -92,7 +92,7 @@ const NewHeader: React.FC<NewHeaderProps> = ({
         background: "transparent", // pas de fond ajouté sous le bandeau de recherche
         borderRadius: "16px",
         padding: "0",
-        margin: "20px 0",
+        margin: "0",
         backdropFilter: "blur(10px)",
         border: "none",
       }}
@@ -102,8 +102,8 @@ const NewHeader: React.FC<NewHeaderProps> = ({
         style={{
           display: "flex",
           justifyContent: "center",
-          marginBottom: "16px",
-          padding: "0 25px", // Espace de 25px de chaque côté sur mobile
+          // IMPORTANT: on ajoute l'espace au-dessus via padding du parent (pas de marge extérieure)
+          padding: "20px 25px 8px 25px", // top 20px, bottom 8px pour rapprocher de "Maintenant"
           background: "transparent",
         }}
       >
@@ -119,26 +119,26 @@ const NewHeader: React.FC<NewHeaderProps> = ({
             display: "flex",
             alignItems: "center",
             padding: "12px 16px",
-            background:
-              "linear-gradient(135deg, #4338ca 0%, #7c3aed 50%, #9333ea 100%)",
+            background: "#ffffff",
             borderRadius: "25px",
             cursor: "pointer",
             minWidth: "250px",
             maxWidth: "450px",
             width: "100%",
-            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
+            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
             transition: "all 0.3s ease",
-            border: "2px solid transparent",
+            border: "2px solid #7c3aed",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = "0 10px 24px rgba(0, 0, 0, 0.3)";
-            e.currentTarget.style.transform = "translateY(-1px)";
-            e.currentTarget.style.borderColor = "#7c3aed";
+            e.currentTarget.style.boxShadow =
+              "0 12px 30px rgba(124, 58, 237, 0.3)";
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.borderColor = "#6d28d9";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.25)";
+            e.currentTarget.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.15)";
             e.currentTarget.style.transform = "none";
-            e.currentTarget.style.borderColor = "transparent";
+            e.currentTarget.style.borderColor = "#7c3aed";
           }}
         >
           <div
@@ -157,13 +157,13 @@ const NewHeader: React.FC<NewHeaderProps> = ({
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <circle cx="11" cy="11" r="7" stroke="#ffffff" strokeWidth="2" />
+              <circle cx="11" cy="11" r="7" stroke="#7c3aed" strokeWidth="2" />
               <line
                 x1="16.5"
                 y1="16.5"
                 x2="21"
                 y2="21"
-                stroke="#ffffff"
+                stroke="#7c3aed"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
@@ -173,8 +173,9 @@ const NewHeader: React.FC<NewHeaderProps> = ({
           <div
             style={{
               flex: 1,
-              color: "#ffffff",
+              color: "#6d28d9",
               fontSize: "16px",
+              fontWeight: "500",
             }}
           >
             {currentLocation

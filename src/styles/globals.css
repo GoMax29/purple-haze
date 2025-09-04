@@ -6,6 +6,20 @@
   html {
     font-family: system-ui, sans-serif;
   }
+
+  /* Supprimer toutes les marges et padding par défaut du navigateur */
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Assurer que le main prend toute la hauteur */
+  body {
+    overflow-x: hidden;
+  }
 }
 
 @layer components {

@@ -298,9 +298,9 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
           padding: "20px",
           textAlign: "center",
           color: "white",
-          background: "rgba(255, 255, 255, 0.05)",
-          borderRadius: "16px",
-          margin: "20px 0",
+          background: "transparent",
+          borderRadius: "0",
+          margin: "0",
         }}
       >
         Données horaires non disponibles
@@ -312,10 +312,10 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
     <div
       className="hourly-slots-section"
       style={{
-        background: "rgba(255, 255, 255, 0.05)",
-        borderRadius: "16px",
+        background: "transparent",
+        borderRadius: "0",
         padding: "20px",
-        margin: "20px 0",
+        margin: "0",
         color: "white",
         position: "relative",
       }}

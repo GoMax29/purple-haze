@@ -175,12 +175,12 @@ const NowSection: React.FC<NowSectionProps> = ({
     <div
       className="now-section"
       style={{
-        ...getBackgroundStyle(displayData.isDay),
+        background: "transparent",
         padding: "20px",
-        borderBottom: "2px solid rgba(255, 255, 255, 0.1)",
-        borderRadius: "12px",
-        margin: "10px",
-        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+        borderBottom: "none",
+        borderRadius: "0",
+        margin: "0",
+        boxShadow: "none",
       }}
     >
       {/* Ligne 1: Météo + ville à gauche, heure à droite */}

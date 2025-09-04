@@ -1,27 +1,400 @@
-react-dom.development.js:38560 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
-page.tsx:69 🔄 Script déjà présent, réinitialisation...
-app.js:407 🌍 Sélecteur de ville initialisé
-page.tsx:65 🎯 Script test-algo chargé et prêt
-app.js:116 Basculement: temp → precipitation
+main-app.js?v=1756972780538:1836 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+localStorage.ts:211 🔄 Migration forcée des données localStorage...
+localStorage.ts:218 ✅ Migration terminée
+forecastService.ts:38 🌍 [ForecastService] Appel API pour 53.33306, -6.24889
+page.tsx:94 🔄 Récupération données current pour Dublin (53.33306, -6.24889)
+fetchMeteoData.js:303 Cache MISS (current) pour Dublin - Récupération données actuelles...
+fetchMeteoData.js:408 Cache MISS pour 53.3331,-6.2489 - Récupération des données API...
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+localStorage.ts:211 🔄 Migration forcée des données localStorage...
+localStorage.ts:218 ✅ Migration terminée
+forecastService.ts:38 🌍 [ForecastService] Appel API pour 53.33306, -6.24889
+page.tsx:94 🔄 Récupération données current pour Dublin (53.33306, -6.24889)
+fetchMeteoData.js:303 Cache MISS (current) pour Dublin - Récupération données actuelles...
+fetchMeteoData.js:408 Cache MISS pour 53.3331,-6.2489 - Récupération des données API...
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:303 Cache MISS (current) pour Maintenant à Dublin - Récupération données actuelles...
+WeatherSummary.tsx:93 🔄 [WeatherSummary] useEffect triggered for: 53.33306, -6.24889
+WeatherSummary.tsx:122 🔄 [WeatherSummary] Récupération unique des données horaires pour 53.33306, -6.24889
+fetchMeteoData.js:408 Cache MISS pour 53.3331,-6.2489 - Récupération des données API...
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 12.1/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 24.2/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 36.3/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 48.4/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 60.5/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 72.6/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 84.69999999999999/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 96.79999999999998/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 108.89999999999998/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 120.99999999999997/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 133.09999999999997/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 145.19999999999996/600
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Dublin
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Dublin
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 53.3331,-6.2489
+page.tsx:114 🌍 [HomePage] Timezone détectée: Europe/Dublin
+page.tsx:117 ✅ Données current récupérées pour Dublin {coordinates: {…}, spot_name: 'Dublin', timestamp: '2025-09-04T07:59:43.807Z', ttl_minutes: 5, current: {…}, …}
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: Europe/Dublin, Heure locale: 8h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 8h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:39 🌅 [BackgroundTheme] TRANSITION détectée (sunrise: 6-8h, sunset: 18-20h)
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: transition
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Maintenant à Dublin
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 53.3331,-6.2489
+page.tsx:114 🌍 [HomePage] Timezone détectée: Europe/Dublin
+page.tsx:117 ✅ Données current récupérées pour Dublin {coordinates: {…}, spot_name: 'Dublin', timestamp: '2025-09-04T07:59:43.880Z', ttl_minutes: 5, current: {…}, …}
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: Europe/Dublin, Heure locale: 8h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 8h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:39 🌅 [BackgroundTheme] TRANSITION détectée (sunrise: 6-8h, sunset: 18-20h)
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: transition
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 53.3331,-6.2489
+forecastService.ts:49 ✅ [ForecastService] Données reçues: 7 jours
+forecastService.ts:50 📊 [ForecastService] Algorithme: time-slot-smart-bary
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+forecastService.ts:49 ✅ [ForecastService] Données reçues: 7 jours
+forecastService.ts:50 📊 [ForecastService] Algorithme: time-slot-smart-bary
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 9h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 9h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+WeatherSummary.tsx:139 🌍 [WeatherSummary] Timezone détectée: Europe/Dublin
+WeatherSummary.tsx:153 ☀️ [WeatherSummary] UV/AQI depuis current: 0.25/14
+WeatherSummary.tsx:170 ✅ [WeatherSummary] Données horaires chargées: 168 heures
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 1h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 2h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 3h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 4h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 5h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 6h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 7h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 1h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 2h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 3h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 4h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 5h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 6h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 7h de J+1 détectée, utilisation sunrise/sunset de J+1
 inpage.68f9dbfe.js:120 Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
-app.js:116 Basculement: precipitation → precipitation (rechargé)
-app.js:116 Basculement: precipitation → wind_force
-app.js:116 Basculement: wind_force → precipitation
-app.js:116 Basculement: precipitation → wmo
-hot-reloader-client.js:187 [Fast Refresh] rebuilding
-api/fetchMeteoData?lat=51.054283&lon=3.724589:1  Failed to load resource: the server responded with a status of 404 (Not Found)
-app.js:116 Basculement: wmo → final_params
-final_params.js:9 🔥 [Final Params JS] Script démarré
-final_params.js:709 ✅ [Final Params JS] Module final_params exposé avec styles smart_bary
-final_params.js:544 🎯 [Final Params JS] Initialisation DIRECTE du module avec config: Object
-final_params.js:558 📍 [Final Params JS] Coordonnées ville active récupérées: Object
-final_params.js:568 📍 [Final Params JS] Coordonnées config utilisées: Object
-final_params.js:574 🚀 [Final Params JS] Coordonnées finales: Object
-final_params.js:500 🔄 [Final Params JS] fetchAndRenderFinalParams démarrée avec coords: Object
-final_params.js:506 🎯 [Final Params JS] URL API construite: /api/test-param/final-params?lat=51.054283&lon=3.724589
-api/test-param/final-params?lat=51.054283&lon=3.724589:1  Failed to load resource: the server responded with a status of 404 (Not Found)
-app-index.js:33 ❌ [Final Params JS] Erreur Final Params: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
-window.console.error @ app-index.js:33
-final_params.js:579 🎉 [Final Params JS] Initialisation terminée avec succès!
-app.js:116 Basculement: final_params → wmo
-api/fetchMeteoData?lat=51.054283&lon=3.724589:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+forecastService.ts:38 🌍 [ForecastService] Appel API pour 45.52345, -122.67621
+page.tsx:94 🔄 Récupération données current pour Portland (45.52345, -122.67621)
+fetchMeteoData.js:303 Cache MISS (current) pour Portland - Récupération données actuelles...
+fetchMeteoData.js:408 Cache MISS pour 45.5234,-122.6762 - Récupération des données API...
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:303 Cache MISS (current) pour Maintenant à Portland - Récupération données actuelles...
+WeatherSummary.tsx:93 🔄 [WeatherSummary] useEffect triggered for: 45.52345, -122.67621
+WeatherSummary.tsx:122 🔄 [WeatherSummary] Récupération unique des données horaires pour 45.52345, -122.67621
+fetchMeteoData.js:408 Cache MISS pour 45.5234,-122.6762 - Récupération des données API...
+apiCallsCounter.ts:74 🔄 [ApiCallsCounter] Reset compteur minute
+apiCallsCounter.ts:82 🔄 [ApiCallsCounter] Reset compteur heure
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 12.1/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 24.2/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 36.3/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 48.4/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 60.5/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 72.6/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 84.69999999999999/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 96.79999999999998/600
+forecastService.ts:49 ✅ [ForecastService] Données reçues: 7 jours
+forecastService.ts:50 📊 [ForecastService] Algorithme: time-slot-smart-bary
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Portland
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 45.5234,-122.6762
+page.tsx:114 🌍 [HomePage] Timezone détectée: America/Los_Angeles
+page.tsx:117 ✅ Données current récupérées pour Portland {coordinates: {…}, spot_name: 'Portland', timestamp: '2025-09-04T08:00:08.497Z', ttl_minutes: 5, current: {…}, …}
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: America/Los_Angeles, Heure locale: 1h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 1h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:48 🌅 [BackgroundTheme] NUIT détectée
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: night
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Maintenant à Portland
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 45.5234,-122.6762
+WeatherSummary.tsx:139 🌍 [WeatherSummary] Timezone détectée: America/Los_Angeles
+WeatherSummary.tsx:153 ☀️ [WeatherSummary] UV/AQI depuis current: 0/26
+WeatherSummary.tsx:170 ✅ [WeatherSummary] Données horaires chargées: 168 heures
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+forecastService.ts:38 🌍 [ForecastService] Appel API pour -33.86785, 151.20732
+page.tsx:94 🔄 Récupération données current pour Sydney (-33.86785, 151.20732)
+fetchMeteoData.js:303 Cache MISS (current) pour Sydney - Récupération données actuelles...
+fetchMeteoData.js:408 Cache MISS pour -33.8678,151.2073 - Récupération des données API...
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:303 Cache MISS (current) pour Maintenant à Sydney - Récupération données actuelles...
+WeatherSummary.tsx:93 🔄 [WeatherSummary] useEffect triggered for: -33.86785, 151.20732
+WeatherSummary.tsx:122 🔄 [WeatherSummary] Récupération unique des données horaires pour -33.86785, 151.20732
+fetchMeteoData.js:408 Cache MISS pour -33.8678,151.2073 - Récupération des données API...
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 108.89999999999998/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 120.99999999999997/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 133.09999999999997/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 145.19999999999996/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 157.29999999999995/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 169.39999999999995/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 181.49999999999994/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 193.59999999999994/600
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Sydney
+fetchMeteoData.js:510 Données récupérées et mises en cache pour -33.8678,151.2073
+page.tsx:114 🌍 [HomePage] Timezone détectée: Australia/Sydney
+page.tsx:117 ✅ Données current récupérées pour Sydney {coordinates: {…}, spot_name: 'Sydney', timestamp: '2025-09-04T08:00:15.244Z', ttl_minutes: 5, current: {…}, …}
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: Australia/Sydney, Heure locale: 18h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 18h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:39 🌅 [BackgroundTheme] TRANSITION détectée (sunrise: 6-8h, sunset: 18-20h)
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: transition
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Maintenant à Sydney
+fetchMeteoData.js:510 Données récupérées et mises en cache pour -33.8678,151.2073
+forecastService.ts:49 ✅ [ForecastService] Données reçues: 7 jours
+forecastService.ts:50 📊 [ForecastService] Algorithme: time-slot-smart-bary
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+WeatherSummary.tsx:139 🌍 [WeatherSummary] Timezone détectée: Australia/Sydney
+WeatherSummary.tsx:153 ☀️ [WeatherSummary] UV/AQI depuis current: 0/20
+WeatherSummary.tsx:170 ✅ [WeatherSummary] Données horaires chargées: 168 heures
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 1h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 2h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 3h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 4h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 5h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 6h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 7h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 8h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 9h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 10h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 11h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 12h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 13h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 14h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 15h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 16h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 17h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 1h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 2h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 3h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 4h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 5h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 6h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 7h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 8h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 9h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 10h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 11h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 12h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 13h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 14h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 15h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 16h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 17h de J+1 détectée, utilisation sunrise/sunset de J+1
+forecastService.ts:38 🌍 [ForecastService] Appel API pour 47.84025, -4.28457
+page.tsx:94 🔄 Récupération données current pour Plomeur (47.84025, -4.28457)
+fetchMeteoData.js:303 Cache MISS (current) pour Plomeur - Récupération données actuelles...
+fetchMeteoData.js:408 Cache MISS pour 47.8402,-4.2846 - Récupération des données API...
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:303 Cache MISS (current) pour Maintenant à Plomeur - Récupération données actuelles...
+WeatherSummary.tsx:93 🔄 [WeatherSummary] useEffect triggered for: 47.84025, -4.28457
+WeatherSummary.tsx:122 🔄 [WeatherSummary] Récupération unique des données horaires pour 47.84025, -4.28457
+fetchMeteoData.js:408 Cache MISS pour 47.8402,-4.2846 - Récupération des données API...
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 205.69999999999993/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 217.79999999999993/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 229.89999999999992/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 241.99999999999991/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 254.0999999999999/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 266.19999999999993/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 278.29999999999995/600
+apiCallsCounter.ts:62 📊 [ApiCallsCounter] +12.1 calls | Minute: 290.4/600
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Plomeur
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 47.8402,-4.2846
+page.tsx:114 🌍 [HomePage] Timezone détectée: Europe/Paris
+page.tsx:117 ✅ Données current récupérées pour Plomeur {coordinates: {…}, spot_name: 'Plomeur', timestamp: '2025-09-04T08:00:19.722Z', ttl_minutes: 5, current: {…}, …}
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: Europe/Paris, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:354 Données current récupérées et mises en cache pour Maintenant à Plomeur
+forecastService.ts:49 ✅ [ForecastService] Données reçues: 7 jours
+forecastService.ts:50 📊 [ForecastService] Algorithme: time-slot-smart-bary
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+dynamicBackground.ts:103 🎨 [DynamicBackground] Timezone: undefined, Heure locale: 10h
+dynamicBackground.ts:27 🌅 [BackgroundTheme] Heure: 10h, Sunrise: 7h, Sunset: 19h
+dynamicBackground.ts:44 🌅 [BackgroundTheme] JOUR détecté
+dynamicBackground.ts:112 🎨 [DynamicBackground] Thème sélectionné: day
+fetchMeteoData.js:510 Données récupérées et mises en cache pour 47.8402,-4.2846
+WeatherSummary.tsx:139 🌍 [WeatherSummary] Timezone détectée: Europe/Paris
+WeatherSummary.tsx:153 ☀️ [WeatherSummary] UV/AQI depuis current: 1/28
+WeatherSummary.tsx:170 ✅ [WeatherSummary] Données horaires chargées: 168 heures
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 1h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 2h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 3h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 4h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 5h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 6h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 7h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 8h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 9h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:65 📅 [HourlySlotsSection] Génération slots pour jour 0 (pas de fetch API) - données: 168h, 7j
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 0h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 1h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 2h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 3h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 4h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 5h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 6h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 7h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 8h de J+1 détectée, utilisation sunrise/sunset de J+1
+HourlySlotsSection.tsx:217 🌅 [HourlySlotsSection] Heure 9h de J+1 détectée, utilisation sunrise/sunset de J+1

@@ -10,6 +10,9 @@ import {
 import { fetchForecastData } from "@/services/forecastService";
 import { DailyWeatherData } from "@/types/dailyData";
 import { fetchCurrentWeather } from "@/lib/fetchMeteoData.js";
+import { getDynamicBackground } from "@/utils/dynamicBackground";
+import { fetchMeteoData } from "@/lib/fetchMeteoData";
+import { extractTimezoneInfo, TimezoneInfo } from "@/utils/timezoneHelper";
 // Import des anciens composants (à adapter selon la structure existante)
 // import NowForecast from "@/components/NowForecast";
 // import HourlyForecast from "@/components/HourlyForecast";
@@ -29,16 +32,18 @@ export default function HomePage() {
   const [currentTime, setCurrentTime] = useState<string>("--:--");
   const [currentWeatherData, setCurrentWeatherData] = useState<any>(null);
   const [loadingCurrentWeather, setLoadingCurrentWeather] = useState(false);
+  const [timezoneInfo, setTimezoneInfo] = useState<TimezoneInfo>({});
+  const [dynamicBg, setDynamicBg] = useState(getDynamicBackground());
 
   const DEFAULT_LOCATION: LocationData = {
-    id: "plomeur-default",
-    name: "Plomeur",
+    id: "paris-default",
+    name: "Paris",
     country: "FR",
-    state: "Bretagne",
-    lat: 47.833287,
-    lon: -4.26567,
+    state: "Île-de-France",
+    lat: 48.8566,
+    lon: 2.3522,
     flag: "https://flagcdn.com/24x18/fr.png",
-    fullName: "Plomeur, Bretagne, FR",
+    fullName: "Paris, Île-de-France, FR",
   };
 
   useEffect(() => {
@@ -61,6 +66,15 @@ export default function HomePage() {
     return () => clearInterval(id);
   }, []);
 
+  // Mise à jour du fond dynamique selon les données météo et timezone
+  useEffect(() => {
+    const newBg = getDynamicBackground(
+      currentWeatherData,
+      timezoneInfo?.timezone
+    );
+    setDynamicBg(newBg);
+  }, [currentWeatherData, timezoneInfo?.timezone]);
+
   const fetchWeatherData = async (lat: number, lon: number) => {
     try {
       const dailyData = await fetchForecastData(lat, lon);
@@ -80,11 +94,26 @@ export default function HomePage() {
       console.log(
         `🔄 Récupération données current pour ${locationName} (${lat}, ${lon})`
       );
-      const currentData = await fetchCurrentWeather(lat, lon, {
-        name: locationName,
-        forceRefresh: false,
-      });
+
+      // Récupérer en parallèle les données current et la timezone
+      const [currentData, meteoData] = await Promise.all([
+        fetchCurrentWeather(lat, lon, {
+          name: locationName,
+          forceRefresh: false,
+        }),
+        fetchMeteoData(lat, lon),
+      ]);
+
       setCurrentWeatherData(currentData);
+
+      // Extraire la timezone depuis les données brutes API1
+      const rawApiData = meteoData?.api1?.data;
+      if (rawApiData) {
+        const timezone = extractTimezoneInfo(rawApiData);
+        setTimezoneInfo(timezone);
+        console.log(`🌍 [HomePage] Timezone détectée: ${timezone.timezone}`);
+      }
+
       console.log(
         `✅ Données current récupérées pour ${locationName}`,
         currentData
@@ -108,23 +137,21 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600">
-      {/* Header épuré (temporaire) */}
-      <header className="bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" />
-      </header>
-
-      {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main
+      className="min-h-screen transition-all duration-1000"
+      style={{ background: dynamicBg.gradient }}
+    >
+      {/* Contenu principal - dégradé étendu jusqu'en haut */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-8">
         {mode === "weather" ? (
-          <div className="space-y-8">
+          <div className="space-y-1">
             <NewHeader
               onLocationSelect={handleLocationSelect}
               currentLocation={currentLocation}
               selectedCity={currentLocation?.name}
             />
-            <div className="rounded-2xl p-0">
-              {/* pas de cadre blanc autour */}
+            <div>
+              {/* Suppression du cadre pour affichage direct sur fond global */}
               <WeatherSummary
                 locationName={
                   currentLocation
