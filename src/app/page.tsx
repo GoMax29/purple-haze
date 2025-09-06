@@ -168,6 +168,8 @@ export default function HomePage() {
                     ? `Maintenant à ${currentLocation.name}`
                     : "Maintenant"
                 }
+                region={currentLocation?.state}
+                country={currentLocation?.country}
                 currentTime={currentTime}
                 // Utiliser les données current weather si disponibles, sinon valeurs par défaut
                 temperature={

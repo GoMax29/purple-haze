@@ -20,6 +20,8 @@ interface WeatherSummaryProps {
   temperature?: number;
   emoji?: string;
   condition?: string;
+  region?: string;
+  country?: string;
   feelsLike?: number;
   uvIndex?: number;
   uvDescription?: string;
@@ -52,6 +54,8 @@ const WeatherSummary: React.FC<WeatherSummaryProps> = ({
   temperature,
   emoji,
   condition,
+  region,
+  country,
   feelsLike,
   uvIndex,
   uvDescription,
@@ -204,6 +208,8 @@ const WeatherSummary: React.FC<WeatherSummaryProps> = ({
           temperature={temperature}
           emoji={emoji}
           condition={condition}
+          region={region}
+          country={country}
           feelsLike={feelsLike}
           uvIndex={currentUvIndex}
           uvDescription={uvDescription}

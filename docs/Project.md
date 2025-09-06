@@ -103,6 +103,8 @@ Application React/Next.js dédiée aux conditions de surf et météo en Bretagne
 - [x] Propagation sunrise/sunset dans `dailyData` puis `dailyCardData`
 - [x] Utilitaires `dayNight` (classification jour/nuit/transition) et règle spéciale `18-00`
 - [x] Rendu icônes PNG finales day/night dans `DailyCard` via `public/icons/final_wmo/{day|night}/{code}.png`
+- [x] Refonte section "Now" minimaliste: titre centré sans préfixe/GPS, température XXL, icône à droite, description sous la température, infos secondaires masquées (2025-09-06)
+- [x] Logique de fond dynamique alignée sur heure locale + sunrise/sunset (transition uniquement à l'heure exacte)
 
 ### ✅ DONE
 

@@ -41,7 +41,7 @@ const NewHeader: React.FC<NewHeaderProps> = ({
           display: "flex",
           justifyContent: "center",
           // IMPORTANT: on ajoute l'espace au-dessus via padding du parent (pas de marge extérieure)
-          padding: "20px 25px 8px 25px", // top 20px, bottom 8px pour rapprocher de "Maintenant"
+          padding: "20px 25px 2px 25px", // bottom réduit pour rapprocher le nom de la ville
           background: "transparent",
         }}
       >
