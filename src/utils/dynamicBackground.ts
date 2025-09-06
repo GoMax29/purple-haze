@@ -24,20 +24,13 @@ export const getCurrentBackgroundTheme = (
     const sunriseHour = sunrise ? extractHourFromTime(sunrise) : 7;
     const sunsetHour = sunset ? extractHourFromTime(sunset) : 19;
 
-    // Période de transition (1h avant/après sunrise et sunset)
-    const sunriseTransitionStart = Math.max(sunriseHour - 1, 0);
-    const sunriseTransitionEnd = Math.min(sunriseHour + 1, 23);
-    const sunsetTransitionStart = Math.max(sunsetHour - 1, 0);
-    const sunsetTransitionEnd = Math.min(sunsetHour + 1, 23);
-
-    if (
-        (currentHour >= sunriseTransitionStart && currentHour <= sunriseTransitionEnd) ||
-        (currentHour >= sunsetTransitionStart && currentHour <= sunsetTransitionEnd)
-    ) {
+    // Transition seulement à l'heure exacte du lever/coucher (comme dans dayNight.ts)
+    if (currentHour === sunriseHour || currentHour === sunsetHour) {
         return "transition";
     }
 
-    if (currentHour >= sunriseHour && currentHour < sunsetHour) {
+    // Jour entre sunrise et sunset (exclusifs)
+    if (currentHour > sunriseHour && currentHour < sunsetHour) {
         return "day";
     }
 

@@ -116,9 +116,17 @@ Application React/Next.js dédiée aux conditions de surf et météo en Bretagne
 - [x] **2025-01-30** : Onglets Température et Température Apparente fonctionnels
 
 - [x] **2025-08-13** : Banc de test icônes WMO et traitement images
+
   - Génération d'icônes à fond transparent (158x141) dans `docs/icones WMO/wmo icon transparent background/`
   - Amélioration anti-aliasing + fuzz 10% sur originaux vers `docs/icones WMO/improve/`
   - Page `docs/test-wmo-background.html` (slider 10–200px, color picker, boutons gradient/random) pour valider transparence et taille optimale
+
+- [x] **2025-09-04** : Prototype Terre/Mer autonome `land_or_sea.html`
+  - Leaflet + tuiles OSM « standard »
+  - Recherche Nominatim (liste résultats cliquables)
+  - Overpass coastline: détection terre/mer, spot valide (≤500 m)
+  - 3 algorithmes d’orientation (segment, fenêtre PCA, moyenne pondérée)
+  - Tracés: tangente verte ~1 km, houle perpendiculaire bleue ~1 km
 
 ---
 

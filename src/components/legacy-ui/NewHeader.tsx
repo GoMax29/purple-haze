@@ -10,54 +10,6 @@ interface NewHeaderProps {
   selectedCity?: string;
 }
 
-// Villes fixes selon les spécifications avec couleurs distinctes
-const QUICK_ACCESS_CITIES: (LocationData & { color: string })[] = [
-  {
-    id: "plomeur",
-    name: "Plomeur",
-    country: "FR",
-    state: "Bretagne",
-    lat: 47.833287,
-    lon: -4.26567,
-    flag: "https://flagcdn.com/24x18/fr.png",
-    fullName: "Plomeur, Bretagne, FR",
-    color: "linear-gradient(45deg, #3b82f6, #1d4ed8)", // Bleu
-  },
-  {
-    id: "ploudalmezeau",
-    name: "Ploudalmézeau",
-    country: "FR",
-    state: "Bretagne",
-    lat: 48.542779,
-    lon: -4.655609,
-    flag: "https://flagcdn.com/24x18/fr.png",
-    fullName: "Ploudalmézeau, Bretagne, FR",
-    color: "linear-gradient(45deg, #10b981, #047857)", // Vert
-  },
-  {
-    id: "surzur",
-    name: "Surzur",
-    country: "FR",
-    state: "Bretagne",
-    lat: 47.576304,
-    lon: -2.667991,
-    flag: "https://flagcdn.com/24x18/fr.png",
-    fullName: "Surzur, Bretagne, FR",
-    color: "linear-gradient(45deg, #f59e0b, #d97706)", // Orange
-  },
-  {
-    id: "montaigu-vendee",
-    name: "Montaigu-Vendée",
-    country: "FR",
-    state: "Pays de la Loire",
-    lat: 46.977279,
-    lon: -1.307383,
-    flag: "https://flagcdn.com/24x18/fr.png",
-    fullName: "Montaigu-Vendée, Pays de la Loire, FR",
-    color: "linear-gradient(45deg, #ef4444, #dc2626)", // Rouge
-  },
-];
-
 const NewHeader: React.FC<NewHeaderProps> = ({
   onLocationSelect,
   currentLocation,
@@ -66,24 +18,10 @@ const NewHeader: React.FC<NewHeaderProps> = ({
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [anchorTop, setAnchorTop] = useState<number>(80);
 
-  const handleQuickCitySelect = (city: LocationData) => {
-    if (onLocationSelect) {
-      onLocationSelect(city);
-    }
-  };
-
   const handleSearchLocationSelect = (location: LocationData) => {
     if (onLocationSelect) {
       onLocationSelect(location);
     }
-  };
-
-  const isCurrentLocation = (city: LocationData): boolean => {
-    if (!currentLocation) return false;
-    return (
-      Math.abs(currentLocation.lat - city.lat) < 0.001 &&
-      Math.abs(currentLocation.lon - city.lon) < 0.001
-    );
   };
 
   return (

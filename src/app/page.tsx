@@ -68,12 +68,22 @@ export default function HomePage() {
 
   // Mise à jour du fond dynamique selon les données météo et timezone
   useEffect(() => {
+    // Enrichir currentWeatherData avec sunrise/sunset du jour actuel depuis dailyWeatherData
+    const todayData = dailyWeatherData?.[0]; // Premier jour = aujourd'hui
+    const enrichedWeatherData = currentWeatherData
+      ? {
+          ...currentWeatherData,
+          sunrise: todayData?.sunrise,
+          sunset: todayData?.sunset,
+        }
+      : null;
+
     const newBg = getDynamicBackground(
-      currentWeatherData,
+      enrichedWeatherData,
       timezoneInfo?.timezone
     );
     setDynamicBg(newBg);
-  }, [currentWeatherData, timezoneInfo?.timezone]);
+  }, [currentWeatherData, timezoneInfo?.timezone, dailyWeatherData]);
 
   const fetchWeatherData = async (lat: number, lon: number) => {
     try {

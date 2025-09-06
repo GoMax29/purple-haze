@@ -16,7 +16,8 @@
           "Utilisation du Module fetchMeteoData",
           "Performance et Cache",
           "Gestion d'erreurs",
-          "Algorithmes et Logique Métier"
+          "Algorithmes et Logique Métier",
+          "Prototype Terre/Mer — Leaflet + OSM (land_or_sea.html)"
         ],
         "keywords": [
           "API",
@@ -27,7 +28,7 @@
           "qualité air",
           "Open-Meteo"
         ],
-        "last_updated": "2025-08-12"
+        "last_updated": "2025-09-04"
       },
       {
         "file": "test-wmo-background.html",

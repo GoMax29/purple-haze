@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { fetchCurrentWeather } from "../../lib/fetchMeteoData.js";
 import { TimezoneInfo } from "@/utils/timezoneHelper";
+import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
+import { getDayNightStateAt } from "@/utils/dayNight";
 
 interface NowSectionProps {
   locationName?: string;
@@ -112,11 +114,21 @@ const NowSection: React.FC<NowSectionProps> = ({
     fetchCurrentData();
   }, [useCurrentApi, spotId, latitude, longitude]);
 
+  // Fonction pour obtenir l'icône météo PNG selon la logique jour/nuit
+  const getWeatherIcon = (weatherCode: number, isDay: boolean): string => {
+    const variant = isDay ? "day" : "night";
+    return getWmoFinalIconPath(weatherCode, variant);
+  };
+
   // Déterminer les valeurs à afficher (API current ou props)
   const displayData = currentWeather
     ? {
         temperature: Math.round(currentWeather.temperature_2m),
         emoji: currentWeather.weather_emoji,
+        weatherIcon: getWeatherIcon(
+          currentWeather.weather_code,
+          currentWeather.is_day
+        ),
         condition: currentWeather.weather_description,
         feelsLike: Math.round(currentWeather.apparent_temperature),
         humidity: currentWeather.relative_humidity_2m,
@@ -124,10 +136,12 @@ const NowSection: React.FC<NowSectionProps> = ({
         windSpeed: Math.round(currentWeather.wind_speed_10m),
         windDirection: currentWeather.wind_direction_text,
         isDay: currentWeather.is_day,
+        weatherCode: currentWeather.weather_code,
       }
     : {
         temperature,
         emoji,
+        weatherIcon: getWeatherIcon(0, true), // Code WMO 0 (ciel clair) par défaut
         condition: loading
           ? "Chargement..."
           : error
@@ -139,6 +153,7 @@ const NowSection: React.FC<NowSectionProps> = ({
         windSpeed,
         windDirection,
         isDay: true, // Par défaut jour si pas de données API
+        weatherCode: 0,
       };
   const getUvColor = (uv: number): string => {
     if (uv <= 2) return "#51f1e6";
@@ -224,9 +239,9 @@ const NowSection: React.FC<NowSectionProps> = ({
         <div
           className="current-time"
           style={{
-            fontSize: "0.9em",
-            opacity: "0.9",
-            color: "rgba(255, 255, 255, 0.9)",
+            fontSize: "1.4em",
+            fontWeight: "700",
+            color: "white",
           }}
           suppressHydrationWarning={true}
         >
@@ -246,8 +261,26 @@ const NowSection: React.FC<NowSectionProps> = ({
           justifyContent: "center",
         }}
       >
-        <div className="main-emoji" style={{ fontSize: "3.2em" }}>
-          {displayData.emoji}
+        <div
+          className="main-weather-icon"
+          style={{
+            width: "80px",
+            height: "80px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <img
+            src={displayData.weatherIcon}
+            alt={displayData.condition}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              filter: "drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3))",
+            }}
+          />
         </div>
         <div
           className="main-temp"

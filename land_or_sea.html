@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terre / Mer — Prototype Surf Spot</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #12182c;
+        --muted: #98a1b2;
+        --text: #e6eaf2;
+        --accent: #4f46e5;
+        --ok: #16a34a;
+        --warn: #dc2626;
+        --info: #0891b2;
+        --chip: #1f2947;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial,
+          "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .app {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100%;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: linear-gradient(
+          180deg,
+          rgba(18, 24, 44, 0.95),
+          rgba(18, 24, 44, 0.85)
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 12px clamp(12px, 2vw, 20px);
+        display: grid;
+        grid-template-columns: 1fr max-content;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+      .brand .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 12px var(--accent);
+      }
+
+      .search {
+        position: relative;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .search input {
+        width: min(900px, 100%);
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 20, 38, 0.9);
+        color: var(--text);
+        outline: none;
+      }
+      .search button {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--chip);
+        color: var(--text);
+        cursor: pointer;
+      }
+      .search button:hover {
+        filter: brightness(1.1);
+      }
+
+      .results {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        max-height: 280px;
+        overflow: auto;
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      }
+      .results.hidden {
+        display: none;
+      }
+      .result {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+      }
+      .result:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 0;
+        height: 100%;
+      }
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+
+      aside.panel {
+        background: var(--panel);
+        border-left: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 14px;
+        overflow: auto;
+      }
+
+      .section {
+        margin-bottom: 16px;
+      }
+      .section h3 {
+        margin: 8px 0 8px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 6px 0;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--chip);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .legend {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+      }
+      .blue {
+        background: #3b82f6;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+      }
+      .red {
+        background: #ef4444;
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+      }
+      .green {
+        background: #22c55e;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      }
+      .grey {
+        background: #6b7280;
+        box-shadow: 0 0 8px rgba(107, 114, 128, 0.6);
+      }
+
+      .algos {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .algos button {
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--chip);
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .algos button.active {
+        outline: 2px solid var(--accent);
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside.panel {
+          order: -1;
+          height: 42vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="topbar">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>Surf Spot — Terre ou Mer</span>
+        </div>
+        <div class="search" style="justify-self: end">
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Rechercher une ville (Nominatim)…"
+            aria-label="Rechercher une ville"
+          />
+          <button id="searchBtn" aria-label="Lancer la recherche">
+            Rechercher
+          </button>
+          <div
+            id="results"
+            class="results hidden"
+            role="listbox"
+            aria-label="Résultats de recherche"
+          ></div>
+        </div>
+      </div>
+      <div class="layout">
+        <div id="map" aria-label="Carte OpenStreetMap"></div>
+        <aside class="panel" aria-live="polite">
+          <div class="section">
+            <h3>Point sélectionné</h3>
+            <div class="card">
+              <div class="row">
+                <span class="small">Coordonnées</span
+                ><span id="uiCoords">—</span>
+              </div>
+              <div class="row">
+                <span class="small">Type</span><span id="uiType">—</span>
+              </div>
+              <div class="row">
+                <span class="small">Distance côte</span
+                ><span id="uiDist">—</span>
+              </div>
+              <div class="row">
+                <span class="small">Statut spot</span><span id="uiSpot">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Orientation côte</h3>
+            <div class="card">
+              <div
+                class="algos"
+                role="group"
+                aria-label="Algorithmes d'orientation"
+              >
+                <button id="algo1" class="active">Segment</button>
+                <button id="algo2">Fenêtre</button>
+                <button id="algo3">Moy. pondérée</button>
+              </div>
+              <div class="row" style="margin-top: 8px">
+                <span class="small">Azimut (°)</span><span id="uiAz">—</span>
+              </div>
+              <div class="legend" style="margin-top: 8px">
+                <span class="chip"><span class="dot green"></span> Terre</span>
+                <span class="chip"
+                  ><span class="dot blue"></span> Spot valide (≤500 m)</span
+                >
+                <span class="chip"
+                  ><span class="dot red"></span> Trop loin en mer</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Actions</h3>
+            <div class="card" style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button
+                id="clearAll"
+                style="
+                  padding: 10px 12px;
+                  border-radius: 10px;
+                  border: 1px solid rgba(255, 255, 255, 0.06);
+                  background: var(--chip);
+                  color: var(--text);
+                  cursor: pointer;
+                "
+              >
+                Tout effacer
+              </button>
+              <span class="small"
+                >Astuce: cliquer une épingle pour la supprimer.</span
+              >
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      // Utilitaires géo (EPSG:3857) et géodésiques simples
+      const R_EARTH = 6378137; // rayon en mètres
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const toDeg = (rad) => (rad * 180) / Math.PI;
+
+      function latLonToMercator(lat, lon) {
+        const x = R_EARTH * toRad(lon);
+        const y = R_EARTH * Math.log(Math.tan(Math.PI / 4 + toRad(lat) / 2));
+        return { x, y };
+      }
+      function mercatorToLatLon(x, y) {
+        const lon = toDeg(x / R_EARTH);
+        const lat = toDeg(2 * Math.atan(Math.exp(y / R_EARTH)) - Math.PI / 2);
+        return { lat, lon };
+      }
+      function haversineMeters(a, b) {
+        const dLat = toRad(b.lat - a.lat);
+        const dLon = toRad(b.lon - a.lon);
+        const lat1 = toRad(a.lat);
+        const lat2 = toRad(b.lat);
+        const h =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+        return 2 * R_EARTH * Math.asin(Math.sqrt(h));
+      }
+      // Cap initial (0° = Nord, 90° = Est)
+      function bearing(a, b) {
+        const φ1 = toRad(a.lat),
+          φ2 = toRad(b.lat);
+        const λ1 = toRad(a.lon),
+          λ2 = toRad(b.lon);
+        const y = Math.sin(λ2 - λ1) * Math.cos(φ2);
+        const x =
+          Math.cos(φ1) * Math.sin(φ2) -
+          Math.sin(φ1) * Math.cos(φ2) * Math.cos(λ2 - λ1);
+        const brng = (toDeg(Math.atan2(y, x)) + 360) % 360;
+        return brng;
+      }
+      // Destination à partir d'un point, d'un azimut (°) et d'une distance (m)
+      function destinationPoint(pt, brngDeg, distM) {
+        const δ = distM / R_EARTH;
+        const θ = toRad(brngDeg);
+        const φ1 = toRad(pt.lat);
+        const λ1 = toRad(pt.lon);
+        const sinφ2 =
+          Math.sin(φ1) * Math.cos(δ) + Math.cos(φ1) * Math.sin(δ) * Math.cos(θ);
+        const φ2 = Math.asin(sinφ2);
+        const y = Math.sin(θ) * Math.sin(δ) * Math.cos(φ1);
+        const x = Math.cos(δ) - Math.sin(φ1) * sinφ2;
+        const λ2 = λ1 + Math.atan2(y, x);
+        return { lat: toDeg(φ2), lon: ((toDeg(λ2) + 540) % 360) - 180 };
+      }
+
+      // Distance point-segment en mètres + projection et côté (gauche/droite)
+      function pointToSegmentInfo(pt, a, b) {
+        // Projection en mètres (Web Mercator)
+        const P = latLonToMercator(pt.lat, pt.lon);
+        const A = latLonToMercator(a.lat, a.lon);
+        const B = latLonToMercator(b.lat, b.lon);
+        const AB = { x: B.x - A.x, y: B.y - A.y };
+        const AP = { x: P.x - A.x, y: P.y - A.y };
+        const ab2 = AB.x * AB.x + AB.y * AB.y;
+        let t = ab2 === 0 ? 0 : (AP.x * AB.x + AP.y * AB.y) / ab2; // paramètre de projection
+        t = Math.max(0, Math.min(1, t));
+        const proj = { x: A.x + t * AB.x, y: A.y + t * AB.y };
+        const dist = Math.hypot(P.x - proj.x, P.y - proj.y);
+        // Côté gauche (>0) ou droite (<0) par produit vectoriel 2D
+        const vSeg = AB;
+        const vProjToP = { x: P.x - proj.x, y: P.y - proj.y };
+        const crossZ = vSeg.x * vProjToP.y - vSeg.y * vProjToP.x;
+        // Retour en lat/lon pour le point projeté
+        const projLL = mercatorToLatLon(proj.x, proj.y);
+        return {
+          distanceM: dist,
+          t,
+          proj: { lat: projLL.lat, lon: projLL.lon },
+          crossZ,
+        };
+      }
+
+      // UI helpers
+      const ui = {
+        coords: document.getElementById("uiCoords"),
+        type: document.getElementById("uiType"),
+        dist: document.getElementById("uiDist"),
+        spot: document.getElementById("uiSpot"),
+        az: document.getElementById("uiAz"),
+      };
+
+      // Carte
+      const map = L.map("map", { zoomControl: true }).setView([20, 0], 2);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+        maxZoom: 19,
+      }).addTo(map);
+      L.control.scale().addTo(map);
+
+      // Recherche Nominatim (liste cliquable)
+      const searchInput = document.getElementById("searchInput");
+      const searchBtn = document.getElementById("searchBtn");
+      const resultsEl = document.getElementById("results");
+      let debounceTimer;
+      const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+      const fetchNominatim = async (q) => {
+        const url = new URL(NOMINATIM_URL);
+        url.searchParams.set("format", "jsonv2");
+        url.searchParams.set("q", q);
+        url.searchParams.set("limit", "8");
+        url.searchParams.set("addressdetails", "1");
+        url.searchParams.set("accept-language", "fr");
+        // Ajout d'un param contact recommandé par la politique Nominatim si UA custom non possible côté navigateur
+        url.searchParams.set("email", "prototype.local@example.com");
+        const res = await fetch(url.toString(), {
+          headers: { "Accept-Language": "fr" },
+        });
+        if (!res.ok) throw new Error("Nominatim error");
+        return res.json();
+      };
+      function renderResults(items) {
+        resultsEl.innerHTML = "";
+        if (!items || !items.length) {
+          resultsEl.classList.add("hidden");
+          return;
+        }
+        items.forEach((it, idx) => {
+          const div = document.createElement("div");
+          div.className = "result";
+          div.setAttribute("role", "option");
+          div.textContent = it.display_name;
+          div.addEventListener("click", () => {
+            const lat = parseFloat(it.lat),
+              lon = parseFloat(it.lon);
+            map.setView([lat, lon], 10);
+            resultsEl.classList.add("hidden");
+          });
+          resultsEl.appendChild(div);
+        });
+        resultsEl.classList.remove("hidden");
+      }
+      function handleSearch() {
+        const q = searchInput.value.trim();
+        if (!q) {
+          resultsEl.classList.add("hidden");
+          return;
+        }
+        fetchNominatim(q)
+          .then(renderResults)
+          .catch(() => {
+            resultsEl.classList.add("hidden");
+          });
+      }
+      searchInput.addEventListener("input", () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(handleSearch, 350);
+      });
+      searchBtn.addEventListener("click", handleSearch);
+      document.addEventListener("click", (e) => {
+        if (!resultsEl.contains(e.target) && e.target !== searchInput)
+          resultsEl.classList.add("hidden");
+      });
+
+      // Overpass (coastline) — on tente plusieurs endpoints publics
+      const OVERPASS_ENDPOINTS = [
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass-api.de/api/interpreter",
+      ];
+      async function overpassQuery(query) {
+        for (const base of OVERPASS_ENDPOINTS) {
+          try {
+            const res = await fetch(base, {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/x-www-form-urlencoded; charset=UTF-8",
+              },
+              body: new URLSearchParams({ data: query }).toString(),
+            });
+            if (res.ok) return res.json();
+          } catch (e) {
+            /* réessaie sur endpoint suivant */
+          }
+        }
+        throw new Error("Overpass indisponible");
+      }
+      function buildCoastlineQuery(lat, lon, radiusM) {
+        // Note: natural=coastline — orientation OSM: la mer doit être à gauche du sens du way
+        return `
+          [out:json][timeout:25];
+          way["natural"="coastline"](around:${Math.round(
+            radiusM
+          )},${lat},${lon});
+          out geom;
+        `;
+      }
+      async function fetchCoastlinesAround(lat, lon) {
+        const radii = [5000, 10000, 20000, 50000];
+        for (const r of radii) {
+          const data = await overpassQuery(buildCoastlineQuery(lat, lon, r));
+          if (data && data.elements && data.elements.length) {
+            return { elements: data.elements, radiusUsed: r };
+          }
+        }
+        return { elements: [], radiusUsed: null };
+      }
+
+      // Analyse côte la plus proche et orientation
+      function flattenSegments(elements) {
+        const segments = [];
+        for (const el of elements) {
+          if (!el.geometry || el.geometry.length < 2) continue;
+          for (let i = 0; i < el.geometry.length - 1; i++) {
+            const a = { lat: el.geometry[i].lat, lon: el.geometry[i].lon };
+            const b = {
+              lat: el.geometry[i + 1].lat,
+              lon: el.geometry[i + 1].lon,
+            };
+            segments.push({ a, b, way: el, idx: i });
+          }
+        }
+        return segments;
+      }
+      function nearestCoastSegment(pt, elements) {
+        const segments = flattenSegments(elements);
+        let best = null;
+        for (const seg of segments) {
+          const info = pointToSegmentInfo(pt, seg.a, seg.b);
+          if (!best || info.distanceM < best.info.distanceM) {
+            best = { seg, info };
+          }
+        }
+        return best; // { seg:{a,b,way,idx}, info:{distanceM,t,proj:{lat,lon},crossZ} }
+      }
+
+      // 3 algorithmes d'orientation locale de la côte
+      function orientationAlgo1(best) {
+        // Algo 1 — Orientation du segment local le plus proche
+        // Simple et rapide; sensible au bruit si la côte est très dentelée.
+        return bearing(best.seg.a, best.seg.b);
+      }
+      function orientationAlgo2(best) {
+        // Algo 2 — Fenêtre glissante autour de l'indice du segment (PCA 2D en mètres)
+        // Stabilise l'orientation en moyennant une dizaine de noeuds autour.
+        const k = 5; // +/- 5 points
+        const geom = best.seg.way.geometry;
+        const start = Math.max(0, best.seg.idx - k);
+        const end = Math.min(geom.length - 1, best.seg.idx + 1 + k);
+        const pts = [];
+        for (let i = start; i <= end; i++) {
+          const p = geom[i];
+          const m = latLonToMercator(p.lat, p.lon);
+          pts.push([m.x, m.y]);
+        }
+        if (pts.length < 2) return orientationAlgo1(best);
+        // Centre
+        const mean = pts
+          .reduce((acc, p) => [acc[0] + p[0], acc[1] + p[1]], [0, 0])
+          .map((v) => v / pts.length);
+        let sxx = 0,
+          sxy = 0,
+          syy = 0;
+        for (const p of pts) {
+          const dx = p[0] - mean[0];
+          const dy = p[1] - mean[1];
+          sxx += dx * dx;
+          sxy += dx * dy;
+          syy += dy * dy;
+        }
+        // Vecteur propre principal (orientation dominante)
+        // Pour matrice [[sxx, sxy],[sxy, syy]]
+        const trace = sxx + syy;
+        const det = sxx * syy - sxy * sxy;
+        const temp = Math.sqrt(Math.max(0, (trace * trace) / 4 - det));
+        const l1 = trace / 2 + temp; // plus grande valeur propre
+        const vx = sxy;
+        const vy = l1 - sxx;
+        let vec = { x: vx, y: vy };
+        if (Math.hypot(vec.x, vec.y) < 1e-9) {
+          // fallback si dégénéré
+          const a = latLonToMercator(best.seg.a.lat, best.seg.a.lon);
+          const b = latLonToMercator(best.seg.b.lat, best.seg.b.lon);
+          vec = { x: b.x - a.x, y: b.y - a.y };
+        }
+        // Conversion vers azimut (0=N, 90=E). En repère métrique (x Est, y Nord):
+        const az = (toDeg(Math.atan2(vec.x, vec.y)) + 360) % 360;
+        return az;
+      }
+      function orientationAlgo3(best, allElements) {
+        // Algo 3 — Moyenne vectorielle pondérée par la distance des segments voisins
+        // Prend en compte plusieurs segments à proximité (2 km), réduit l'effet local de zigzag.
+        const center = best.info.proj;
+        const segments = flattenSegments(allElements);
+        const maxD = 2000; // 2 km
+        let sx = 0,
+          sy = 0,
+          sw = 0;
+        for (const seg of segments) {
+          // distance du centre projeté au segment
+          const info = pointToSegmentInfo(center, seg.a, seg.b);
+          if (info.distanceM <= maxD) {
+            const a = latLonToMercator(seg.a.lat, seg.a.lon);
+            const b = latLonToMercator(seg.b.lat, seg.b.lon);
+            const vx = b.x - a.x,
+              vy = b.y - a.y;
+            const len = Math.hypot(vx, vy) || 1;
+            const ux = vx / len,
+              uy = vy / len;
+            const w = 1 / Math.max(1, info.distanceM); // pondération 1/d
+            sx += ux * w;
+            sy += uy * w;
+            sw += w;
+          }
+        }
+        if (sw === 0) return orientationAlgo1(best);
+        const ux = sx / sw,
+          uy = sy / sw;
+        const az = (toDeg(Math.atan2(ux, uy)) + 360) % 360;
+        return az;
+      }
+
+      let selectedAlgo = "algo1";
+      const algoButtons = {
+        algo1: document.getElementById("algo1"),
+        algo2: document.getElementById("algo2"),
+        algo3: document.getElementById("algo3"),
+      };
+      function setAlgo(key) {
+        selectedAlgo = key;
+        Object.entries(algoButtons).forEach(([k, btn]) =>
+          btn.classList.toggle("active", k === key)
+        );
+        // Recalcule pour le dernier marker actif
+        if (lastMarkerData) {
+          updateOrientationLines(lastMarkerData);
+        }
+      }
+      algoButtons.algo1.addEventListener("click", () => setAlgo("algo1"));
+      algoButtons.algo2.addEventListener("click", () => setAlgo("algo2"));
+      algoButtons.algo3.addEventListener("click", () => setAlgo("algo3"));
+
+      // Calques/état
+      const markers = new Set();
+      let lastMarkerData = null;
+
+      function classifyPoint(pt, best) {
+        // Convention OSM coastline: la mer est à DROITE du sens du way, la terre à GAUCHE
+        const isWater = best.info.crossZ < 0; // <0 => point à droite => mer
+        const dist = best.info.distanceM;
+        const isValidSpot = isWater && dist <= 500;
+        return { isWater, distanceM: dist, isValidSpot };
+      }
+
+      function drawLinesAt(ptOnCoast, azimuth, isSeaLeft) {
+        // Ligne verte tangente ~1 km (±500 m le long de la côte)
+        const end1 = destinationPoint(ptOnCoast, azimuth, 500);
+        const end2 = destinationPoint(ptOnCoast, (azimuth + 180) % 360, 500);
+        const tangent = L.polyline(
+          [
+            [end1.lat, end1.lon],
+            [ptOnCoast.lat, ptOnCoast.lon],
+            [end2.lat, end2.lon],
+          ],
+          {
+            color: "#22c55e",
+            weight: 4,
+            opacity: 0.8,
+          }
+        ).addTo(map);
+        // Ligne bleue perpendiculaire vers le large (mer à DROITE du way => normale à droite)
+        const perp = (azimuth - 90 + 360) % 360; // droite de l'orientation
+        const outward = destinationPoint(ptOnCoast, perp, 1000);
+        const swell = L.polyline(
+          [
+            [ptOnCoast.lat, ptOnCoast.lon],
+            [outward.lat, outward.lon],
+          ],
+          {
+            color: "#3b82f6",
+            weight: 3,
+            opacity: 0.9,
+            dashArray: "6,8",
+          }
+        ).addTo(map);
+        return { tangent, swell };
+      }
+
+      function updateDashboard(pt, classification, az, distFmt) {
+        ui.coords.textContent = `${pt.lat.toFixed(5)}, ${pt.lon.toFixed(5)}`;
+        ui.type.textContent = classification.isWater
+          ? "Dans l’eau"
+          : "Sur terre";
+        ui.dist.textContent = distFmt;
+        ui.spot.textContent = classification.isWater
+          ? classification.isValidSpot
+            ? "Spot valide"
+            : "Non valide"
+          : "Sur terre";
+        ui.az.textContent = isFinite(az) ? az.toFixed(1) : "—";
+      }
+
+      function formatDistance(m) {
+        if (!isFinite(m)) return "—";
+        return m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m)} m`;
+      }
+
+      function markerColor(classification) {
+        if (!classification) return "grey";
+        if (!classification.isWater) return "green";
+        return classification.isValidSpot ? "blue" : "red";
+      }
+
+      function createMarker(lat, lon, color) {
+        const marker = L.circleMarker([lat, lon], {
+          radius: 7,
+          color:
+            color === "blue"
+              ? "#3b82f6"
+              : color === "red"
+              ? "#ef4444"
+              : color === "green"
+              ? "#22c55e"
+              : "#6b7280",
+          weight: 2,
+          fillColor: "#000",
+          fillOpacity: 0.5,
+        }).addTo(map);
+        marker.on("click", () => {
+          if (marker._lines) {
+            if (marker._lines.tangent) map.removeLayer(marker._lines.tangent);
+            if (marker._lines.swell) map.removeLayer(marker._lines.swell);
+          }
+          map.removeLayer(marker);
+          markers.delete(marker);
+          if (lastMarkerData && lastMarkerData.marker === marker)
+            lastMarkerData = null;
+        });
+        markers.add(marker);
+        return marker;
+      }
+
+      async function handleMapClick(e) {
+        const pt = { lat: e.latlng.lat, lon: e.latlng.lng };
+        ui.coords.textContent = `${pt.lat.toFixed(5)}, ${pt.lon.toFixed(5)}`;
+        ui.type.textContent = "…";
+        ui.dist.textContent = "…";
+        ui.spot.textContent = "…";
+        ui.az.textContent = "…";
+
+        try {
+          const { elements } = await fetchCoastlinesAround(pt.lat, pt.lon);
+          if (!elements.length) {
+            const m = createMarker(pt.lat, pt.lon, "grey");
+            lastMarkerData = { marker: m, pt, elements: [], best: null };
+            updateDashboard(
+              pt,
+              { isWater: false, distanceM: Infinity, isValidSpot: false },
+              NaN,
+              "inconnu"
+            );
+            return;
+          }
+          const best = nearestCoastSegment(pt, elements);
+          const cls = classifyPoint(pt, best);
+          const color = markerColor(cls);
+          const marker = createMarker(pt.lat, pt.lon, color);
+          const az =
+            selectedAlgo === "algo1"
+              ? orientationAlgo1(best)
+              : selectedAlgo === "algo2"
+              ? orientationAlgo2(best)
+              : orientationAlgo3(best, elements);
+          const lines = drawLinesAt(best.info.proj, az, true);
+          marker._lines = lines;
+          lastMarkerData = { marker, pt, elements, best };
+          updateDashboard(pt, cls, az, formatDistance(best.info.distanceM));
+        } catch (err) {
+          const m = createMarker(pt.lat, pt.lon, "grey");
+          lastMarkerData = { marker: m, pt, elements: [], best: null };
+          updateDashboard(
+            pt,
+            { isWater: false, distanceM: Infinity, isValidSpot: false },
+            NaN,
+            "erreur"
+          );
+        }
+      }
+      map.on("click", handleMapClick);
+
+      function updateOrientationLines(state) {
+        if (!state || !state.best || !state.elements) return;
+        const az =
+          selectedAlgo === "algo1"
+            ? orientationAlgo1(state.best)
+            : selectedAlgo === "algo2"
+            ? orientationAlgo2(state.best)
+            : orientationAlgo3(state.best, state.elements);
+        if (state.marker._lines) {
+          if (state.marker._lines.tangent)
+            map.removeLayer(state.marker._lines.tangent);
+          if (state.marker._lines.swell)
+            map.removeLayer(state.marker._lines.swell);
+        }
+        const lines = drawLinesAt(state.best.info.proj, az, true);
+        state.marker._lines = lines;
+        ui.az.textContent = isFinite(az) ? az.toFixed(1) : "—";
+      }
+
+      document.getElementById("clearAll").addEventListener("click", () => {
+        for (const m of Array.from(markers)) {
+          if (m._lines) {
+            if (m._lines.tangent) map.removeLayer(m._lines.tangent);
+            if (m._lines.swell) map.removeLayer(m._lines.swell);
+          }
+          map.removeLayer(m);
+          markers.delete(m);
+        }
+        lastMarkerData = null;
+        ui.coords.textContent = "—";
+        ui.type.textContent = "—";
+        ui.dist.textContent = "—";
+        ui.spot.textContent = "—";
+        ui.az.textContent = "—";
+      });
+
+      // Notes sur l'orientation (résumé):
+      // - OSM natural=coastline: les ways sont orientés avec la MER À DROITE
+      // - Détermination terre/mer: on choisit le segment de côte le plus proche
+      //   puis on teste si le point est à gauche (mer) ou à droite (terre)
+      // - Spot valide: dans l’eau ET à ≤ 500 m de la côte
+      // - Orientation:
+      //   Algo 1: orientation du segment local
+      //   Algo 2: PCA sur une fenêtre de noeuds voisins (lissage)
+      //   Algo 3: moyenne des orientations de segments proches pondérée par 1/distance
+      // - Tracés:
+      //   Ligne verte: tangente (~1 km total)
+      //   Ligne bleue: perpendiculaire côté mer (~1 km)
+    </script>
+  </body>
+</html>

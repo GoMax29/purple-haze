@@ -796,3 +796,133 @@ Cette approche garantit :
 - `src/utils/dayNight.ts` → `getDayNightStateAt`, `computeSlotVariant`, `getVariantForEveningSlot`
 - `src/utils/wmoFinalIcons.ts` → `getWmoFinalIconPath(code, variant)`
 - `src/components/legacy-ui/DailyCard.tsx` → affiche les PNG day/night par tranche
+
+---
+
+## Prototype Terre/Mer — Leaflet + OSM (land_or_sea.html)
+
+### Vue d'ensemble
+
+Page autonome (HTML/CSS/JS vanilla) pour:
+
+- Recherche de ville (Nominatim) et recentrage carte Leaflet
+- Détection « Sur terre » vs « Dans l’eau » (coastline OSM via Overpass)
+- Validation spot surf: Dans l’eau et ≤ 500 m d’une côte
+- Orientation locale de la côte (3 algorithmes)
+- Tracés: tangente verte (~1 km), houle bleue perpendiculaire (~1 km)
+- UX: épingles cliquables pour suppression, bouton « Tout effacer »
+
+### Nominatim — Geocoding
+
+- Endpoint: `https://nominatim.openstreetmap.org/search`
+- Méthode: GET
+- Paramètres utilisés:
+  - `format=jsonv2`
+  - `q` (chaîne de recherche)
+  - `limit=8`
+  - `addressdetails=1`
+  - `accept-language=fr`
+  - `email=prototype.local@example.com` (contact recommandé)
+
+Exemple requête:
+
+```http
+GET https://nominatim.openstreetmap.org/search?format=jsonv2&q=Brest%2C%20France&limit=5&addressdetails=1&accept-language=fr
+```
+
+Exemple réponse (extrait):
+
+```json
+[
+  {
+    "place_id": "123",
+    "lat": "48.3904",
+    "lon": "-4.4861",
+    "display_name": "Brest, Finistère, Bretagne, France",
+    "type": "city"
+  }
+]
+```
+
+### Overpass — Coastline OSM
+
+- Endpoints (fallback):
+  - `https://overpass.kumi.systems/api/interpreter`
+  - `https://overpass-api.de/api/interpreter`
+- Requête Overpass utilisée (rayon variable 5–50 km):
+
+```overpass
+[out:json][timeout:25];
+way["natural"="coastline"](around:10000,48.3904,-4.4861);
+out geom;
+```
+
+Retour (extrait):
+
+```json
+{
+  "elements": [
+    {
+      "type": "way",
+      "id": 12345,
+      "tags": { "natural": "coastline" },
+      "geometry": [
+        { "lat": 48.39, "lon": -4.49 },
+        { "lat": 48.4, "lon": -4.48 }
+      ]
+    }
+  ]
+}
+```
+
+Note: Convention OSM `natural=coastline` — la mer est à gauche du sens du way.
+
+### Détection Terre/Mer et distance à la côte
+
+1. Récupérer les ways `natural=coastline` autour du point.
+2. Linéariser en segments adjacents `(a,b)` (géométrie des ways).
+3. Projeter le point sur chaque segment en Web Mercator (mètres):
+   - Calculer le paramètre t de projection borné à [0,1]
+   - Obtenir la distance mètres du point à la projection.
+4. Choisir le segment minimisant cette distance (côte la plus proche).
+5. Déterminer le côté via produit vectoriel 2D (signé) en métrique:
+   - `crossZ = (AB.x * (P - Proj).y) - (AB.y * (P - Proj).x)`
+   - `crossZ > 0` ⇒ point à gauche du segment ⇒ côté mer (selon convention OSM).
+6. Classification:
+   - `Dans l’eau` si `crossZ > 0`, sinon `Sur terre`.
+   - `Spot valide` si `Dans l’eau` ET `distance ≤ 500 m`.
+
+### Orientation locale de la côte — 3 algorithmes
+
+Sortie: azimut en degrés (0° = Nord, 90° = Est).
+
+1. Segment local (rapide)
+
+   - Orientation = cap de `a → b` du segment le plus proche.
+   - Avantage: simple; Inconvénient: sensible au zigzag local.
+
+2. Fenêtre glissante (lissé PCA)
+
+   - Prendre ±k nœuds autour de l’indice du segment (par défaut k=5).
+   - Convertir en mètres (Web Mercator), centrer, calculer la matrice de covariance.
+   - Le vecteur propre principal donne la direction dominante.
+   - Convertir en azimut par `atan2(vx, vy)` (x=Est, y=Nord).
+
+3. Moyenne pondérée des segments proches
+   - Considérer tous les segments dans un rayon R (2 km).
+   - Pour chaque segment, vecteur unitaire `u = (vx,vy)/||v||`.
+   - Poids `w = 1 / max(1, distance_segment(point))`.
+   - Orientation = `atan2(Σ w·ux, Σ w·uy)`.
+
+### Tracés
+
+- Tangente verte: ~1 km (±500 m) le long de l’orientation locale.
+- Houle bleue: perpendiculaire côté mer (~1 km) depuis le point projeté sur la côte.
+
+### Limites et remarques
+
+- Dépend des données OSM (rare orientation incorrecte de certains ways).
+- Overpass et Nominatim ont des limites de taux; prévoir fallback/caches côté client.
+- Projection Web Mercator ≈ métrique locale correcte (erreur faible aux latitudes tempérées).
+
+_Dernière mise à jour : 04 septembre 2025_
