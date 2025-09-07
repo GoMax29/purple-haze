@@ -13,6 +13,7 @@ import { fetchCurrentWeather } from "@/lib/fetchMeteoData.js";
 import { getDynamicBackground } from "@/utils/dynamicBackground";
 import { fetchMeteoData } from "@/lib/fetchMeteoData";
 import { extractTimezoneInfo, TimezoneInfo } from "@/utils/timezoneHelper";
+import SplashScreen from "@/components/ui/SplashScreen";
 // Import des anciens composants (à adapter selon la structure existante)
 // import NowForecast from "@/components/NowForecast";
 // import HourlyForecast from "@/components/HourlyForecast";
@@ -151,6 +152,8 @@ export default function HomePage() {
       className="min-h-screen transition-all duration-1000"
       style={{ background: dynamicBg.gradient }}
     >
+      {/* Splash screen */}
+      <SplashScreen />
       {/* Contenu principal - dégradé étendu jusqu'en haut */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-8">
         {mode === "weather" ? (

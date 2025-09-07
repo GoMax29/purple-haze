@@ -35,7 +35,7 @@ const ToggleSimpleDetail: React.FC<ToggleSimpleDetailProps> = ({
         lineHeight: 1,
       }}
     >
-      <span style={{ opacity: value ? 0.4 : 1 }}>☝</span>
+      <span style={{ opacity: value ? 0.4 : 1 }}>•</span>
       <div
         style={{
           width: "34px",
@@ -60,10 +60,9 @@ const ToggleSimpleDetail: React.FC<ToggleSimpleDetailProps> = ({
           }}
         />
       </div>
-      <span style={{ opacity: value ? 1 : 0.4 }}>🖐</span>
+      <span style={{ opacity: value ? 1 : 0.4 }}>•••</span>
     </button>
   );
 };
 
 export default ToggleSimpleDetail;
-

@@ -4,7 +4,8 @@ import React from "react";
 import { getUVColor } from "@/utils/uvScale";
 // import { getWMOIcon } from "@/utils/wmoIcons";
 import { computeSlotVariant } from "@/utils/dayNight";
-import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
+import { getWeatherIcon } from "@/utils/wmoFinalIcons";
+import { USE_EMOJI_ICONS } from "../../shared/uiFlags";
 import { analyzeSlotRisk, getRiskBadgeColor } from "@/utils/riskDetection";
 import {
   formatDailyCardDate,
@@ -235,16 +236,25 @@ const DailyCard: React.FC<DailyCardProps> = ({
                         sunrise,
                         sunset
                       );
-                      const src = getWmoFinalIconPath(
+                      const isNight = variant === "night";
+                      const icon = getWeatherIcon(
                         slot.code_wmo_final,
-                        variant
+                        isNight,
+                        USE_EMOJI_ICONS
                       );
+                      if (USE_EMOJI_ICONS) {
+                        return (
+                          <span style={{ fontSize: "32px", lineHeight: 1 }}>
+                            {icon}
+                          </span>
+                        );
+                      }
                       return (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={src}
+                          src={icon}
                           alt={`WMO ${slot.code_wmo_final}`}
-                          className="w-14 h-14 object-contain" //w-[40px]
+                          className="w-14 h-14 object-contain"
                           width={40}
                           height={40}
                         />

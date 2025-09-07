@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { fetchCurrentWeather } from "../../lib/fetchMeteoData.js";
 import { TimezoneInfo } from "@/utils/timezoneHelper";
-import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
+import { getWeatherIcon } from "@/utils/wmoFinalIcons";
+import { USE_EMOJI_ICONS } from "../../shared/uiFlags";
 import { getDayNightStateAt } from "@/utils/dayNight";
 
 interface NowSectionProps {
@@ -122,10 +123,9 @@ const NowSection: React.FC<NowSectionProps> = ({
   const cleanCityName = (value: string): string =>
     value.replace(/^Maintenant à\s*/i, "").trim();
 
-  // Fonction pour obtenir l'icône météo PNG selon la logique jour/nuit
-  const getWeatherIcon = (weatherCode: number, isDay: boolean): string => {
-    const variant = isDay ? "day" : "night";
-    return getWmoFinalIconPath(weatherCode, variant);
+  // Fonction pour obtenir l'icône météo (emoji ou PNG) selon la logique jour/nuit
+  const getIconForNow = (weatherCode: number, isDay: boolean): string => {
+    return getWeatherIcon(weatherCode, !isDay, USE_EMOJI_ICONS);
   };
 
   // Déterminer les valeurs à afficher (API current ou props)
@@ -133,7 +133,7 @@ const NowSection: React.FC<NowSectionProps> = ({
     ? {
         temperature: Math.round(currentWeather.temperature_2m),
         emoji: currentWeather.weather_emoji,
-        weatherIcon: getWeatherIcon(
+        weatherIcon: getIconForNow(
           currentWeather.weather_code,
           currentWeather.is_day
         ),
@@ -149,7 +149,7 @@ const NowSection: React.FC<NowSectionProps> = ({
     : {
         temperature,
         emoji,
-        weatherIcon: getWeatherIcon(0, true), // Code WMO 0 (ciel clair) par défaut
+        weatherIcon: getIconForNow(0, true), // Code WMO 0 (ciel clair) par défaut
         condition: loading
           ? "Chargement..."
           : error
@@ -275,15 +275,17 @@ const NowSection: React.FC<NowSectionProps> = ({
             justifyContent: "center",
           }}
         >
-          <img
-            src={displayData.weatherIcon}
-            alt={displayData.condition}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-            }}
-          />
+          {USE_EMOJI_ICONS ? (
+            <span style={{ fontSize: "64px", lineHeight: 1 }}>
+              {displayData.weatherIcon}
+            </span>
+          ) : (
+            <img
+              src={displayData.weatherIcon}
+              alt={displayData.condition}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          )}
         </div>
       </div>
 

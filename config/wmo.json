@@ -2,7 +2,7 @@
   "parameter": "wmo",
   "api_parameter": "weather_code",
   "api_source": "api1",
-  "algorithm": "bary",
+  "algorithm": "smart_bary",
   "unit": "code",
   "output_format": "hourly_array",
   "algorithm_params": {

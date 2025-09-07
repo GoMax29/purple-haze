@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DailyWeatherData } from "@/types/dailyData";
 import { getDayNightStateAt } from "@/utils/dayNight";
-import { getWmoFinalIconPath } from "@/utils/wmoFinalIcons";
+import { getWeatherIcon } from "@/utils/wmoFinalIcons";
+import { USE_EMOJI_ICONS } from "../../shared/uiFlags";
 import { getTemperatureColor } from "../../utils/temperatureColors";
 import {
   degreesToCompass,
@@ -409,7 +410,7 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
               {slot.hour}
             </div>
 
-            {/* Icône météo WMO */}
+            {/* Icône météo WMO (emoji ou PNG selon flag) */}
             <div
               style={{
                 fontSize: "1.6em",
@@ -420,49 +421,29 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
                 justifyContent: "center",
               }}
             >
-              <img
-                src={getWmoFinalIconPath(slot.wmo, slot.variant)}
-                alt={`WMO ${slot.wmo}`}
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  display: "block",
-                }}
-                onError={(e) => {
-                  // Fallback emoji si l'image n'existe pas
-                  const fallbackEmojis: Record<number, string> = {
-                    0: "☀️",
-                    1: "🌤️",
-                    2: "⛅",
-                    3: "☁️",
-                    45: "🌫️",
-                    48: "🌫️",
-                    51: "🌦️",
-                    53: "🌦️",
-                    55: "🌧️",
-                    61: "🌧️",
-                    63: "🌧️",
-                    65: "🌧️",
-                    80: "🌦️",
-                    81: "🌧️",
-                    82: "⛈️",
-                    95: "⛈️",
-                    96: "⛈️",
-                    99: "⛈️",
-                  };
-                  const fallback = fallbackEmojis[slot.wmo] || "🌤️";
-                  e.currentTarget.style.display = "none";
-                  if (e.currentTarget.nextElementSibling) {
-                    (
-                      e.currentTarget.nextElementSibling as HTMLElement
-                    ).textContent = fallback;
-                    (
-                      e.currentTarget.nextElementSibling as HTMLElement
-                    ).style.display = "block";
-                  }
-                }}
-              />
-              <span style={{ display: "none", fontSize: "24px" }}></span>
+              {(() => {
+                const isNight = slot.variant === "night";
+                const icon = getWeatherIcon(slot.wmo, isNight, USE_EMOJI_ICONS);
+                if (USE_EMOJI_ICONS) {
+                  return (
+                    <span style={{ fontSize: "28px", lineHeight: 1 }}>
+                      {icon}
+                    </span>
+                  );
+                }
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={icon}
+                    alt={`WMO ${slot.wmo}`}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      display: "block",
+                    }}
+                  />
+                );
+              })()}
             </div>
 
             {/* Température avec couleur dynamique */}
