@@ -169,6 +169,25 @@ export async function traiterWmo(lat, lon) {
       }
     }
 
+    // Décalage temporal (règle "preceding hour") :
+    // Conserver les mêmes datetimes et décaler uniquement les valeurs d'1h vers l'avant.
+    // Pour i ∈ [0..N-2] → prendre la valeur de i+1. La dernière entrée reste inchangée.
+    if (result.length > 1) {
+      for (let i = 0; i < result.length - 1; i++) {
+        const src = result[i + 1];
+        result[i] = {
+          ...result[i],
+          value: src.value,
+          risque: src.risque,
+          debug: {
+            ...src.debug,
+            shift: "preceding_hour",
+            shiftedFrom: src.datetime,
+          },
+        };
+      }
+    }
+
     return result;
   } catch (error) {
     throw new Error(

@@ -340,26 +340,29 @@ const HourlySlotsSection: React.FC<HourlySectionProps> = ({
         >
           {title}
         </h3>
-        <button
-          style={{
-            padding: "6px 12px",
-            background: "rgba(255, 255, 255, 0.1)",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "0.85em",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)")
-          }
-        >
-          infos
-        </button>
+        {/* Ne pas afficher le bouton infos pour le jour actuel (selectedDayIndex === 0) */}
+        {selectedDayIndex !== 0 && (
+          <button
+            style={{
+              padding: "6px 12px",
+              background: "rgba(255, 255, 255, 0.1)",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              fontSize: "0.85em",
+              cursor: "pointer",
+              transition: "background 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)")
+            }
+          >
+            infos
+          </button>
+        )}
       </div>
 
       {/* Slots horaires avec scroll */}

@@ -193,12 +193,12 @@ const DailyCard: React.FC<DailyCardProps> = ({
                     <div
                       style={{
                         position: "absolute",
-                        top: "-8px",
-                        bottom: "-8px",
-                        left: "-8px",
-                        right: "-8px",
+                        top: "-6px",
+                        bottom: "-6px",
+                        left: "-1px",
+                        right: "-1px",
                         background: "rgba(129, 57, 237, 0.28)",
-                        borderRadius: "12px",
+                        borderRadius: "9px",
                         zIndex: 0,
                       }}
                     />
@@ -243,8 +243,11 @@ const DailyCard: React.FC<DailyCardProps> = ({
                         USE_EMOJI_ICONS
                       );
                       if (USE_EMOJI_ICONS) {
+                        // Réduire la taille de l'émoji lune de 25%
+                        const isMoon = icon.includes("🌙️");
+                        const fontSize = isMoon ? "24px" : "32px";
                         return (
-                          <span style={{ fontSize: "32px", lineHeight: 1 }}>
+                          <span style={{ fontSize, lineHeight: 1 }}>
                             {icon}
                           </span>
                         );

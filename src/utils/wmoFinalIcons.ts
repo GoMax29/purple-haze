@@ -27,7 +27,7 @@ const emojiMapDay: Record<number, string> = {
     55: "🌧️", // Drizzle dense
     56: "🌦️", // Freezing drizzle light
     57: "🌧️", // Freezing drizzle dense
-    61: "🌦️", // Rain slight
+    61: "🌧️", // Rain slight
     63: "🌧️", // Rain moderate
     65: "🌧️", // Rain heavy
     66: "🌧️", // Freezing rain light
@@ -36,7 +36,7 @@ const emojiMapDay: Record<number, string> = {
     73: "🌨️", // Snow moderate
     75: "❄️",  // Snow heavy
     77: "❄️",  // Snow grains
-    80: "🌦️", // Showers slight
+    80: "🌧️", // Showers slight
     81: "🌧️", // Showers moderate
     82: "🌧️", // Showers violent
     85: "🌨️", // Snow showers slight

@@ -67,11 +67,11 @@
       "name": "MF AROME FRANCE HD",
       "forecast_hours": [0, 60],
       "weight": 1.0,
-      "enabled": true
+      "enabled": false
     },
     "knmi_harmonie_arome_europe": {
       "name": "KNMI HARMONIE AROME EU",
-      "forecast_hours": [0, 48],
+      "forecast_hours": [0, 60],
       "weight": 1.0,
       "enabled": true
     },
@@ -79,7 +79,7 @@
       "name": "UKMO DETERM 2KM",
       "forecast_hours": [0, 48],
       "weight": 1.0,
-      "enabled": true
+      "enabled": false
     },
     "meteofrance_arpege_europe": {
       "name": "MF ARPEGE EU",
@@ -109,7 +109,7 @@
       "name": "GFS GRAPHCAST",
       "forecast_hours": [0, 167],
       "weight": 1.0,
-      "enabled": true
+      "enabled": false
     },
     "ecmwf_ifs025": {
       "name": "ECMWF IFS 0.25°",
@@ -121,7 +121,7 @@
       "name": "ICON GLOBAL",
       "forecast_hours": [0, 167],
       "weight": 1.0,
-      "enabled": true
+      "enabled": false
     }
   },
   "description": "Configuration pour le traitement des codes météo WMO avec algorithme par groupes de sévérité et seuil dynamique",

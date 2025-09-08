@@ -991,30 +991,30 @@ function smartBarycenter11Groups(wmoCodes, config) {
       isRisk: true,
     },
     SNOW_CONV: {
-      codes: [85, 86],
+      codes: [71, 73, 75, 85, 86],
       description: "Neige convective",
       priority: 5,
       isRisk: true,
     },
-    SNOW: {
-      codes: [71, 73, 75],
-      description: "Neige continue",
-      priority: 6,
-      isRisk: false,
-    },
-    RAIN_CONV: {
-      codes: [80, 81, 82],
-      description: "Pluie convective",
+    // SNOW: {
+    //   codes: [71, 73, 75],
+    //   description: "Neige continue",
+    //   priority: 6,
+    //   isRisk: false,
+    // },
+    RAIN: {
+      codes: [0, 1, 2, 3, 51, 53, 55, 61, 63, 65, 80, 81, 82],
+      description: "Temps sec/Pluie",
       priority: 7,
-      isRisk: true,
-    },
-    RAIN_CONT: {
-      codes: [0, 1, 2, 3, 51, 53, 55, 61, 63, 65],
-      description: "Temps sec/Pluie continue",
-      priority: 9,
       isRisk: false,
     },
-    FOG: { codes: [45], description: "Brouillard", priority: 8, isRisk: false },
+    // RAIN_CONT: {
+    //   codes: [0, 1, 2, 3, 51, 53, 55, 61, 63, 65],
+    //   description: "Temps sec/Pluie continue",
+    //   priority: 9,
+    //   isRisk: false,
+    // },
+    FOG: { codes: [45], description: "Brouillard", priority: 6, isRisk: false },
     // DRY: {
     //   codes: [0, 1, 2, 3],
     //   description: "Temps sec",
