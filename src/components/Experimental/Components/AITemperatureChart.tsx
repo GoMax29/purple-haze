@@ -203,11 +203,11 @@ export default function AITemperatureChart({
                 dataKey="nwpValue"
                 stroke={NWP_REFERENCE_COLOR}
                 strokeWidth={2}
-                strokeOpacity={0.80}
+                strokeOpacity={0.85}
                 strokeDasharray="6 3"
                 dot={false}
                 isAnimationActive={false}
-                connectNulls={false}
+                connectNulls={true}
               />
             )}
 
@@ -315,19 +315,12 @@ function AITooltip({
   });
 
   // Sort individual AI model lines by temperature; consensus and NWP ref separate
-  const modelItems = resolved
-    .filter((r) => !r.isConsensus && !r.isNwp)
-    .sort((a, b) => Number(a.value) - Number(b.value));
-  const consensusItem = resolved.find((r) => r.isConsensus);
+  // NWP ref always last; all others sorted descending (highest temp on top)
   const nwpItem = resolved.find((r) => r.isNwp);
-
-  const mid = Math.floor(modelItems.length / 2);
-  const orderedItems = [
-    ...modelItems.slice(0, mid),
-    ...(consensusItem ? [consensusItem] : []),
-    ...modelItems.slice(mid),
-    ...(nwpItem ? [nwpItem] : []),
-  ];
+  const mainItems = resolved
+    .filter((r) => !r.isNwp)
+    .sort((a, b) => Number(b.value) - Number(a.value));
+  const orderedItems = [...mainItems, ...(nwpItem ? [nwpItem] : [])];
 
   return (
     <div className="bg-slate-900/95 border border-slate-700 rounded-lg px-3 py-2 shadow-xl text-[10px] max-w-[220px]">
@@ -335,10 +328,12 @@ function AITooltip({
         <div className="text-slate-400 text-[9px] mb-1.5 font-mono">{displayDate}</div>
       )}
       {orderedItems.map((item, i) => {
-        const showTopSep = (item.isConsensus && i > 0) || (item.isNwp && i > 0);
+        const prev = orderedItems[i - 1];
+        const topSep = (item.isConsensus && i > 0 && !prev?.isConsensus) ||
+                       (item.isNwp && i > 0);
         return (
           <div key={item.dataKey}>
-            {showTopSep && <div className="border-t border-slate-700/50 my-0.5" />}
+            {topSep && <div className="border-t border-slate-700/50 my-0.5" />}
             <div className={`flex justify-between gap-3 py-0.5 ${item.isConsensus ? 'font-semibold' : ''}`}>
               <span style={{ color: item.color }} className="truncate">{item.name}</span>
               <span className="text-slate-200 font-mono whitespace-nowrap">

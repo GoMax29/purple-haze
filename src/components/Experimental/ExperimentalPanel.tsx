@@ -38,6 +38,7 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
   const [nwpAggregation, setNwpAggregation] = useState<AggregatedPoint[]>([]);
   const [aiAggregation, setAiAggregation] = useState<AggregatedPoint[]>([]);
   const [classicModelLines, setClassicModelLines] = useState<FetchResult[]>([]);
+  const [modelTierStart, setModelTierStart] = useState<Record<string, number>>({});
   const [aiModelLines, setAiModelLines] = useState<FetchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
@@ -105,12 +106,25 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
       const classicMid = (midTierSel?.models ?? []).filter(isClassicKept);
       const classicLong = (longTierSel?.models ?? []).filter(isClassicKept);
 
-      // Union of all tier models for individual model lines in the chart
+      // Union of all tier models for individual model lines in the chart.
+      // Build modelTierStart using the EARLIEST tier each model actually contributes to
+      // (not its natural tier) — e.g. GEM is a fallback for short → tierStart = 0.
       const classicModelSet = new Map<string, FetchResult>();
-      for (const m of [...classicShort, ...classicMid, ...classicLong]) {
-        if (!classicModelSet.has(m.endpoint.id)) classicModelSet.set(m.endpoint.id, m);
-      }
+      const tierStartRecord: Record<string, number> = {};
+
+      const assignTier = (models: FetchResult[], startH: number) => {
+        for (const m of models) {
+          if (!classicModelSet.has(m.endpoint.id)) classicModelSet.set(m.endpoint.id, m);
+          if (!(m.endpoint.id in tierStartRecord)) tierStartRecord[m.endpoint.id] = startH;
+        }
+      };
+
+      assignTier(classicShort, 0);    // MF, ICON, UKMO, GEM (fallback) → H0
+      assignTier(classicMid, 48);     // IFS HRES (first appearance at mid) → H48
+      assignTier(classicLong, 120);   // GFS (only in long) → H120
+
       setClassicModelLines(Array.from(classicModelSet.values()));
+      setModelTierStart(tierStartRecord);
 
       // Tier-aware NWP consensus (eliminates GFS/IFS from short-term aggregation)
       const nwpAgg = aggregateTemperatureByTier(
@@ -154,6 +168,7 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
     setNwpAggregation([]);
     setAiAggregation([]);
     setClassicModelLines([]);
+    setModelTierStart({});
     setAiModelLines([]);
   }, [lat, lon]);
 
@@ -171,11 +186,10 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
     return aiAggregation.filter((p) => p.hour < MAX_FORECAST_HOURS);
   }, [aiAggregation]);
 
-  // NWP long-range reference for AI chart comparison (J8+ zone only)
+  // NWP long-range reference for AI chart comparison (J8+, hourly — must match
+  // AI aggregation resolution so nwpMap.get(hour) always finds a value)
   const nwpLongTermData = useMemo(() => {
-    return nwpAggregation
-      .filter((p) => p.hour >= 168 && p.hour < MAX_FORECAST_HOURS)
-      .filter((p) => p.hour % 3 === 0);
+    return nwpAggregation.filter((p) => p.hour >= 168 && p.hour < MAX_FORECAST_HOURS);
   }, [nwpAggregation]);
 
   if (lat == null || lon == null) return null;
@@ -239,6 +253,7 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
                 <TemperatureChart
                   data={chartData}
                   modelLines={classicModelLines}
+                  modelTierStart={modelTierStart}
                 />
               )}
 

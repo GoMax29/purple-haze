@@ -32,9 +32,12 @@ const MODEL_COLORS: Record<string, string> = {
 interface TemperatureChartProps {
   data: AggregatedPoint[];
   modelLines?: FetchResult[];
+  /** Maps each model id to the earliest hour at which its individual line is shown.
+   *  Derived from the actual tier assignment (including fallbacks), not natural tier. */
+  modelTierStart?: Record<string, number>;
 }
 
-export default function TemperatureChart({ data, modelLines }: TemperatureChartProps) {
+export default function TemperatureChart({ data, modelLines, modelTierStart }: TemperatureChartProps) {
   const chartData = useMemo(() => {
     return data.map((p) => {
       const row: Record<string, unknown> = {
@@ -49,7 +52,10 @@ export default function TemperatureChart({ data, modelLines }: TemperatureChartP
       if (modelLines) {
         for (const ml of modelLines) {
           const t = ml.temperatures[p.hour];
-          if (t !== null && t !== undefined) {
+          // Only show this model's line from its real assigned tier start
+          // (GEM fallback=H0, IFS=H48, GFS=H120)
+          const tierStart = modelTierStart?.[ml.endpoint.id] ?? 0;
+          if (t !== null && t !== undefined && p.hour >= tierStart) {
             row[`m_${ml.endpoint.id}`] = Math.round(t * 10) / 10;
           }
         }
@@ -265,16 +271,9 @@ function CustomTooltip({
     return { ...item, name, color, isConsensus };
   });
 
-  // Sort models by temperature value (ascending); keep consensus out for now
-  const modelItems = resolved.filter((r) => !r.isConsensus)
-    .sort((a, b) => Number(a.value) - Number(b.value));
-  const consensusItem = resolved.find((r) => r.isConsensus);
-
-  // Insert consensus at the middle of the sorted model list
-  const mid = Math.floor(modelItems.length / 2);
-  const orderedItems = consensusItem
-    ? [...modelItems.slice(0, mid), consensusItem, ...modelItems.slice(mid)]
-    : modelItems;
+  // Sort ALL items descending (highest temp at top, lowest at bottom).
+  // The consensus — being the winsorised mean — falls naturally in the middle.
+  const orderedItems = [...resolved].sort((a, b) => Number(b.value) - Number(a.value));
 
   return (
     <div className="bg-slate-900/95 border border-slate-700 rounded-lg px-3 py-2 shadow-xl text-[10px] max-w-[220px]">
@@ -282,20 +281,21 @@ function CustomTooltip({
         <div className="text-slate-400 text-[9px] mb-1.5 font-mono">{displayDate}</div>
       )}
       {orderedItems.map((item, i) => {
-        const isConsensus = item.isConsensus;
-        // Add separator before and after consensus
-        const needsTopSep = isConsensus && i > 0;
-        const needsBotSep = isConsensus && i < orderedItems.length - 1;
+        const prev = orderedItems[i - 1];
+        const next = orderedItems[i + 1];
+        const topSep = item.isConsensus && i > 0;
+        const botSep = item.isConsensus && next != null;
+        const prevWasConsensus = prev?.isConsensus;
         return (
           <div key={item.dataKey}>
-            {needsTopSep && <div className="border-t border-slate-700/50 my-0.5" />}
-            <div className={`flex justify-between gap-3 py-0.5 ${isConsensus ? 'font-semibold' : ''}`}>
+            {topSep && !prevWasConsensus && <div className="border-t border-slate-700/50 my-0.5" />}
+            <div className={`flex justify-between gap-3 py-0.5 ${item.isConsensus ? 'font-semibold' : ''}`}>
               <span style={{ color: item.color }} className="truncate">{item.name}</span>
               <span className="text-slate-200 font-mono whitespace-nowrap">
                 {Number(item.value).toFixed(1)}°
               </span>
             </div>
-            {needsBotSep && <div className="border-t border-slate-700/50 my-0.5" />}
+            {botSep && <div className="border-t border-slate-700/50 my-0.5" />}
           </div>
         );
       })}
