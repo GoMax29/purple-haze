@@ -14,6 +14,7 @@ import { getDynamicBackground } from "@/utils/dynamicBackground";
 import { fetchMeteoData } from "@/lib/fetchMeteoData";
 import { extractTimezoneInfo, TimezoneInfo } from "@/utils/timezoneHelper";
 import SplashScreen from "@/components/ui/SplashScreen";
+import { ExperimentalPanel } from "@/components/Experimental";
 // Import des anciens composants (à adapter selon la structure existante)
 // import NowForecast from "@/components/NowForecast";
 // import HourlyForecast from "@/components/HourlyForecast";
@@ -223,6 +224,7 @@ export default function HomePage() {
                 isDay={currentWeatherData?.current?.is_day}
               />
             </div>
+            <ExperimentalPanel lat={currentLocation?.lat} lon={currentLocation?.lon} />
           </div>
         ) : (
           <div className="space-y-8">

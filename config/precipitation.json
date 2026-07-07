@@ -31,14 +31,14 @@
     "meteofrance_arome_france_hd": {
       "name": "MF AROME FRANCE HD",
       "short": "AROME HD",
-      "forecast_hours": [0, 48],
+      "forecast_hours": [0, 60],
       "weight": 1.0,
       "enabled": true
     },
     "knmi_harmonie_arome_europe": {
       "name": "KNMI HARMONIE AROME EU",
       "short": "HARMONIE",
-      "forecast_hours": [0, 48],
+      "forecast_hours": [0, 60],
       "weight": 1.0,
       "enabled": true
     },
@@ -47,7 +47,7 @@
       "short": "UKMO 2K",
       "forecast_hours": [0, 36],
       "weight": 1.0,
-      "enabled": true
+      "enabled": false
     },
     "meteofrance_arpege_europe": {
       "name": "MF ARPEGE EU",
@@ -101,7 +101,7 @@
     "icon_global": {
       "name": "ICON GLOBAL",
       "short": "ICON G",
-      "forecast_hours": [109, 167],
+      "forecast_hours": [97, 167],
       "weight": 1.0,
       "enabled": true
     },

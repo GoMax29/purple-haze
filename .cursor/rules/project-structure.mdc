@@ -1,11 +1,28 @@
 ---
-description: "File and folder architecture rules for the weather/surf app"
-globs: ["**/*"]
+description: Architecture, layering, file size, DRY and naming essentials
 alwaysApply: true
 ---
 
-- Main structure: `/src/app`, `/src/components`, `/src/store`, `/src/shared`, `/src/styles`
-- Group components by feature (`/forecast`, `/spot`) or type (`/ui`, `/charts`)
-- Place API routes in `/pages/api/` or `/app/api/` (Next.js 13+)
-- Put generic UI elements in `/components/ui/`, domain-specific in `/components/feature/`
-- Store Zustand state logic inside `/src/store`
+# Core Architecture
+
+## Folder map (real)
+- `src/app/` — Next.js App Router (pages + `api/` routes, including `api/experimental/fetch`).
+- `src/components/legacy-ui/` — active UI (misnamed "legacy"); `src/components/ui/` — generic widgets.
+- `src/components/Experimental/` — **MVP** isolated weather engine (types, data/, Coverage/, Algorithms/, Components/). Does NOT modify V1.
+- `src/core/` — orchestration (`forecastCore.js`). `src/services/` — client data access. `src/lib/` — `fetchMeteoData.js` (I/O). `src/store/` — Zustand. `src/utils/` — pure helpers. `src/types/`.
+- `traitement/` — per-variable processing (server, Node fs/path). `shared/` — pure stat/weather algorithms. `config/` — per-variable JSON.
+- `legacy/`, `public/test-algo/`, `docs/` — archives & docs (not app code).
+
+## Layering (keep strict)
+- UI never reaches data I/O directly: UI → `services/` → `api/` route → `core/` → `traitement/` → `shared/`.
+- `shared/*` algorithms stay PURE (no I/O, no config read) → testable.
+- `traitement/*` should receive data injected rather than re-calling `fetchMeteoData` (target; see backlog A5).
+
+## File size
+- Target ≤ 200 lines; split beyond. Exception: static data tables / icon maps.
+
+## DRY & single source of truth
+- If a pattern appears twice, extract it. Constants, model lists, thresholds live in ONE place — never hardcode URLs/magic values inline (model list is duplicated in `fetchMeteoData` URL and JSON configs — avoid widening this).
+
+## Naming
+- Components `PascalCase`; hooks `useThing`; vars/functions `camelCase`; true constants `UPPER_SNAKE_CASE`. Booleans read as predicates (`isReady`, `hasItems`).

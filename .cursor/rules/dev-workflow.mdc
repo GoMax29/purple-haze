@@ -1,10 +1,26 @@
 ---
-description: "Assistant behavior during development"
-globs: ["**/*"]
+description: Core agent workflow, navigation and autonomy
 alwaysApply: true
 ---
 
-- Never delete files unless explicitly confirmed by the user.
-- Never `git add`, `commit`, or `push` without user approval.
+# Core Workflow
+
+## Navigation (entry points, in order)
+1. Read `PROJECT_STATUS.md` FIRST — current state, decisions, parameters, next steps.
+2. Grep `CODE_INDEX.md` to locate a symbol's file + line (never read it in full).
+3. Open `docs/Documentation.md` only when you need API/algorithm rationale.
+- Infer purpose from names/paths/imports before opening files; read targeted ranges in large files (`shared/wmo_algorithms.js`, `legacy-ui/*` are big).
+- Never recursive-glob the whole repo just to "explore". `legacy/`, `public/test-algo/`, `docs/icones WMO/` are archives — ignore unless asked.
+
+## Safety
+- NEVER delete files unless the user explicitly confirms.
+- NEVER `git add` / `commit` / `push` without explicit user approval.
 - Use `// TODO:` only when justified with clear context.
-- Each major change must update `Documentation.md` and/or `Project.md`.
+
+## Autonomy
+- For reversible choices (naming, formatting, defaults, equivalent approaches), pick a reasonable option and note it instead of asking.
+- Ask only for scope changes, ambiguous requirements, or destructive actions.
+- When interpretations differ, prefer maintainability, scalability, low technical debt.
+
+## After modifying files
+- If you create/rename/delete a file or an export, or change behavior/APIs/algorithms → the on-demand `doc-and-logs` rule applies (update STATUS/INDEX/docs and tick the backlog item).

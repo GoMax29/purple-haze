@@ -1,12 +1,46 @@
 ---
-description: "Technical context and expected behavior from the assistant"
-globs: ["**/*"]
+description: Domain, stack and language context for Purple Haze (weather app)
 alwaysApply: true
 ---
 
-You are a Senior Front-End Developer specialized in React, Next.js, JavaScript, TypeScript, HTML, CSS, and modern UI/UX libraries (TailwindCSS, Shadcn, Radix UI).
+# Project Context
 
-- Respond in **French by default**, unless explicitly asked otherwise.
-- Code must be functional, modular, documented, and tailored to the project scope and user’s prompt.
-- You write clean, maintainable, and idiomatic code using modern JS/React practices.
-- You never leave the given context unless the user explicitly instructs you to.
+## Product
+**Purple Haze** — a weather (and future surf) app focused on Brittany, France. It blends multiple weather models (Open-Meteo) into a single readable forecast: hourly (168 h), per-day cards with 4 time slots, and a "now" view.
+
+## Stack
+- Next.js 14 (App Router) + React 18 + TypeScript (UI partly untyped JS legacy).
+- State: Zustand (`src/store/weatherStore.ts`). Styling target: TailwindCSS (legacy inline styles being migrated).
+- Data: Open-Meteo HTTP APIs (forecast multi-model, air-quality UV/AQI, marine — disabled). In-memory `Map` cache, TTL 15 min.
+
+## Pipeline (data flow)
+**V1 (production):** `src/lib/fetchMeteoData.js` (I/O) → `traitement/*.js` (1 file = 1 variable: temperature, wind, precipitations, wmo, humidite) → `shared/*.js` (pure algorithms) → `src/core/forecastCore.js` (assembly + daily aggregation) → `src/app/api/forecast` → `src/services/forecastService.ts` → UI (`src/components/legacy-ui/*`).
+
+**MVP (experimental, isolated):** `src/components/Experimental/` — region-based smart fetch (Phase 1 + Phase 2 fallback) → family dedup → tier assignment → QC outlier filter → winsorised aggregation → recharts display. Uses dedicated API route `/api/experimental/fetch`. Does NOT modify V1.
+
+## Data-driven config
+Per-variable JSON in `config/` (`temperature.json`, `wind.json`, `precipitation.json`, `wmo.json`, `humidite.json`): each lists `models` with `forecast_hours`, `enabled`, `weight`, and `algorithm_params`. NOTE: `config/forecast_strategy.json` is currently DEAD (not read by code).
+
+## Model architecture (10 families, 14 universal endpoints)
+Seamless-first: each `*_seamless` chains local LAM → regional → global automatically. No ECMWF seamless exists → fetch IFS + IFS025 separately. CMA/BOM = standalone globals.
+- **Universal fetch (always)**: `dwd_icon_seamless`, `ncep_gfs_seamless`, `gem_seamless`, `meteofrance_seamless`, `ukmo_seamless`, `jma_seamless`, `kma_seamless`, `ecmwf_ifs`, `ecmwf_ifs025`, `ecmwf_aifs025_single`, `ncep_aigfs025`, `ncep_hgefs025_ensemble_mean`, `cma_grapes_global`, `bom_access_global`.
+- **Regional bonus (deferred)**: KNMI/DMI/Norway/GeoSphere seamless (ECMWF-backed, same family). MeteoSwiss/ItaliaMeteo ICON (DWD-backed, same family).
+- **Family dedup**: ECMWF+KNMI/DMI/Norway/GeoSphere = 1 family. ICON DWD+MeteoSwiss+ItaliaMeteo = 1 family. Min 4 independent families for winsorised mean.
+- **QC pipeline**: Layer 1 = amplitude filter (diurnal ratio < 0.5 for 48h → exclude model). Layer 2 (z-score) = deferred.
+
+## AI/Hybrid models + tendency strip (7–14 d)
+- **AIFS 0.25° Single** (15 d, smooth, mean-reverting at long range, -3 to -5°C bias on EU heat waves).
+- **AIGFS 0.25°** (16 d, GraphCast-based, best balance accuracy/range).
+- **HGEFS 0.25° Ensemble Mean** (10 d, hybrid, smoothest, best for tendency).
+- At J+7–14: shown as tendency curve + confidence tube (winsorised mean ± k·σ), NOT daily cards.
+- GenCast: NOT integrated (no turnkey endpoint).
+
+## Cross-references (read these, don't re-scan the repo)
+- Status & next steps: `PROJECT_STATUS.md` (read first each session).
+- Symbol → file:line lookup: grep `CODE_INDEX.md` (never read in full).
+- Improvement backlog: `docs/Milestone-Backlog-Ameliorations.md`.
+- API & algorithms detail: `docs/Documentation.md`.
+- MVP reference design: `model-coverage.html` (35 models, bbox, family dedup, Leaflet tool).
+
+## Language
+Respond to the user in **French**. Code, comments, identifiers, logs, commit messages in **English**.

@@ -1,17 +1,27 @@
 ---
-description: "React, JavaScript and Tailwind coding conventions"
+description: React, TypeScript and Tailwind coding conventions
 globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
-alwaysApply: true
+alwaysApply: false
 ---
 
-- Use functional components and React hooks (`useState`, `useEffect`, etc.)
-- Only use `use client` when strictly required
-- Prefer reusable hooks (`useFetchForecast`, `useSpotData`)
-- Prefer `const MyComponent = () => {}`; use `function` only if it improves clarity
-- Callback functions must be clearly named (`handleClick`, `toggleModal`)
-- Keep each component single-responsibility and testable
-- Avoid unnecessary dependencies
-- Never leave `console.log` in production code (use `this.log` if debugging temporarily)
-- Use TailwindCSS for all styling (no inline styles unless minor exceptions)
-- Always prefer Tailwind class names over dynamic class generation
-- Follow accessible UI principles (`aria-*`, `tabIndex`, responsive layout)
+# Code & Frontend Style
+
+## React
+- Functional components + hooks. Prefer `const MyComponent = () => {}`.
+- Use `"use client"` only when strictly required.
+- Extract reusable logic into hooks (`useFetchForecast`, `useSpotData`) and pure utils.
+- One responsibility per component; keep it testable.
+- Callbacks clearly named (`handleClick`, `toggleModal`). Clean up effects.
+- Explicit `loading` / `empty` / `error` states.
+
+## Styling
+- TailwindCSS for ALL styling. Do NOT add inline `style={{}}` (legacy `legacy-ui/*` violates this — migrate when you touch a file, don't add new inline styles).
+- Prefer static Tailwind class names over dynamic class generation.
+
+## TypeScript
+- No `any` at module boundaries — type the data contract (the `hourlyData: any[]` UI boundary is a known debt; type new code).
+- Prefer `unknown` + narrowing; derive types from a single source.
+
+## Hygiene
+- Never leave `console.log` in committed code.
+- Accessibility: `aria-*`, labels, keyboard targets, responsive layout.

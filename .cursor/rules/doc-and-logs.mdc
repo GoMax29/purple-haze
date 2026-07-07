@@ -1,23 +1,27 @@
 ---
-description: "Rules for documentation and debugging"
-globs: ["**/*"]
-alwaysApply: true
+description: Read when finishing a task that creates/renames/deletes files or exports, changes APIs/algorithms, or updates docs/status/index.
+alwaysApply: false
 ---
 
-- All external APIs (e.g., weather, swell) must be documented in `docs/Documentation.md`:
+# Documentation, Index & Status Maintenance
 
-  - endpoint structure
-  - used parameters
-  - example request/response
+Update ONLY the affected section, never rewrite a whole file.
 
-- Any custom algorithm (e.g., Gaussian, swell/precip weighting) must be documented in markdown.
+## PROJECT_STATUS.md (read at session start, update at session end)
+Sections: Snapshot, File Map, Decision Log (dated), Current Parameters, Known Issues, **Agent Context** (last prompt, active decisions, next steps, blockers — keep < 15 lines).
+- Update after any prompt that modifies source files. It is a summary, NOT a copy of CODE_INDEX.md.
 
-- Update `docs/Project.md` with:
+## CODE_INDEX.md (grep-only, never read in full)
+Update when: a file is created, an export is added/removed/renamed, a file is moved/deleted, or key line numbers shift > ±5.
+Do NOT update for body-only edits, comments, formatting.
+Entry format: `### path (N lines)` + table `| Line | Export | Kind |`.
+Efficiency: never re-scan the project — grep the file's exports, update its table + line count.
 
-  - milestones
-  - current task
-  - TODO / IN PROGRESS / DONE list
+## Reference docs
+- `docs/Documentation.md` — every external API (endpoint, params, example req/resp) and every custom algorithm (Gaussian, PoP, smart_bary, etc.) must be documented in markdown.
+- `docs/Project.md` — milestones / current task / TODO·IN PROGRESS·DONE (historical; PROJECT_STATUS.md is the live one).
+- `docs/Milestone-Backlog-Ameliorations.md` — when an idea moves to EN COURS / FAIT, tick its item and fill `Décision`.
+- `docs/index.json` — grep-based doc index; keep entries current.
 
-- Maintain a local `this.log` file for runtime debugging output (pasted by the user when needed).
-
-- Maintain a `docs/index.json` file (grep-based) to quickly reference existing markdown content.
+## Logs
+- `this.log` (or `legacy/this.log`) holds runtime debug output pasted by the user when needed.
