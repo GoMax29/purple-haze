@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { AggregatedPoint, FetchResult } from '../../types';
-import { formatDatetime, directionArrow, directionLabel, ensureReadableColor } from './chartUtils';
+import { formatDatetime, directionArrow, directionLabel, ensureReadableColor, modelMeshTier, isTierInPool } from './chartUtils';
 
 const SPEED_COLOR = '#22d3ee';
 const GUST_COLOR = '#f59e0b';
@@ -56,8 +56,11 @@ export default function WindChart({ speed, gusts, direction, modelLines }: WindC
       };
 
       if (modelLines) {
+        const speedPool = speed.find((sp) => sp.hour === p.hour)?.pool;
         for (const ml of modelLines) {
           if (ml.activeRange && (p.hour < ml.activeRange.startH || p.hour >= ml.activeRange.endH)) continue;
+          const tier = modelMeshTier(ml.model.resolution_km);
+          if (!isTierInPool(tier, speedPool)) continue;
           const v = ml.series.wind_speed_10m?.[p.hour];
           if (v !== null && v !== undefined) {
             row[`m_${ml.model.id}`] = Math.round(v * 10) / 10;
@@ -96,7 +99,7 @@ export default function WindChart({ speed, gusts, direction, modelLines }: WindC
         </div>
       </div>
 
-      <div className={`${hasModels ? 'h-56 sm:h-64' : 'h-48 sm:h-56'} w-full rounded-lg bg-slate-800/40 border border-slate-700/30 p-1.5 sm:p-2`}>
+      <div className={`${hasModels ? 'h-52 sm:h-64' : 'h-44 sm:h-56'} w-full`}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -5, bottom: 5 }}>
             <defs>

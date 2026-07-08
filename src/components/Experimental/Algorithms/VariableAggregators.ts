@@ -139,10 +139,75 @@ export function wmoGroupOf(code: number): WmoGroup {
   return WMO_GROUPS.find((g) => g.codes.includes(code)) ?? WMO_GROUPS[0];
 }
 
+// ────────────────────────────────────────────────────────────
+// WMO — smart_bary (ported from V1 shared/wmo_algorithms.js)
+// ────────────────────────────────────────────────────────────
+
 /**
- * Per-hour vote: each model votes for its code's severity group.
- * Winning group = most votes, ties broken by higher severity (safety first).
- * Representative code = median of the voters' codes inside the winning group.
+ * V1 smart_bary groups — ordered by decreasing priority.
+ * On tie (same vote count), the higher-priority group wins (safety first).
+ * Within the winning group, a discrete barycenter selects the representative
+ * WMO code: b = Σ(i·n_i) / Σ(n_i) over the group's ordered code list,
+ * half-up rounding.
+ */
+const SMART_BARY_GROUPS = [
+  { id: 'THUNDER_HAIL', codes: [96, 99], priority: 1 },
+  { id: 'THUNDER', codes: [95], priority: 2 },
+  { id: 'FREEZING_RAIN', codes: [56, 57, 66, 67], priority: 3 },
+  { id: 'FREEZING_FOG', codes: [48], priority: 4 },
+  { id: 'SNOW_CONV', codes: [71, 73, 75, 85, 86], priority: 5 },
+  { id: 'FOG', codes: [45], priority: 6 },
+  { id: 'RAIN', codes: [0, 1, 2, 3, 51, 53, 55, 61, 63, 65, 80, 81, 82], priority: 7 },
+] as const;
+
+function smartBarycenter(codes: number[]): number {
+  if (codes.length === 0) return 0;
+
+  const groupCounts = new Map<string, number>();
+  for (const code of codes) {
+    for (const group of SMART_BARY_GROUPS) {
+      if (group.codes.includes(code as never)) {
+        groupCounts.set(group.id, (groupCounts.get(group.id) ?? 0) + 1);
+        break;
+      }
+    }
+  }
+
+  const maxCount = Math.max(0, ...Array.from(groupCounts.values()));
+  if (maxCount === 0) return 0;
+
+  let dominant = SMART_BARY_GROUPS[SMART_BARY_GROUPS.length - 1];
+  for (const group of SMART_BARY_GROUPS) {
+    if ((groupCounts.get(group.id) ?? 0) === maxCount) {
+      dominant = group;
+      break;
+    }
+  }
+
+  const orderedCodes = dominant.codes;
+  const weights = Array(orderedCodes.length).fill(0);
+  for (const code of codes) {
+    const idx = orderedCodes.indexOf(code as never);
+    if (idx !== -1) weights[idx]++;
+  }
+
+  let num = 0;
+  let den = 0;
+  for (let i = 0; i < orderedCodes.length; i++) {
+    num += i * weights[i];
+    den += weights[i];
+  }
+
+  const bary = den > 0 ? num / den : 0;
+  const selectedIdx = bary % 1 === 0.5 ? Math.ceil(bary) : Math.round(bary);
+  return orderedCodes[Math.max(0, Math.min(orderedCodes.length - 1, selectedIdx))];
+}
+
+/**
+ * Per-hour WMO aggregation using V1 smart_bary algorithm:
+ * 1. Each model votes for its code's group (priority-ordered).
+ * 2. Dominant group = max votes, ties broken by higher priority.
+ * 3. Discrete barycenter within the dominant group → representative code.
  */
 function aggregateWmo(
   tiered: TieredFetches,
@@ -164,26 +229,7 @@ function aggregateWmo(
     }
     if (codes.length === 0) continue;
 
-    const votes = new Map<string, number[]>();
-    for (const code of codes) {
-      const group = wmoGroupOf(code);
-      if (!votes.has(group.id)) votes.set(group.id, []);
-      votes.get(group.id)!.push(code);
-    }
-
-    let winner: { group: WmoGroup; members: number[] } | null = null;
-    for (const [groupId, members] of Array.from(votes.entries())) {
-      const group = WMO_GROUPS.find((g) => g.id === groupId)!;
-      if (
-        !winner ||
-        members.length > winner.members.length ||
-        (members.length === winner.members.length && group.severity > winner.group.severity)
-      ) {
-        winner = { group, members };
-      }
-    }
-
-    const representative = Math.round(median(winner!.members));
+    const representative = smartBarycenter(codes);
 
     points.push({
       hour: h,

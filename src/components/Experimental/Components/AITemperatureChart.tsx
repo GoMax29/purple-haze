@@ -116,7 +116,7 @@ export default function AITemperatureChart({
         </div>
       </div>
 
-      <div className="h-48 sm:h-56 w-full rounded-lg bg-slate-800/40 border border-emerald-900/20 p-1.5 sm:p-2">
+      <div className="h-48 sm:h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -5, bottom: 5 }}>
             <defs>

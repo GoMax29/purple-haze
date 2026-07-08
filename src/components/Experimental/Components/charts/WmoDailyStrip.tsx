@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import { AggregatedPoint, FetchResult } from '../../types';
 import { WMO_GROUPS, wmoGroupOf } from '../../Algorithms/VariableAggregators';
 import { getWMOIcon } from '@/utils/wmoIcons';
@@ -31,9 +31,40 @@ interface WmoDailyStripProps {
 }
 
 const DAY_NAMES = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+const HOVER_DELAY_MS = 300;
+const LONG_PRESS_MS = 400;
 
 export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
-  const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [visibleDay, setVisibleDay] = useState<number | null>(null);
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    };
+  }, []);
+
+  const handleMouseEnter = useCallback((day: number) => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => setVisibleDay(day), HOVER_DELAY_MS);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    setVisibleDay(null);
+  }, []);
+
+  const handleTouchStart = useCallback((day: number) => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => setVisibleDay(day), LONG_PRESS_MS);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    setVisibleDay(null);
+  }, []);
 
   const days = useMemo((): DaySummary[] => {
     const now = new Date();
@@ -64,10 +95,7 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
       if (!chosenId) {
         let best = 0;
         for (const [id, entry] of Array.from(hoursByGroup.entries())) {
-          if (entry.count > best) {
-            best = entry.count;
-            chosenId = id;
-          }
+          if (entry.count > best) { best = entry.count; chosenId = id; }
         }
       }
 
@@ -77,7 +105,6 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
       const date = new Date(today.getTime() + d * 86400000);
       const avgModels = dayPoints.reduce((s, p) => s + p.modelCount, 0) / dayPoints.length;
 
-      // Per-model dominant WMO for this day (majority vote over 24h per model)
       const modelBreakdown: ModelWmoVote[] = [];
       if (modelLines) {
         for (const ml of modelLines) {
@@ -96,15 +123,11 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
             groupVotes.get(g.id)!.push(c);
           }
 
-          let bestGroup = '';
-          let bestCount = 0;
-          let bestSev = -1;
+          let bestGroup = ''; let bestCount = 0; let bestSev = -1;
           for (const [gid, codes] of Array.from(groupVotes.entries())) {
             const sev = WMO_GROUPS.find((g) => g.id === gid)?.severity ?? 0;
             if (codes.length > bestCount || (codes.length === bestCount && sev > bestSev)) {
-              bestCount = codes.length;
-              bestGroup = gid;
-              bestSev = sev;
+              bestCount = codes.length; bestGroup = gid; bestSev = sev;
             }
           }
 
@@ -122,18 +145,12 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
       }
 
       summaries.push({
-        day: d + 1,
-        dayName: DAY_NAMES[date.getDay()],
-        dayNum: date.getDate(),
-        code: representative,
-        groupLabel: WMO_GROUPS.find((g) => g.id === chosenId)!.label,
-        icon: getWMOIcon(representative),
-        hoursInGroup: chosen.count,
-        modelCount: Math.round(avgModels),
-        modelBreakdown,
+        day: d + 1, dayName: DAY_NAMES[date.getDay()], dayNum: date.getDate(),
+        code: representative, groupLabel: WMO_GROUPS.find((g) => g.id === chosenId)!.label,
+        icon: getWMOIcon(representative), hoursInGroup: chosen.count,
+        modelCount: Math.round(avgModels), modelBreakdown,
       });
     }
-
     return summaries;
   }, [wmo, modelLines]);
 
@@ -142,7 +159,7 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-slate-300">Ciel — vote multi-modèles</h3>
+        <h3 className="text-xs font-semibold text-slate-300">Ciel — smart bary multi-modèles</h3>
         <span className="text-[9px] text-slate-600">{days.length} jours</span>
       </div>
 
@@ -151,39 +168,35 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
           {days.map((d) => (
             <div
               key={d.day}
-              className={`relative flex flex-col items-center min-w-[52px] px-1.5 py-2 rounded-lg border bg-slate-800/40 border-slate-700/30 cursor-default ${
+              className={`relative flex flex-col items-center min-w-[52px] px-1.5 py-2 rounded-lg border bg-slate-800/40 border-slate-700/30 select-none ${
                 d.modelCount < 3 ? 'opacity-70' : ''
               }`}
-              onMouseEnter={() => setHoveredDay(d.day)}
-              onMouseLeave={() => setHoveredDay(null)}
+              onMouseEnter={() => handleMouseEnter(d.day)}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={() => handleTouchStart(d.day)}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
             >
               <span className="text-[9px] text-slate-500 font-medium">{d.dayName}</span>
               <span className="text-[10px] text-slate-400 font-mono">{d.dayNum}</span>
               <span className="text-xl mt-1 leading-none">{d.icon}</span>
-              <span className="text-[8px] text-slate-500 mt-1.5 text-center leading-tight">
-                {d.groupLabel}
-              </span>
-              <span className="text-[7px] text-slate-600 font-mono mt-0.5">
-                WMO {d.code}
-              </span>
+              <span className="text-[8px] text-slate-500 mt-1.5 text-center leading-tight">{d.groupLabel}</span>
+              <span className="text-[7px] text-slate-600 font-mono mt-0.5">WMO {d.code}</span>
 
-              {/* Model breakdown popover */}
-              {hoveredDay === d.day && d.modelBreakdown.length > 0 && (
-                <div className="absolute z-20 top-full mt-1 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-slate-700 rounded-lg px-3 py-2 shadow-xl text-[10px] min-w-[180px] max-w-[220px]">
-                  <div className="text-slate-400 text-[9px] mb-1.5 font-semibold">
-                    Prévision par modèle
-                  </div>
+              {/* Popover positioned ABOVE the card */}
+              {visibleDay === d.day && d.modelBreakdown.length > 0 && (
+                <div className="absolute z-20 bottom-full mb-1 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-slate-700 rounded-lg px-3 py-2 shadow-xl text-[10px] min-w-[180px] max-w-[220px]">
+                  <div className="text-slate-400 text-[9px] mb-1.5 font-semibold">Prévision par modèle</div>
                   {d.modelBreakdown.map((m, i) => (
                     <div key={i} className="flex justify-between gap-2 py-0.5">
-                      <span style={{ color: ensureReadableColor(m.color) }} className="truncate">
-                        {m.name}
-                      </span>
+                      <span style={{ color: ensureReadableColor(m.color) }} className="truncate">{m.name}</span>
                       <span className="text-slate-300 whitespace-nowrap flex items-center gap-1">
                         <span className="text-xs">{getWMOIcon(m.code)}</span>
                         <span className="font-mono text-slate-500">{m.code}</span>
                       </span>
                     </div>
                   ))}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-700" />
                 </div>
               )}
             </div>
@@ -192,8 +205,7 @@ export default function WmoDailyStrip({ wmo, modelLines }: WmoDailyStripProps) {
       </div>
 
       <div className="text-[9px] text-slate-600 px-1">
-        Un groupe significatif (pluie, averses, neige, orage) présent ≥ 3 h gagne la journée,
-        sinon le groupe le plus fréquent. Survoler une carte pour voir la prévision de chaque modèle.
+        Smart bary : groupe dominant + barycentre discret. Appui long (mobile) ou survol (PC) pour voir chaque modèle.
       </div>
     </div>
   );

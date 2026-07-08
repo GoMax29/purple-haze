@@ -39,12 +39,12 @@ import StepFetchResults from './Components/StepFetchResults';
 
 const MAX_FORECAST_HOURS = 336; // J14
 
-const TABS: { id: WeatherVariable; label: string; icon: string }[] = [
-  { id: 'temperature', label: 'Température', icon: '🌡' },
-  { id: 'precipitation', label: 'Précip.', icon: '🌧' },
-  { id: 'humidity', label: 'Humidité', icon: '💧' },
-  { id: 'wind', label: 'Vent', icon: '💨' },
-  { id: 'sky', label: 'Ciel', icon: '☁️' },
+const TABS: { id: WeatherVariable; label: string; short: string; icon: string }[] = [
+  { id: 'temperature', label: 'Température', short: 'T', icon: '🌡' },
+  { id: 'precipitation', label: 'Précip.', short: 'P', icon: '🌧' },
+  { id: 'humidity', label: 'Humidité', short: 'H', icon: '💧' },
+  { id: 'wind', label: 'Vent', short: 'V', icon: '💨' },
+  { id: 'sky', label: 'Ciel', short: 'C', icon: '☁️' },
 ];
 
 interface ExperimentalPanelProps {
@@ -282,26 +282,21 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
           {/* Results */}
           {pipelineDone && variableAgg && (
             <>
-              <PipelineSummary
-                fetchResults={allFetchResults}
-                tierSelections={tierSelections}
-                cascadeCount={cascades.length}
-              />
-
-              {/* Variable tabs */}
-              <div className="flex gap-1 overflow-x-auto -mx-1 px-1 pb-0.5">
+              {/* Variable tabs — compact on mobile */}
+              <div className="flex gap-1 -mx-1 px-1 pb-0.5">
                 {TABS.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors border ${
+                    className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors border ${
                       activeTab === tab.id
                         ? 'bg-purple-500/15 border-purple-500/40 text-purple-200'
                         : 'bg-slate-800/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600'
                     }`}
                   >
                     <span>{tab.icon}</span>
-                    {tab.label}
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.short}</span>
                   </button>
                 ))}
               </div>

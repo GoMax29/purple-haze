@@ -35,6 +35,26 @@ export function downsampleForChart<T extends { hour: number }>(points: T[], maxH
   return [...zone1, ...zone2];
 }
 
+import { MeshTier } from '../../types';
+
+/** Infer mesh tier from a model's resolution (matches ResolutionClassifier) */
+export function modelMeshTier(resolutionKm: number): MeshTier {
+  if (resolutionKm < 5) return 'fine';
+  if (resolutionKm <= 11) return 'medium';
+  return 'large';
+}
+
+/** Whether a given mesh tier contributes to the aggregation pool label */
+export function isTierInPool(tier: MeshTier, pool: string | undefined): boolean {
+  if (!pool) return true;
+  switch (tier) {
+    case 'fine': return pool === 'fine' || pool === 'fine+medium' || pool === 'mixed';
+    case 'medium': return pool === 'fine+medium' || pool === 'medium' || pool === 'medium+large' || pool === 'mixed';
+    case 'large': return pool === 'medium+large' || pool === 'mixed';
+    default: return true;
+  }
+}
+
 /**
  * Brightens a hex color if its luminance is too low to read on a dark
  * (#0f172a) tooltip background. Preserves hue; only scales brightness.

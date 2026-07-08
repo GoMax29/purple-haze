@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { AggregatedPoint, FetchResult } from '../../types';
-import { formatDatetime, ensureReadableColor } from './chartUtils';
+import { formatDatetime, ensureReadableColor, modelMeshTier, isTierInPool } from './chartUtils';
 
 interface ModelLineInfo {
   key: string;
@@ -46,6 +46,8 @@ export default function PrecipitationChart({ data, modelLines }: PrecipitationCh
         if (modelLines) {
           for (const ml of modelLines) {
             if (ml.activeRange && (p.hour < ml.activeRange.startH || p.hour >= ml.activeRange.endH)) continue;
+            const tier = modelMeshTier(ml.model.resolution_km);
+            if (!isTierInPool(tier, p.pool)) continue;
             const v = ml.series.precipitation?.[p.hour];
             if (v !== null && v !== undefined) {
               row[`m_${ml.model.id}`] = Math.round(v * 10) / 10;
@@ -87,7 +89,7 @@ export default function PrecipitationChart({ data, modelLines }: PrecipitationCh
         </div>
       </div>
 
-      <div className={`${hasModels ? 'h-56 sm:h-64' : 'h-48 sm:h-56'} w-full rounded-lg bg-slate-800/40 border border-slate-700/30 p-1.5 sm:p-2`}>
+      <div className={`${hasModels ? 'h-52 sm:h-64' : 'h-44 sm:h-56'} w-full`}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 8, right: 2, left: -5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
