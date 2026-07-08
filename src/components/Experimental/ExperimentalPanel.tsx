@@ -1,26 +1,51 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { FetchResult, FamilyGroup, TierSelection, OutlierResult, AggregatedPoint } from './types';
-import { testSeamlessFetches } from './Coverage/FetchTester';
-import { deduplicateByFamily } from './Coverage/FamilyDeduplicator';
-import { selectModelsByTier } from './Coverage/ModelSelector';
-import { filterOutliers } from './Algorithms/OutlierFilter';
-import { aggregateTemperature, aggregateTemperatureByTier } from './Algorithms/WinsorizedMean';
-import { getRegion, getPhase1Endpoints, AI_ENDPOINT_IDS, SEAMLESS_ENDPOINTS } from './data/families';
+import {
+  FetchResult,
+  TierSelection,
+  BboxResult,
+  DedupExclusion,
+  CascadeGroup,
+  MeshTier,
+  ModelDefinition,
+  ActiveRange,
+  VariableAggregations,
+  WeatherVariable,
+} from './types';
+import { resolveBoundingBoxes } from './Coverage/BoundingBoxResolver';
+import { classifyByResolution } from './Coverage/ResolutionClassifier';
+import { filterByRegion } from './Coverage/RegionalFilter';
+import { applyExplicitDedup, detectCascades } from './Coverage/ModelDeduplicator';
+import { capModelsPerTier } from './Coverage/TierCapper';
+import { fetchIndividualModels, validateAndFallback } from './Coverage/FetchTester';
+import { aggregateAI } from './Algorithms/Aggregation';
+import { aggregateAllVariables } from './Algorithms/VariableAggregators';
+import { getRegion, MESH_TIER_CONFIG } from './data/families';
+import { getAIModels } from './data/models';
+import { downsampleForChart } from './Components/charts/chartUtils';
 
 import PipelineSummary from './Components/PipelineSummary';
-import DailyForecastTable from './Components/DailyForecastTable';
-import TemperatureChart from './Components/TemperatureChart';
-import AITemperatureChart from './Components/AITemperatureChart';
-import StepEndpointsPlan from './Components/StepEndpointsPlan';
-import StepFetchResults from './Components/StepFetchResults';
-import StepFamilyDedup from './Components/StepFamilyDedup';
+import TemperatureTab from './Components/tabs/TemperatureTab';
+import PrecipitationTab from './Components/tabs/PrecipitationTab';
+import HumidityTab from './Components/tabs/HumidityTab';
+import WindTab from './Components/tabs/WindTab';
+import SkyTab from './Components/tabs/SkyTab';
+import StepBoundingBox from './Components/StepBoundingBox';
 import StepModelSelection from './Components/StepModelSelection';
+import StepDedupCascade from './Components/StepFamilyDedup';
 import StepAlgorithmChoice from './Components/StepAlgorithmChoice';
-import StepOutlierFilter from './Components/StepOutlierFilter';
+import StepFetchResults from './Components/StepFetchResults';
 
 const MAX_FORECAST_HOURS = 336; // J14
+
+const TABS: { id: WeatherVariable; label: string; icon: string }[] = [
+  { id: 'temperature', label: 'Température', icon: '🌡' },
+  { id: 'precipitation', label: 'Précip.', icon: '🌧' },
+  { id: 'humidity', label: 'Humidité', icon: '💧' },
+  { id: 'wind', label: 'Vent', icon: '💨' },
+  { id: 'sky', label: 'Ciel', icon: '☁️' },
+];
 
 interface ExperimentalPanelProps {
   lat?: number;
@@ -29,16 +54,15 @@ interface ExperimentalPanelProps {
 
 export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [allFetchResults, setAllFetchResults] = useState<FetchResult[]>([]);
-  const [phase1Results, setPhase1Results] = useState<FetchResult[]>([]);
-  const [phase2Results, setPhase2Results] = useState<FetchResult[]>([]);
-  const [familyGroups, setFamilyGroups] = useState<FamilyGroup[]>([]);
+  const [activeTab, setActiveTab] = useState<WeatherVariable>('temperature');
+  const [bboxResults, setBboxResults] = useState<BboxResult[]>([]);
   const [tierSelections, setTierSelections] = useState<TierSelection[]>([]);
-  const [outlierResults, setOutlierResults] = useState<OutlierResult[]>([]);
-  const [nwpAggregation, setNwpAggregation] = useState<AggregatedPoint[]>([]);
-  const [aiAggregation, setAiAggregation] = useState<AggregatedPoint[]>([]);
+  const [exclusions, setExclusions] = useState<DedupExclusion[]>([]);
+  const [cascades, setCascades] = useState<CascadeGroup[]>([]);
+  const [allFetchResults, setAllFetchResults] = useState<FetchResult[]>([]);
+  const [variableAgg, setVariableAgg] = useState<VariableAggregations | null>(null);
+  const [aiAggregation, setAiAggregation] = useState<VariableAggregations['temperature']>([]);
   const [classicModelLines, setClassicModelLines] = useState<FetchResult[]>([]);
-  const [modelTierStart, setModelTierStart] = useState<Record<string, number>>({});
   const [aiModelLines, setAiModelLines] = useState<FetchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
@@ -50,11 +74,6 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
     return getRegion(lat, lon);
   }, [lat, lon]);
 
-  const phase1Endpoints = useMemo(() => {
-    if (lat == null || lon == null) return [];
-    return getPhase1Endpoints(lat, lon);
-  }, [lat, lon]);
-
   const runPipeline = useCallback(async () => {
     if (lat == null || lon == null || pipelineRan) return;
 
@@ -63,82 +82,118 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
     setPipelineDone(false);
 
     try {
+      // 1. Bbox resolution
+      setLoadingStep('Résolution des bounding boxes...');
+      const bbox = resolveBoundingBoxes(lat, lon);
+      setBboxResults(bbox);
+      const inBounds = bbox.filter((r) => r.inBounds).map((r) => r.model);
+
+      // 2. Explicit dedup (cross-tier rules: AROME vs HD, KNMI EU vs DMI DINI)
+      const { kept: dedupedModels, exclusions: allExclusions } = applyExplicitDedup(inBounds);
+      setExclusions(allExclusions);
+
+      // 3. Classification by resolution (excludes AI + NBM)
+      const { fine, medium, large } = classifyByResolution(dedupedModels);
+
+      // 4. Regional filter (medium + large only)
+      const detectedRegion = getRegion(lat, lon);
+      const filteredMedium = filterByRegion(medium, detectedRegion, 'medium');
+      const filteredLarge = filterByRegion(large, detectedRegion, 'large');
+
+      // 5. Intra-provider cascades + cap 5 slots/tier (cascade = 1 slot)
+      const cascFine = detectCascades(fine, 'fine');
+      const cascMedium = detectCascades(filteredMedium.kept, 'medium');
+      const cascLarge = detectCascades(filteredLarge.kept, 'large');
+      const allCascades = [...cascFine.cascades, ...cascMedium.cascades, ...cascLarge.cascades];
+      setCascades(allCascades);
+
+      const capFine = capModelsPerTier(fine, cascFine.cascades);
+      const capMedium = capModelsPerTier(filteredMedium.kept, cascMedium.cascades);
+      const capLarge = capModelsPerTier(filteredLarge.kept, cascLarge.cascades);
+
+      const buildSelection = (
+        meshTier: MeshTier,
+        kept: ModelDefinition[],
+        dropped: ModelDefinition[],
+        regionFiltered: ModelDefinition[]
+      ): TierSelection => ({
+        meshTier,
+        label: MESH_TIER_CONFIG[meshTier].label,
+        models: kept,
+        dropped,
+        regionFiltered,
+        independentFamilies: new Set(kept.map((m) => m.family)).size,
+      });
+
+      const selections = [
+        buildSelection('fine', capFine.kept, capFine.dropped, []),
+        buildSelection('medium', capMedium.kept, capMedium.dropped, filteredMedium.filtered),
+        buildSelection('large', capLarge.kept, capLarge.dropped, filteredLarge.filtered),
+      ];
+      setTierSelections(selections);
+
+      // 6. Individual fetch — all variables in ONE request per model
       setLoadingStep('Connexion aux modèles météo...');
-      const { phase1, phase2, allResults } = await testSeamlessFetches(lat, lon);
-      setPhase1Results(phase1);
-      setPhase2Results(phase2);
-      setAllFetchResults(allResults);
+      const nwpModels = [...capFine.kept, ...capMedium.kept, ...capLarge.kept];
+      const aiModels = getAIModels();
+      const rawResults = await fetchIndividualModels(lat, lon, [...nwpModels, ...aiModels]);
 
-      setLoadingStep('Déduplication par famille...');
-      const successFetches = allResults.filter((f) => f.status === 'success');
-      const families = deduplicateByFamily(successFetches);
-      setFamilyGroups(families);
+      // 7. Post-fetch validation + dedup fallback
+      setLoadingStep('Validation des données...');
+      const validated = await validateAndFallback(lat, lon, rawResults, allExclusions);
+      setAllFetchResults(validated);
 
-      setLoadingStep('Sélection par horizon...');
-      const tiers = selectModelsByTier(families, successFetches);
-      setTierSelections(tiers);
+      const successResults = validated.filter(
+        (r) => r.status === 'success' && r.dataPoints > 0
+      );
 
-      const dedupedFetches = families.map((g) => g.kept);
+      // Attach cascade active ranges
+      const activeRanges: Record<string, ActiveRange> = {
+        ...cascFine.activeRanges,
+        ...cascMedium.activeRanges,
+        ...cascLarge.activeRanges,
+      };
+      for (const result of successResults) {
+        const range = activeRanges[result.model.id];
+        if (range) result.activeRange = range;
+      }
 
-      setLoadingStep('Contrôle qualité...');
-      const outliers = filterOutliers(dedupedFetches);
-      setOutlierResults(outliers);
-
-      setLoadingStep('Agrégation des températures...');
-      const keptIds = new Set(outliers.filter((o) => o.kept).map((o) => o.endpoint.id));
-
-      // AI models: not subject to tier restriction (always long-range)
-      const aiFetches = dedupedFetches.filter((f) => AI_ENDPOINT_IDS.includes(f.endpoint.id));
-      setAiModelLines(aiFetches);
-
-      // Reference timestamps from the first model that has them
-      const referenceTimes = dedupedFetches.find((f) => f.times?.length)?.times;
-
-      // Build tier-aware NWP model sets (intersected with outlier QC)
-      const isClassicKept = (f: FetchResult) =>
-        !AI_ENDPOINT_IDS.includes(f.endpoint.id) && keptIds.has(f.endpoint.id);
-
-      const shortTierSel = tiers.find((t) => t.tier === 'short');
-      const midTierSel = tiers.find((t) => t.tier === 'mid');
-      const longTierSel = tiers.find((t) => t.tier === 'long');
-
-      const classicShort = (shortTierSel?.models ?? []).filter(isClassicKept);
-      const classicMid = (midTierSel?.models ?? []).filter(isClassicKept);
-      const classicLong = (longTierSel?.models ?? []).filter(isClassicKept);
-
-      // Union of all tier models for individual model lines in the chart.
-      // Build modelTierStart using the EARLIEST tier each model actually contributes to
-      // (not its natural tier) — e.g. GEM is a fallback for short → tierStart = 0.
-      const classicModelSet = new Map<string, FetchResult>();
-      const tierStartRecord: Record<string, number> = {};
-
-      const assignTier = (models: FetchResult[], startH: number) => {
-        for (const m of models) {
-          if (!classicModelSet.has(m.endpoint.id)) classicModelSet.set(m.endpoint.id, m);
-          if (!(m.endpoint.id in tierStartRecord)) tierStartRecord[m.endpoint.id] = startH;
+      // 8. Per-variable progressive aggregation
+      setLoadingStep('Agrégation multi-variables...');
+      const idsOf = (models: ModelDefinition[]) => new Set(models.map((m) => m.id));
+      const fineIds = idsOf(capFine.kept);
+      const mediumIds = idsOf(capMedium.kept);
+      const largeIds = idsOf(capLarge.kept);
+      // Fallback-reinstated models join their natural mesh tier
+      for (const result of successResults) {
+        const excl = allExclusions.find((e) => e.excluded.id === result.model.id);
+        if (excl) {
+          const km = result.model.resolution_km;
+          if (km < 5) fineIds.add(result.model.id);
+          else if (km <= 11) mediumIds.add(result.model.id);
+          else largeIds.add(result.model.id);
         }
+      }
+
+      const tieredFetches = {
+        fine: successResults.filter((r) => fineIds.has(r.model.id)),
+        medium: successResults.filter((r) => mediumIds.has(r.model.id)),
+        large: successResults.filter((r) => largeIds.has(r.model.id)),
       };
 
-      assignTier(classicShort, 0);    // MF, ICON, UKMO, GEM (fallback) → H0
-      assignTier(classicMid, 48);     // IFS HRES (first appearance at mid) → H48
-      assignTier(classicLong, 120);   // GFS (only in long) → H120
+      const referenceTimes = successResults.find((f) => f.times?.length)?.times;
+      setVariableAgg(aggregateAllVariables(tieredFetches, MAX_FORECAST_HOURS, referenceTimes));
+      setClassicModelLines([
+        ...tieredFetches.fine,
+        ...tieredFetches.medium,
+        ...tieredFetches.large,
+      ]);
 
-      setClassicModelLines(Array.from(classicModelSet.values()));
-      setModelTierStart(tierStartRecord);
-
-      // Tier-aware NWP consensus (eliminates GFS/IFS from short-term aggregation)
-      const nwpAgg = aggregateTemperatureByTier(
-        classicShort,
-        classicMid,
-        classicLong,
-        MAX_FORECAST_HOURS,
-        referenceTimes
-      );
-      setNwpAggregation(nwpAgg);
-
+      // 9. AI consensus (temperature only, separate chart)
+      const aiFetches = successResults.filter((r) => r.model.isAI);
+      setAiModelLines(aiFetches);
       if (aiFetches.length > 0) {
-        const aiAgg = aggregateTemperature(aiFetches, referenceTimes);
-        setAiAggregation(aiAgg);
+        setAiAggregation(aggregateAI(aiFetches, referenceTimes));
       }
 
       setPipelineDone(true);
@@ -159,38 +214,33 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
   useEffect(() => {
     setPipelineRan(false);
     setPipelineDone(false);
-    setAllFetchResults([]);
-    setPhase1Results([]);
-    setPhase2Results([]);
-    setFamilyGroups([]);
+    setBboxResults([]);
     setTierSelections([]);
-    setOutlierResults([]);
-    setNwpAggregation([]);
+    setExclusions([]);
+    setCascades([]);
+    setAllFetchResults([]);
+    setVariableAgg(null);
     setAiAggregation([]);
     setClassicModelLines([]);
-    setModelTierStart({});
     setAiModelLines([]);
   }, [lat, lon]);
 
-  // NWP chart data: hourly J1-J7, then every 3h J8-J14 (fewer data points for perf)
-  const chartData = useMemo(() => {
-    const zone1 = nwpAggregation.filter((p) => p.hour < 168);
-    const zone2 = nwpAggregation
-      .filter((p) => p.hour >= 168 && p.hour < MAX_FORECAST_HOURS)
-      .filter((p) => p.hour % 3 === 0);
-    return [...zone1, ...zone2];
-  }, [nwpAggregation]);
-
-  // AI aggregation for chart and table (full range, capped at J14)
-  const aiChartData = useMemo(() => {
-    return aiAggregation.filter((p) => p.hour < MAX_FORECAST_HOURS);
-  }, [aiAggregation]);
-
-  // NWP long-range reference for AI chart comparison (J8+, hourly — must match
-  // AI aggregation resolution so nwpMap.get(hour) always finds a value)
-  const nwpLongTermData = useMemo(() => {
-    return nwpAggregation.filter((p) => p.hour >= 168 && p.hour < MAX_FORECAST_HOURS);
-  }, [nwpAggregation]);
+  // Temperature chart data (hourly J1-J7, 3h J8-J14)
+  const tempChartData = useMemo(
+    () => (variableAgg ? downsampleForChart(variableAgg.temperature, MAX_FORECAST_HOURS) : []),
+    [variableAgg]
+  );
+  const aiChartData = useMemo(
+    () => aiAggregation.filter((p) => p.hour < MAX_FORECAST_HOURS),
+    [aiAggregation]
+  );
+  const nwpLongTermData = useMemo(
+    () =>
+      variableAgg
+        ? variableAgg.temperature.filter((p) => p.hour >= 168 && p.hour < MAX_FORECAST_HOURS)
+        : [],
+    [variableAgg]
+  );
 
   if (lat == null || lon == null) return null;
 
@@ -203,7 +253,7 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
       >
         <div className="flex items-center gap-2">
           <span className="text-purple-400 font-mono text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20">
-            MVP
+            MVP v2
           </span>
           <span className="text-xs sm:text-sm font-semibold text-slate-200">
             Experimental Weather Engine
@@ -230,45 +280,83 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
           )}
 
           {/* Results */}
-          {pipelineDone && (
+          {pipelineDone && variableAgg && (
             <>
-              {/* Pipeline summary */}
               <PipelineSummary
                 fetchResults={allFetchResults}
-                familyGroups={familyGroups}
                 tierSelections={tierSelections}
-                outlierResults={outlierResults}
+                cascadeCount={cascades.length}
               />
 
-              {/* 14-day forecast table with toggleable AI min/max for J8+ */}
-              {chartData.length > 0 && (
-                <DailyForecastTable
-                  aggregation={chartData}
-                  aiAggregation={aiChartData}
-                />
-              )}
+              {/* Variable tabs */}
+              <div className="flex gap-1 overflow-x-auto -mx-1 px-1 pb-0.5">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors border ${
+                      activeTab === tab.id
+                        ? 'bg-purple-500/15 border-purple-500/40 text-purple-200'
+                        : 'bg-slate-800/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600'
+                    }`}
+                  >
+                    <span>{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
 
-              {/* NWP consensus chart J1-J14 (tier-aware, no AI overlay) */}
-              {chartData.length > 0 && (
-                <TemperatureChart
-                  data={chartData}
-                  modelLines={classicModelLines}
-                  modelTierStart={modelTierStart}
-                />
-              )}
-
-              {/* Separate AI chart J7-J14 with NWP reference */}
-              {aiChartData.length > 0 && aiModelLines.length > 0 && (
-                <AITemperatureChart
-                  aiAggregation={aiChartData}
+              {/* Active tab content */}
+              {activeTab === 'temperature' && (
+                <TemperatureTab
+                  chartData={tempChartData}
+                  fullAggregation={variableAgg.temperature}
+                  aiChartData={aiChartData}
+                  nwpLongTermData={nwpLongTermData}
+                  classicModelLines={classicModelLines}
                   aiModelLines={aiModelLines}
-                  nwpReference={nwpLongTermData.length > 0 ? nwpLongTermData : undefined}
+                  tierSelections={tierSelections}
+                  cascades={cascades}
+                />
+              )}
+              {activeTab === 'precipitation' && (
+                <PrecipitationTab
+                  aggregation={variableAgg.precipitation}
+                  modelLines={classicModelLines}
+                  tierSelections={tierSelections}
+                  cascades={cascades}
+                />
+              )}
+              {activeTab === 'humidity' && (
+                <HumidityTab
+                  aggregation={variableAgg.humidity}
+                  modelLines={classicModelLines}
+                  tierSelections={tierSelections}
+                  cascades={cascades}
+                />
+              )}
+              {activeTab === 'wind' && (
+                <WindTab
+                  speed={variableAgg.windSpeed}
+                  gusts={variableAgg.windGusts}
+                  direction={variableAgg.windDirection}
+                  modelLines={classicModelLines}
+                  tierSelections={tierSelections}
+                  cascades={cascades}
+                />
+              )}
+              {activeTab === 'sky' && (
+                <SkyTab
+                  wmo={variableAgg.wmo}
+                  modelLines={classicModelLines}
+                  tierSelections={tierSelections}
+                  cascades={cascades}
                 />
               )}
             </>
           )}
 
-          {/* Collapsible technical details */}
+          {/* Collapsible technical details (pipeline internals) */}
           {pipelineDone && (
             <details className="group">
               <summary className="cursor-pointer text-[10px] text-slate-600 hover:text-slate-400 transition-colors flex items-center gap-1.5 py-1">
@@ -276,25 +364,19 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
                 Détails techniques du pipeline
               </summary>
               <div className="mt-3 space-y-5 pl-2 border-l-2 border-slate-800">
-                <StepEndpointsPlan
-                  region={region}
-                  phase1Endpoints={phase1Endpoints}
-                  allEndpoints={SEAMLESS_ENDPOINTS}
-                />
-                <StepFetchResults
-                  results={allFetchResults}
-                  loading={false}
-                  phase1Count={phase1Results.length}
-                  phase2Count={phase2Results.length}
-                />
-                {familyGroups.length > 0 && <StepFamilyDedup groups={familyGroups} />}
-                {tierSelections.length > 0 && (
-                  <>
-                    <StepModelSelection selections={tierSelections} />
-                    <StepAlgorithmChoice selections={tierSelections} />
-                  </>
+                {bboxResults.length > 0 && (
+                  <StepBoundingBox results={bboxResults} lat={lat} lon={lon} />
                 )}
-                {outlierResults.length > 0 && <StepOutlierFilter results={outlierResults} />}
+                {tierSelections.length > 0 && (
+                  <StepModelSelection selections={tierSelections} />
+                )}
+                <StepDedupCascade exclusions={exclusions} cascades={cascades} />
+                {allFetchResults.length > 0 && (
+                  <StepFetchResults results={allFetchResults} loading={false} />
+                )}
+                {tierSelections.length > 0 && (
+                  <StepAlgorithmChoice selections={tierSelections} />
+                )}
               </div>
             </details>
           )}

@@ -1,5 +1,6 @@
 import { BboxResult } from '../types';
 import { FAMILY_LABELS } from '../data/models';
+import { getMeshTier } from '../data/families';
 import ModelRow from './ModelRow';
 
 interface StepBoundingBoxProps {
@@ -9,22 +10,29 @@ interface StepBoundingBoxProps {
 }
 
 export default function StepBoundingBox({ results, lat, lon }: StepBoundingBoxProps) {
-  const available = results.filter((r) => r.inBounds);
-  const unavailable = results.filter((r) => !r.inBounds);
+  const nwpResults = results.filter((r) => !r.model.isAI);
+  const available = nwpResults.filter((r) => r.inBounds);
+  const unavailable = nwpResults.filter((r) => !r.inBounds);
 
-  const shortCount = available.filter((r) => r.model.tier === 'short').length;
-  const midCount = available.filter((r) => r.model.tier === 'mid').length;
-  const longCount = available.filter((r) => r.model.tier === 'long').length;
+  const fineCount = available.filter(
+    (r) => !r.model.excludeFromAggregation && getMeshTier(r.model.resolution_km) === 'fine'
+  ).length;
+  const mediumCount = available.filter(
+    (r) => !r.model.excludeFromAggregation && getMeshTier(r.model.resolution_km) === 'medium'
+  ).length;
+  const largeCount = available.filter(
+    (r) => !r.model.excludeFromAggregation && getMeshTier(r.model.resolution_km) === 'large'
+  ).length;
 
   return (
     <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wide">
-          Étape 1 — Bounding Box Resolution
+          Étape 1 — Bounding Box
         </h3>
         <span className="text-[10px] font-mono text-slate-500">
-          {available.length}/{results.length} modèles disponibles
+          {available.length}/{nwpResults.length} modèles couvrent le point
         </span>
       </div>
 
@@ -34,11 +42,11 @@ export default function StepBoundingBox({ results, lat, lon }: StepBoundingBoxPr
         <span>Longitude: <span className="text-slate-200">{lon.toFixed(4)}°</span></span>
       </div>
 
-      {/* Tier summary */}
+      {/* Mesh tier summary */}
       <div className="grid grid-cols-3 gap-2">
-        <TierCard label="Court" count={shortCount} color="emerald" />
-        <TierCard label="Moyen" count={midCount} color="amber" />
-        <TierCard label="Long" count={longCount} color="red" />
+        <TierCard label="Fine < 5 km" count={fineCount} color="emerald" />
+        <TierCard label="Moyenne 5-11" count={mediumCount} color="amber" />
+        <TierCard label="Large > 11" count={largeCount} color="red" />
       </div>
 
       {/* Available models */}
@@ -54,7 +62,7 @@ export default function StepBoundingBox({ results, lat, lon }: StepBoundingBoxPr
             family={FAMILY_LABELS[r.model.family] || r.model.family}
             resolution={`${r.model.resolution_km} km`}
             hours={r.model.forecast_hours}
-            tier={r.model.tier}
+            meshTier={getMeshTier(r.model.resolution_km)}
             inBounds={true}
           />
         ))}
@@ -74,7 +82,7 @@ export default function StepBoundingBox({ results, lat, lon }: StepBoundingBoxPr
               family={FAMILY_LABELS[r.model.family] || r.model.family}
               resolution={`${r.model.resolution_km} km`}
               hours={r.model.forecast_hours}
-              tier={r.model.tier}
+              meshTier={getMeshTier(r.model.resolution_km)}
               inBounds={false}
               dimmed
             />
@@ -95,7 +103,7 @@ function TierCard({ label, count, color }: { label: string; count: number; color
   return (
     <div className={`flex flex-col items-center py-2 rounded border ${colorMap[color]}`}>
       <span className="text-lg font-bold">{count}</span>
-      <span className="text-[9px] uppercase tracking-wider text-slate-500">{label}</span>
+      <span className="text-[9px] uppercase tracking-wider text-slate-500 text-center px-1">{label}</span>
     </div>
   );
 }

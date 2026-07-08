@@ -17,9 +17,9 @@ import { AggregatedPoint, FetchResult } from '../types';
 // ─── colours ───────────────────────────────────────────────
 // Each AI model gets a visually distinct colour so lines don't blend together.
 const AI_COLORS: Record<string, string> = {
-  ecmwf_aifs025_single: '#3B82F6',        // blue   — ECMWF AIFS
-  ncep_aigfs025: '#22D3EE',               // azure/cyan — NCEP AIGFS (GraphCast-based)
-  ncep_hgefs025_ensemble_mean: '#34D399', // green  — NCEP HGEFS (hybrid ensemble)
+  ecmwf_aifs025: '#3B82F6', // blue — ECMWF AIFS
+  gfs_aigfs: '#22D3EE',     // azure/cyan — NCEP AIGFS (GraphCast-based)
+  gfs_hgefs: '#34D399',     // green — NCEP HGEFS (hybrid ensemble)
 };
 
 // AI consensus rendered in bright emerald — clearly distinct from individual model lines
@@ -64,9 +64,9 @@ export default function AITemperatureChart({
       };
 
       for (const ml of aiModelLines) {
-        const t = ml.temperatures[p.hour];
+        const t = ml.series.temperature_2m?.[p.hour];
         if (t !== null && t !== undefined) {
-          row[`ai_${ml.endpoint.id}`] = Math.round(t * 10) / 10;
+          row[`ai_${ml.model.id}`] = Math.round(t * 10) / 10;
         }
       }
 
@@ -76,10 +76,10 @@ export default function AITemperatureChart({
 
   const aiModels = useMemo(() =>
     aiModelLines.map((ml) => ({
-      key: `ai_${ml.endpoint.id}`,
-      id: ml.endpoint.id,
-      name: `${ml.endpoint.providerFlag} ${ml.endpoint.name}`,
-      color: AI_COLORS[ml.endpoint.id] || '#34D399',
+      key: `ai_${ml.model.id}`,
+      id: ml.model.id,
+      name: `${ml.model.providerFlag} ${ml.model.name}`,
+      color: AI_COLORS[ml.model.id] || '#34D399',
     })),
     [aiModelLines]
   );
@@ -233,7 +233,7 @@ export default function AITemperatureChart({
           <LegendItem color={NWP_REFERENCE_COLOR} label="Consensus NWP (réf.)" dashed />
         )}
         {aiModels.map((m) => {
-          const isHgefs = m.id === 'ncep_hgefs025_ensemble_mean';
+          const isHgefs = m.id === 'gfs_hgefs';
           return (
             <LegendItem
               key={m.key}

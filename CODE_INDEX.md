@@ -92,24 +92,28 @@
 | `wmoIconMapping.js` | `WMO_ICON_MAPPING` (6), `WMO_DESCRIPTIONS` (64), `SEVERITY_COLORS` (105), `getWmoIcon` (122), `getWmoDescription` (131), `getWmoSeverity` (140), `getWmoSeverityColor` (167) |
 
 ## src/app/api/ (routes — all `GET`/`POST` handlers)
-`forecast/route.js` · `fetchMeteoData/route.js` · `cache-stats/route.js` (GET/POST/PUT/DELETE) · `api-stats/route.js` (GET/POST) · `config/wmo/route.js` · `test-meteo/route.ts` (GET/POST) · `test-param/{temperature,apparent-temperature,humidite,precipitation,wind,wmo,wmo/agg,final-params,results_all}/route.js` · `surf/spots.ts` · **`experimental/fetch/route.ts`** (POST — MVP seamless fetch tester).
+`forecast/route.js` · `fetchMeteoData/route.js` · `cache-stats/route.js` (GET/POST/PUT/DELETE) · `api-stats/route.js` (GET/POST) · `config/wmo/route.js` · `test-meteo/route.ts` (GET/POST) · `test-param/{temperature,apparent-temperature,humidite,precipitation,wind,wmo,wmo/agg,final-params,results_all}/route.js` · `surf/spots.ts` · **`experimental/fetch/route.ts`** (POST — MVP individual-model fetch, generic `{id, apiModel}` payload).
 
-## src/components/Experimental/ (MVP — isolated)
+## src/components/Experimental/ (MVP v2 — isolated, individual-model pipeline, multi-variable)
 | File | Key Exports |
 |------|-------------|
-| `types.ts` | `ModelDefinition`, `SeamlessEndpoint`, `BboxResult`, `FetchResult`, `FamilyGroup`, `TierSelection`, `AlgorithmChoice`, `OutlierResult`, `AggregatedPoint`, `TrendPoint`, `PipelineState` |
+| `types.ts` | `MeshTier`, `HOURLY_VARS` (7 series), `HourlySeriesKey`, `WeatherVariable`, `ModelDefinition` (+`apiModel`), `BboxResult`, `ActiveRange`, `FetchResult` (`series` record), `DedupExclusion`, `CascadeGroup`, `TierSelection`, `AggregatedPoint` (+`wetFraction`), `VariableAggregations`, `TrendPoint` |
 | `index.ts` | re-exports `ExperimentalPanel` |
-| `ExperimentalPanel.tsx` | default `ExperimentalPanel` (orchestrator, accordion, full pipeline) |
-| `data/models.ts` | `INDIVIDUAL_MODELS` (35), `FAMILY_LABELS`, `PROVIDERS` |
-| `data/families.ts` | `SEAMLESS_ENDPOINTS` (14), `getRegion()`, `getPhase1Endpoints()`, `getPhase2Endpoints()`, `AI_ENDPOINT_IDS`, `MIN_INDEPENDENT_FAMILIES`, `TIER_CONFIG` |
-| `Coverage/BoundingBoxResolver.ts` | `resolveBoundingBoxes()`, `getModelsInBounds()`, `countByTier()` |
-| `Coverage/FetchTester.ts` | `testSeamlessFetches()` (Phase 1 + Phase 2 progressive) |
-| `Coverage/FamilyDeduplicator.ts` | `deduplicateByFamily()` |
-| `Coverage/ModelSelector.ts` | `selectModelsByTier()` |
-| `Algorithms/AlgorithmPicker.ts` | `pickAlgorithm()` |
-| `Algorithms/OutlierFilter.ts` | `filterOutliers()` |
-| `Algorithms/WinsorizedMean.ts` | `aggregateTemperature()`, `aggregateTemperatureRange()`, `aggregateTemperatureByTier()`, `computeTrendBand()` |
-| `Components/*.tsx` | `PipelineSummary`, `DailyForecastTable` (AI toggle J8+), `TemperatureChart` (J1–J14 NWP-only, numeric X axis), `AITemperatureChart` (J7–J14 AI comparison), `StepEndpointsPlan`, `StepFetchResults`, `StepFamilyDedup`, `StepModelSelection`, `StepAlgorithmChoice`, `StepOutlierFilter`, `TrendChart` (orphan), `StatusBadge`, `ModelRow` |
+| `ExperimentalPanel.tsx` | default `ExperimentalPanel` (orchestrator + 5 variable tabs: Température/Précip./Humidité/Vent/Ciel) |
+| `data/models.ts` | `INDIVIDUAL_MODELS` (30, verified `apiModel` names), `AI_MODEL_IDS`, `getAIModels()`, `FAMILY_LABELS`, `PROVIDERS` |
+| `data/families.ts` | `getRegion()`, `getMeshTier()`, `RESOLUTION_THRESHOLDS`, `MESH_TIER_CONFIG`, `GLOBAL_PASS_MODEL_IDS`, `REGION_PROVIDERS`, `MAX_MODELS_PER_TIER`, `MIN_POOL_SIZE`, `GAUSSIAN_SIGMA_MIN_TEMP`, `WINSORIZE_TRIM_PERCENT` |
+| `Coverage/BoundingBoxResolver.ts` | `resolveBoundingBoxes()`, `getModelsInBounds()`, `countByMeshTier()` |
+| `Coverage/ResolutionClassifier.ts` | `classifyByResolution()` (fine/medium/large) |
+| `Coverage/RegionalFilter.ts` | `filterByRegion()` (medium+large only, global-pass exempt) |
+| `Coverage/ModelDeduplicator.ts` | `applyExplicitDedup()` (AROME/KNMI rules), `detectCascades()` (intra-provider "seamless maison") |
+| `Coverage/TierCapper.ts` | `capModelsPerTier()` (5 slots, cascade = 1 slot, family diversity first) |
+| `Coverage/FetchTester.ts` | `fetchIndividualModels()`, `validateAndFallback()` (KNMI EU fallback if DINI fails) |
+| `Algorithms/Aggregation.ts` | `aggregateProgressive(tiered, maxH, times, {key, strategy, sigmaFloor, clamp, withWetFraction})`, `aggregateAI()`, `poolFetchesAt()` (shared pool logic), `winsorizedMean()`, `robustGaussianMean()`, `median()`, `valueAt()` |
+| `Algorithms/VariableAggregators.ts` | `aggregateAllVariables()` (7 series), `WMO_GROUPS`, `wmoGroupOf()` — precip median+wetFraction, wind dir vector mean (speed-weighted), WMO severity-group vote |
+| `Algorithms/AlgorithmPicker.ts` | `describeAlgorithm()` (informational) |
+| `Components/tabs/*.tsx` | `TemperatureTab`, `PrecipitationTab`, `HumidityTab`, `WindTab`, `SkyTab`, `ExplainerToggle` — each: daily J1–J14 recap + adapted chart + educational walkthrough |
+| `Components/charts/*.tsx` | `ConsensusChart` (generic), `PrecipitationChart` (median bars + wet%), `WindChart` (speed/gusts + direction tooltip), `WmoDailyStrip` (daily vote icons), `chartUtils` (`formatDatetime`, `directionArrow/Label`, `downsampleForChart`) |
+| `Components/*.tsx` | `PipelineSummary`, `DailyForecastTable` (temp, AI toggle J8+), `DailyVariableTable` (+`buildDayHeaders`), `AlgorithmExplainer` (per-variable educational), `TemperatureChart`, `AITemperatureChart`, `StepBoundingBox`, `StepModelSelection`, `StepFamilyDedup` (=`StepDedupCascade`), `StepAlgorithmChoice`, `StepFetchResults`, `TrendChart` + `StepAggregation` (orphans), `StatusBadge`, `ModelRow` |
 
 ## src/components/ (active UI — default export each)
 - `ui/`: `PrecipitationWidget`, `SplashScreen`.

@@ -56,6 +56,9 @@
   - **7–14 d tendency strip design**: NOT daily cards. Smooth curve with confidence tube (winsorised mean ± k·σ, k scaling with horizon). Confidence bands: ~P20/P80 at J+7 (~60%), ~P25/P75 at J+10 (~50%), ~P30/P70 at J+14 (~40%).
 - **2026-07-04** — Complete seamless model architecture finalized. **10 independent families**, 14 universal endpoints. See Model Architecture below.
 - **2026-07-05** — MVP Experimental Weather Engine implemented (`src/components/Experimental/`, 23 files). Fully isolated from V1. Region-based smart fetch (Phase 1 + Phase 2 fallback). Tailwind config fixed (`./src/**/*`). API model names corrected (`ncep_aigfs025`, `ncep_hgefs025_ensemble_mean`). Tier logic fixed (seamless contributes to all tiers it covers).
+- **2026-07-08 (3)** — **Engine v2 charts: individual model lines + tooltip readability**. All variable charts (humidity, precip, wind) now show individual NWP model curves at low opacity alongside consensus. `ensureReadableColor()` brightens dark hex colors for tooltip readability. WMO daily strip now shows per-model breakdown on hover. Analysis of Plomeur capture: all models visible on temperature chart is by design (transparency) — progressive pool only affects aggregation, not display. HGEFS integration in NWP pool at J7+ considered but deferred (would mix paradigms, to be evaluated).
+- **2026-07-08 (2)** — **Engine v2 extended to all variables** with tabbed UI. One Open-Meteo request per model now fetches 7 hourly series (temp, RH, precip, weather_code, wind speed/gusts/direction). Per-variable aggregation on the same progressive pool: temp/humidity/wind = winsorized-or-gaussian (sigma floors: RH 15 %, speed 10, gusts 15 km/h; RH clamped 0-100); **precip = median + wetFraction** (share of models > 0.1 mm, probability proxy); **wind direction = vector mean weighted by speed**; **WMO = severity-group vote** (7 groups, tie → more severe, representative = median code of winning group; daily strip: significant group ≥ 3 h wins the day). 5 tabs (Température/Précip./Humidité/Vent/Ciel), each with J1-J14 recap + adapted chart + educational "Comment ça marche ?" walkthrough (per-variable method, why, limits, real-hour example). AI overlay stays temperature-only. Functional test passed on the 3 reference cities.
+- **2026-07-08** — **Experimental Engine v2: seamless abandoned** (a seamless can silently return a coarser member — e.g. `icon_seamless` = ICON-EU 7 km at H0 for Finistère since ICON-D2 stops at lon −3.94°). New individual-model pipeline: bbox pre-filter → explicit dedup (AROME→HD, KNMI EU→DMI DINI w/ fetch fallback) → mesh classification (fine <5 / medium 5–11 incl / large >11 km) → regional filter for medium+large (global pass: GFS, IFS HRES+0.25°, ICON Global, UKMO Global, 3 AI) → intra-provider cascades = 1 slot (CH1→CH2, ICON-EU→ICON Global) → cap 5/tier (family diversity first) → per-hour progressive pool (fine → fine+med → med → med+large) → winsorized 20% (N≥4) / **robust gaussian MAD-sigma floor 5 °C** (N=2-3; [20,21,30]→21.4). Spread QC filter removed (resolution classing + gaussian replace it). NBM excluded (statistical blend). AI unchanged (3 models, separate chart). All `apiModel` names verified against Open-Meteo. Functional test passed on Quimper (3F/5M/2L), Paris (6F incl. CH1→CH2/5M/2L), New York (3F/4M/3L).
 
 ## Model Architecture (2026-07-04)
 
@@ -83,45 +86,40 @@
 2. Winsorised mean (20%) on remaining qualified models.
 3. **Dynamic z-score filter (Layer 2)**: DEFERRED — too risky with ≤4 models at long range.
 
-## MVP Experimental Weather Engine (2026-07-05)
+## MVP Experimental Weather Engine v2 (2026-07-08)
 
-Fully isolated MVP panel added below Daily Cards. Does NOT touch V1. Lives in `src/components/Experimental/` (23 files) + 1 API route (`src/app/api/experimental/fetch/route.ts`). Single V1 change: 1 import + 1 conditional component in `src/app/page.tsx`.
+Fully isolated MVP panel added below Daily Cards. Does NOT touch V1. Lives in `src/components/Experimental/` + 1 API route (`src/app/api/experimental/fetch/route.ts`, generic — unchanged). Single V1 change: 1 import + 1 conditional component in `src/app/page.tsx`.
 
-**Pipeline (7 steps, runs when panel opened):**
-1. Bbox resolution (35 individual models, informational)
-2. Seamless fetch — **region-based smart fetch**: Phase 1 = region-matched + universal endpoints; Phase 2 = fallback if < 4 families
-3. Family dedup (1 voice/family, finest resolution kept)
-4. Tier assignment (a seamless contributes to ALL tiers it covers: 0 → forecast_hours)
-5. Algorithm selection (N>=4 → Winsorised Mean, N=2-3 → Weighted Mean, N=1 → Single)
-6. Outlier QC (spread vs median consensus, threshold 4°C over 48h)
-7. Aggregation + charts (recharts: J1-J7 hourly, J7-J10 3x/day, J10-J16 trend band + AI curve)
+**Pipeline v2 (individual models, no seamless — runs when panel opened):**
+1. Bbox resolution (30 individual models with verified `apiModel` names)
+2. Explicit dedup: AROME dropped if AROME HD present; KNMI HARMONIE EU dropped if DMI DINI present (reinstated if DINI fetch fails)
+3. Mesh classification: fine < 5 km · medium 5–11 km incl. · large > 11 km (AI + NBM excluded)
+4. Regional filter (medium+large only; fine self-filters via bbox). Global pass: GFS, IFS HRES, IFS 0.25°, ICON Global, UKMO Global + 3 AI
+5. Intra-provider cascades ("seamless maison", 1 slot): ICON CH1[H0-33]→CH2[H33-120] (MeteoSwiss), ICON-EU[H0-120]→ICON Global[H120-180] (DWD)
+6. Cap 5 slots/tier (1 per family finest-first, then finest resolution)
+7. Fetch individual models via `models=<apiModel>` + AI always; post-fetch validation w/ dedup fallback
+8. Per-hour progressive aggregation pool: fine(≥3) → fine+medium(≥3) → medium(≥3) → medium+large(≥3) → mixed. Methods: winsorized 20% (N≥4), robust gaussian MAD-sigma floored at 5 °C (N=2-3), raw (N=1)
+9. AI consensus separate (3 models, full range, dedicated chart J7–J14 vs NWP reference)
 
-**Region-based fetch logic** (`getRegion(lat, lon)` from model-coverage.html):
-- Universal (always): `gfs_seamless`, `ecmwf_ifs`, `ecmwf_ifs025` + AI endpoints
-- Europe: + `icon_seamless`, `meteofrance_seamless`, `ukmo_seamless`, `gem_seamless`
-- Americas: + `gem_seamless`, `icon_seamless`
-- Asia: + `jma_seamless`, `kma_seamless`, `cma_grapes_global`, `icon_seamless`
-- Oceania: + `bom_access_global`, `icon_seamless`
+**Multi-variable (2026-07-08 (2)):** one request per model fetches `HOURLY_VARS` (7 series). `aggregateAllVariables()` produces `VariableAggregations` (temperature, humidity, precipitation, windSpeed, windGusts, windDirection, wmo). UI = 5 tabs, each: daily J1-J14 recap (`DailyVariableTable` / `WmoDailyStrip`) + adapted chart (`ConsensusChart`, `PrecipitationChart`, `WindChart`) + `AlgorithmExplainer` educational toggle. Note: `arome_france_hd` returns null `weather_code` — WMO pool self-adjusts (per-key validity in `poolFetchesAt`).
 
-**API names confirmed**: `ncep_aigfs025`, `ncep_hgefs025_ensemble_mean` (validated by user test).
+**Verified selections (2026-07-08 test):**
+- Quimper: fine = AROME HD + UKV + DMI DINI (ICON-D2 out of bbox at lon −4.1)
+- Paris: fine = CH1→CH2 + AROME HD + ICON-D2 + UKV + DINI (ICON 2I capped out)
+- New York: fine = HRDPS + HRRR + NAM; medium gets ICON Global + UKMO Global via global pass
+
+**API names verified**: `gfs_global`, `gfs_hrrr`, `ncep_nam_conus`, `ncep_nbm_conus`, `ukmo_global_deterministic_10km`, `ukmo_uk_deterministic_2km`, `meteoswiss_icon_ch1/ch2`, `italia_meteo_arpae_icon_2i`, `knmi_harmonie_arome_europe/netherlands`, `dmi_harmonie_arome_europe`, `metno_nordic`, `gem_hrdps_continental`, `kma_ldps` (endpoint OK but returns null — kept, self-excludes via no_data).
 
 ## Agent Context
-- Last prompt: Analysis + 6-item fix/feature session on Experimental Weather Engine.
-- Active decisions: all prior algorithm decisions remain valid. MVP is a debug/comparison tool only; V1 pipeline unchanged.
-- **What changed this session (cumulative)**:
-  - Fixed AIFS API name (`ecmwf_aifs025` → `ecmwf_aifs025_single`) — confirmed via API test
-  - Fixed UKMO tier: `mid` → `short` (UKV 2km covers Saint-Brieuc)
-  - `ModelSelector.ts`: tier-based eligibility, AI excluded from short/mid, MAX_MODELS_PER_TIER=5, fallback caps at MIN_FAMILIES
-  - Propagated family dedup to aggregation (steps 6–7 use deduplicated models only)
-  - Fixed `OutlierFilter.ts`: meanTemp on 48h window
-  - **UI overhaul** (prev session): new `PipelineSummary`, `DailyForecastTable`, `TemperatureChart`. Mobile-first.
-  - **2026-07-07 fixes**:
-    - `route.ts`: Added `forecast_days=16` (was returning only 7d), returns `times[]` array
-    - `types.ts` + `FetchTester.ts`: propagated `times?: string[]` through FetchResult pipeline
-    - `WinsorizedMean.ts`: added `aggregateTemperatureByTier(short,mid,long,maxH,times?)` + `aggregateTemperatureRange()` — NWP consensus now respects tier boundaries (GFS only from H120, IFS from H48)
-    - `ExperimentalPanel.tsx`: per-tier NWP aggregation; `classicModelLines` = union of all tier models
-    - `TemperatureChart.tsx`: numeric X axis (hours), per-model tier clipping, real datetime in tooltip (ISO → "Lun 7 juil. 14h00"), AI overlay removed from main chart
-    - **NEW `AITemperatureChart.tsx`**: separate AI chart (J7–J14) with individual AIFS/AIGFS/HGEFS lines + AI consensus + NWP long-term reference line
-    - `DailyForecastTable.tsx`: toggleable AI min/max for J8–J14 daily cards (button "▼ IA J8-J14")
-- Next steps: (1) test in browser; (2) UV real + J6–J7 fallback; (3) PoP rework; (4) WMO fix; (5) V1 migration.
-- Blockers: none. Nothing committed.
+- Last prompt: analyse + improve Engine v2 charts (individual model lines on all variable charts, tooltip readability, WMO model breakdown on hover).
+- Active decisions: v2 pipeline (mesh tiers, cascades, global pass, gaussian floors); per-variable methods: precip median+wetFraction, wind dir vector mean, WMO severity vote; AI = temperature only. MVP remains a debug/comparison tool; V1 untouched.
+- **What changed this session (2026-07-08 (3))**:
+  - All variable charts (humidity, precipitation, wind) now display **individual model lines** (low opacity) alongside consensus, matching the temperature chart pattern
+  - `chartUtils.ts`: added `ensureReadableColor()` — brightens hex colors below luminance 0.4 for dark-background tooltip readability
+  - `ConsensusChart`, `PrecipitationChart`, `WindChart`: accept optional `modelLines: FetchResult[]`, build per-model data columns, custom tooltips with `ensureReadableColor` for model names
+  - `WmoDailyStrip`: hover on any day card now shows a per-model breakdown (dominant WMO group per model for that day, with icon + code)
+  - `TemperatureChart` tooltip: also uses `ensureReadableColor` for dark model colors (GFS #166534, IFS 0.25° #5B21B6, etc.)
+  - All 4 tab components updated to pass `modelLines` down to their charts
+  - `tsc --noEmit` clean
+- Next steps: (1) UV real + J6–J7 fallback; (2) PoP rework in V1; (3) WMO fix in V1; (4) V1 migration of v2 engine; (5) consider HGEFS in NWP pool at long range (J7+).
+- Blockers: none.

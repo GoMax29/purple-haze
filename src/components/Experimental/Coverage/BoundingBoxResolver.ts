@@ -1,5 +1,6 @@
-import { ModelDefinition, BboxResult } from '../types';
+import { ModelDefinition, BboxResult, MeshTier } from '../types';
 import { INDIVIDUAL_MODELS } from '../data/models';
+import { getMeshTier } from '../data/families';
 
 function isInBbox(
   lat: number,
@@ -23,16 +24,20 @@ export function getModelsInBounds(lat: number, lon: number): ModelDefinition[] {
     .map((r) => r.model);
 }
 
-export function countByTier(results: BboxResult[]): Record<string, { available: number; total: number }> {
-  const tiers = ['short', 'mid', 'long'] as const;
-  const counts: Record<string, { available: number; total: number }> = {};
+export function countByMeshTier(
+  results: BboxResult[]
+): Record<MeshTier, { available: number; total: number }> {
+  const counts: Record<MeshTier, { available: number; total: number }> = {
+    fine: { available: 0, total: 0 },
+    medium: { available: 0, total: 0 },
+    large: { available: 0, total: 0 },
+  };
 
-  for (const tier of tiers) {
-    const tierModels = results.filter((r) => r.model.tier === tier);
-    counts[tier] = {
-      available: tierModels.filter((r) => r.inBounds).length,
-      total: tierModels.length,
-    };
+  for (const r of results) {
+    if (r.model.isAI || r.model.excludeFromAggregation) continue;
+    const tier = getMeshTier(r.model.resolution_km);
+    counts[tier].total += 1;
+    if (r.inBounds) counts[tier].available += 1;
   }
 
   return counts;

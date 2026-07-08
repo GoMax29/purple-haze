@@ -13,31 +13,14 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { AggregatedPoint, FetchResult } from '../types';
-
-// ─── colours ───────────────────────────────────────────────
-const MODEL_COLORS: Record<string, string> = {
-  dwd_icon_seamless: '#60A5FA',
-  ncep_gfs_seamless: '#34D399',
-  gem_seamless: '#F472B6',
-  meteofrance_seamless: '#FB923C',
-  ukmo_seamless: '#FBBF24',
-  jma_seamless: '#A78BFA',
-  kma_seamless: '#C084FC',
-  ecmwf_ifs: '#818CF8',
-  ecmwf_ifs025: '#6366F1',
-  cma_grapes_global: '#4ADE80',
-  bom_access_global: '#F59E0B',
-};
+import { ensureReadableColor } from './charts/chartUtils';
 
 interface TemperatureChartProps {
   data: AggregatedPoint[];
   modelLines?: FetchResult[];
-  /** Maps each model id to the earliest hour at which its individual line is shown.
-   *  Derived from the actual tier assignment (including fallbacks), not natural tier. */
-  modelTierStart?: Record<string, number>;
 }
 
-export default function TemperatureChart({ data, modelLines, modelTierStart }: TemperatureChartProps) {
+export default function TemperatureChart({ data, modelLines }: TemperatureChartProps) {
   const chartData = useMemo(() => {
     return data.map((p) => {
       const row: Record<string, unknown> = {
@@ -51,12 +34,14 @@ export default function TemperatureChart({ data, modelLines, modelTierStart }: T
 
       if (modelLines) {
         for (const ml of modelLines) {
-          const t = ml.temperatures[p.hour];
-          // Only show this model's line from its real assigned tier start
-          // (GEM fallback=H0, IFS=H48, GFS=H120)
-          const tierStart = modelTierStart?.[ml.endpoint.id] ?? 0;
-          if (t !== null && t !== undefined && p.hour >= tierStart) {
-            row[`m_${ml.endpoint.id}`] = Math.round(t * 10) / 10;
+          // Honour cascade active windows so a cascade member's line only
+          // appears during its own contribution range
+          if (ml.activeRange && (p.hour < ml.activeRange.startH || p.hour >= ml.activeRange.endH)) {
+            continue;
+          }
+          const t = ml.series.temperature_2m?.[p.hour];
+          if (t !== null && t !== undefined) {
+            row[`m_${ml.model.id}`] = Math.round(t * 10) / 10;
           }
         }
       }
@@ -68,10 +53,10 @@ export default function TemperatureChart({ data, modelLines, modelTierStart }: T
   const nwpModels = useMemo(() => {
     if (!modelLines) return [];
     return modelLines.map((ml) => ({
-      key: `m_${ml.endpoint.id}`,
-      id: ml.endpoint.id,
-      name: `${ml.endpoint.providerFlag} ${ml.endpoint.name}`,
-      color: MODEL_COLORS[ml.endpoint.id] || '#94A3B8',
+      key: `m_${ml.model.id}`,
+      id: ml.model.id,
+      name: `${ml.model.providerFlag} ${ml.model.name}`,
+      color: ml.model.color || '#94A3B8',
     }));
   }, [modelLines]);
 
@@ -268,7 +253,7 @@ function CustomTooltip({
       const nwp = nwpModels?.find((m) => m.key === item.dataKey);
       if (nwp) { name = nwp.name; color = nwp.color; }
     }
-    return { ...item, name, color, isConsensus };
+    return { ...item, name, color: ensureReadableColor(color), isConsensus };
   });
 
   // Sort ALL items descending (highest temp at top, lowest at bottom).

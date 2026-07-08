@@ -1,34 +1,32 @@
-import { FetchResult, FamilyGroup, TierSelection, OutlierResult } from '../types';
+import { FetchResult, TierSelection } from '../types';
 
 interface PipelineSummaryProps {
   fetchResults: FetchResult[];
-  familyGroups: FamilyGroup[];
   tierSelections: TierSelection[];
-  outlierResults: OutlierResult[];
+  cascadeCount: number;
 }
 
 export default function PipelineSummary({
   fetchResults,
-  familyGroups,
   tierSelections,
-  outlierResults,
+  cascadeCount,
 }: PipelineSummaryProps) {
   const successCount = fetchResults.filter((f) => f.status === 'success').length;
-  const rejectedCount = outlierResults.filter((o) => !o.kept).length;
-  const tiers = tierSelections.map((t) => `${t.independentFamilies}`);
+  const failedCount = fetchResults.length - successCount;
+  const tierCounts = tierSelections.map((t) => `${t.models.length}`);
 
   return (
     <div className="flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-800/40 border border-slate-700/30">
-      <Chip icon="📡" label={`${successCount}/${fetchResults.length}`} sub="endpoints" />
+      <Chip icon="📡" label={`${successCount}/${fetchResults.length}`} sub="modèles" />
       <Sep />
-      <Chip icon="🏠" label={`${familyGroups.length}`} sub="familles" />
+      <Chip icon="🕸" label={tierCounts.join(' · ')} sub="F·M·L" />
       <Sep />
-      <Chip icon="📊" label={tiers.join(' · ')} sub="CT·MT·LT" />
+      <Chip icon="🔗" label={`${cascadeCount}`} sub="cascades" />
       <Sep />
-      {rejectedCount === 0 ? (
-        <Chip icon="✓" label="0 rejeté" color="text-emerald-400" />
+      {failedCount === 0 ? (
+        <Chip icon="✓" label="0 échec" color="text-emerald-400" />
       ) : (
-        <Chip icon="⚠" label={`${rejectedCount} rejeté${rejectedCount > 1 ? 's' : ''}`} color="text-amber-400" />
+        <Chip icon="⚠" label={`${failedCount} échec${failedCount > 1 ? 's' : ''}`} color="text-amber-400" />
       )}
     </div>
   );

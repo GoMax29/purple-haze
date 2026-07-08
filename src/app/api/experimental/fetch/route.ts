@@ -3,6 +3,17 @@ import { NextRequest, NextResponse } from 'next/server';
 const OPEN_METEO_BASE = 'https://api.open-meteo.com/v1/forecast';
 const FETCH_TIMEOUT_MS = 12000;
 
+/** Keep in sync with HOURLY_VARS in Experimental/types.ts */
+const HOURLY_VARS = [
+  'temperature_2m',
+  'relative_humidity_2m',
+  'precipitation',
+  'weather_code',
+  'wind_speed_10m',
+  'wind_gusts_10m',
+  'wind_direction_10m',
+] as const;
+
 interface ModelFetchRequest {
   id: string;
   apiModel: string;
@@ -12,7 +23,7 @@ interface ModelFetchResult {
   id: string;
   status: 'success' | 'no_data' | 'error';
   dataPoints: number;
-  temperatures: (number | null)[];
+  series: Record<string, (number | null)[]>;
   times: string[];
   error?: string;
   fetchDurationMs: number;
@@ -46,7 +57,7 @@ export async function POST(request: NextRequest) {
         id: models[i].id,
         status: 'error' as const,
         dataPoints: 0,
-        temperatures: [],
+        series: {},
         times: [],
         error: result.reason?.message || 'Unknown error',
         fetchDurationMs: 0,
@@ -67,7 +78,8 @@ async function fetchSingleModel(
   lon: number,
   model: ModelFetchRequest
 ): Promise<ModelFetchResult> {
-  const url = `${OPEN_METEO_BASE}?latitude=${lat}&longitude=${lon}&hourly=temperature_2m&models=${model.apiModel}&timezone=auto&forecast_days=16`;
+  const hourly = HOURLY_VARS.join(',');
+  const url = `${OPEN_METEO_BASE}?latitude=${lat}&longitude=${lon}&hourly=${hourly}&models=${model.apiModel}&timezone=auto&forecast_days=16`;
 
   const start = Date.now();
 
@@ -80,27 +92,31 @@ async function fetchSingleModel(
 
     if (!response.ok) {
       const errText = await response.text().catch(() => '');
-    return {
-      id: model.id,
-      status: 'error',
-      dataPoints: 0,
-      temperatures: [],
-      times: [],
-      error: `HTTP ${response.status}: ${errText.slice(0, 200)}`,
-      fetchDurationMs: duration,
-    };
+      return {
+        id: model.id,
+        status: 'error',
+        dataPoints: 0,
+        series: {},
+        times: [],
+        error: `HTTP ${response.status}: ${errText.slice(0, 200)}`,
+        fetchDurationMs: duration,
+      };
     }
 
     const data = await response.json();
-    const temps: (number | null)[] = data?.hourly?.temperature_2m || [];
+    const series: Record<string, (number | null)[]> = {};
+    for (const key of HOURLY_VARS) {
+      series[key] = data?.hourly?.[key] || [];
+    }
     const times: string[] = data?.hourly?.time || [];
+    const temps = series.temperature_2m;
     const nonNull = temps.filter((t) => t !== null).length;
 
     return {
       id: model.id,
       status: nonNull > 0 ? 'success' : 'no_data',
       dataPoints: nonNull,
-      temperatures: temps,
+      series,
       times,
       fetchDurationMs: duration,
     };
@@ -111,7 +127,7 @@ async function fetchSingleModel(
       id: model.id,
       status: 'error',
       dataPoints: 0,
-      temperatures: [],
+      series: {},
       times: [],
       error: message.includes('abort') ? 'Timeout (12s)' : message,
       fetchDurationMs: duration,

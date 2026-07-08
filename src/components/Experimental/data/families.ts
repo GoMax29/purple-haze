@@ -1,11 +1,11 @@
-import { SeamlessEndpoint } from '../types';
+import { MeshTier } from '../types';
 
 export type Region = 'europe' | 'americas' | 'asia' | 'oceania' | 'other';
 
 /**
  * Determines the geographic region of a point.
- * Used to select which seamless endpoints are relevant for Phase 1 fetch.
- * Logic mirrored from model-coverage.html getRegion().
+ * Used by the regional filter for medium/large mesh models
+ * (fine mesh models are self-filtering via their bounding boxes).
  */
 export function getRegion(lat: number, lon: number): Region {
   if (lon < -25) return 'americas';
@@ -15,243 +15,68 @@ export function getRegion(lat: number, lon: number): Region {
   return 'other';
 }
 
-/**
- * All 14 seamless endpoints with region assignments.
- * `regions` indicates where the endpoint is relevant for Phase 1 fetch.
- * 'universal' means always fetched regardless of location.
- */
-export const SEAMLESS_ENDPOINTS: SeamlessEndpoint[] = [
-  // --- NWP families (seamless) ---
-  {
-    id: 'dwd_icon_seamless',
-    name: 'ICON Seamless',
-    provider: 'dwd',
-    providerFlag: '🇩🇪',
-    family: 'icon',
-    apiModel: 'icon_seamless',
-    resolution_km: 2,
-    forecast_hours: 180,
-    tier: 'short',
-    isAI: false,
-    isGlobal: true,
-    regions: ['europe', 'universal'],
-  },
-  {
-    id: 'ncep_gfs_seamless',
-    name: 'GFS Seamless',
-    provider: 'noaa',
-    providerFlag: '🇺🇸',
-    family: 'gfs',
-    apiModel: 'gfs_seamless',
-    resolution_km: 13,
-    forecast_hours: 384,
-    tier: 'long',
-    isAI: false,
-    isGlobal: true,
-    regions: ['universal'],
-  },
-  {
-    id: 'gem_seamless',
-    name: 'GEM Seamless',
-    provider: 'cmc',
-    providerFlag: '🇨🇦',
-    family: 'gem',
-    apiModel: 'gem_seamless',
-    resolution_km: 2.5,
-    forecast_hours: 240,
-    tier: 'mid',
-    isAI: false,
-    isGlobal: true,
-    regions: ['europe', 'americas'],
-  },
-  {
-    id: 'meteofrance_seamless',
-    name: 'Météo-France Seamless',
-    provider: 'mf',
-    providerFlag: '🇫🇷',
-    family: 'arpege',
-    apiModel: 'meteofrance_seamless',
-    resolution_km: 1.5,
-    forecast_hours: 96,
-    tier: 'short',
-    isAI: false,
-    isGlobal: false,
-    regions: ['europe'],
-  },
-  {
-    id: 'ukmo_seamless',
-    name: 'UKMO Seamless',
-    provider: 'ukmo',
-    providerFlag: '🇬🇧',
-    family: 'ukmo',
-    apiModel: 'ukmo_seamless',
-    resolution_km: 2,
-    forecast_hours: 168,
-    tier: 'short',
-    isAI: false,
-    isGlobal: true,
-    regions: ['europe'],
-  },
-  {
-    id: 'jma_seamless',
-    name: 'JMA Seamless',
-    provider: 'jma',
-    providerFlag: '🇯🇵',
-    family: 'jma',
-    apiModel: 'jma_seamless',
-    resolution_km: 5,
-    forecast_hours: 264,
-    tier: 'long',
-    isAI: false,
-    isGlobal: true,
-    regions: ['asia'],
-  },
-  {
-    id: 'kma_seamless',
-    name: 'KMA Seamless',
-    provider: 'kma',
-    providerFlag: '🇰🇷',
-    family: 'kma',
-    apiModel: 'kma_seamless',
-    resolution_km: 1.5,
-    forecast_hours: 288,
-    tier: 'long',
-    isAI: false,
-    isGlobal: false,
-    regions: ['asia'],
-  },
-  {
-    id: 'ecmwf_ifs',
-    name: 'IFS HRES',
-    provider: 'ecmwf',
-    providerFlag: '🇪🇺',
-    family: 'ifs',
-    apiModel: 'ecmwf_ifs',
-    resolution_km: 9,
-    forecast_hours: 360,
-    tier: 'mid',
-    isAI: false,
-    isGlobal: true,
-    regions: ['universal'],
-  },
-  {
-    id: 'ecmwf_ifs025',
-    name: 'IFS 0.25°',
-    provider: 'ecmwf',
-    providerFlag: '🇪🇺',
-    family: 'ifs',
-    apiModel: 'ecmwf_ifs025',
-    resolution_km: 25,
-    forecast_hours: 360,
-    tier: 'long',
-    isAI: false,
-    isGlobal: true,
-    regions: ['universal'],
-  },
-  {
-    id: 'cma_grapes_global',
-    name: 'GRAPES Global',
-    provider: 'cma',
-    providerFlag: '🇨🇳',
-    family: 'cma',
-    apiModel: 'cma_grapes_global',
-    resolution_km: 13,
-    forecast_hours: 240,
-    tier: 'long',
-    isAI: false,
-    isGlobal: true,
-    regions: ['asia'],
-  },
-  {
-    id: 'bom_access_global',
-    name: 'ACCESS-G',
-    provider: 'bom',
-    providerFlag: '🇦🇺',
-    family: 'bom',
-    apiModel: 'bom_access_global',
-    resolution_km: 15,
-    forecast_hours: 240,
-    tier: 'long',
-    isAI: false,
-    isGlobal: true,
-    regions: ['oceania'],
-  },
-  // --- AI / Hybrid (always fetched) ---
-  {
-    id: 'ecmwf_aifs025_single',
-    name: 'AIFS 0.25°',
-    provider: 'ecmwf',
-    providerFlag: '🇪🇺',
-    family: 'aifs',
-    apiModel: 'ecmwf_aifs025_single',
-    resolution_km: 25,
-    forecast_hours: 360,
-    tier: 'long',
-    isAI: true,
-    isGlobal: true,
-    regions: ['universal'],
-  },
-  {
-    id: 'ncep_aigfs025',
-    name: 'AIGFS 0.25°',
-    provider: 'noaa',
-    providerFlag: '🇺🇸',
-    family: 'aigfs',
-    apiModel: 'ncep_aigfs025',
-    resolution_km: 25,
-    forecast_hours: 384,
-    tier: 'long',
-    isAI: true,
-    isGlobal: true,
-    regions: ['universal'],
-  },
-  {
-    id: 'ncep_hgefs025_ensemble_mean',
-    name: 'HGEFS Ens. Mean',
-    provider: 'noaa',
-    providerFlag: '🇺🇸',
-    family: 'hgefs',
-    apiModel: 'ncep_hgefs025_ensemble_mean',
-    resolution_km: 25,
-    forecast_hours: 240,
-    tier: 'long',
-    isAI: true,
-    isGlobal: true,
-    regions: ['universal'],
-  },
-];
-
-/**
- * Returns the endpoints to fetch for Phase 1 (region-matched + universal).
- * Phase 1 endpoints are those whose `regions` array includes 'universal'
- * or includes the detected region for the given coordinates.
- */
-export function getPhase1Endpoints(lat: number, lon: number): SeamlessEndpoint[] {
-  const region = getRegion(lat, lon);
-  return SEAMLESS_ENDPOINTS.filter(
-    (ep) => ep.regions.includes('universal') || ep.regions.includes(region)
-  );
-}
-
-/**
- * Returns additional endpoints for Phase 2 fallback — those NOT already
- * included in Phase 1 for this region.
- */
-export function getPhase2Endpoints(lat: number, lon: number): SeamlessEndpoint[] {
-  const phase1Ids = new Set(getPhase1Endpoints(lat, lon).map((ep) => ep.id));
-  return SEAMLESS_ENDPOINTS.filter((ep) => !phase1Ids.has(ep.id));
-}
-
-export const AI_ENDPOINT_IDS = [
-  'ecmwf_aifs025_single',
-  'ncep_aigfs025',
-  'ncep_hgefs025_ensemble_mean',
-];
-
-export const MIN_INDEPENDENT_FAMILIES = 4;
-
-export const TIER_CONFIG = {
-  short: { min: 0, max: 48, label: 'Court terme (0–48 h)' },
-  mid: { min: 48, max: 120, label: 'Moyen terme (48–120 h)' },
-  long: { min: 120, max: Infinity, label: 'Long terme (120 h +)' },
+// ────────────────────────────────────────────────────────────
+// Resolution classification
+// fine < 5 km · medium 5–11 km (inclusive) · large > 11 km
+// ────────────────────────────────────────────────────────────
+export const RESOLUTION_THRESHOLDS = {
+  fineMax: 5, // exclusive
+  mediumMax: 11, // inclusive
 } as const;
+
+export function getMeshTier(resolutionKm: number): MeshTier {
+  if (resolutionKm < RESOLUTION_THRESHOLDS.fineMax) return 'fine';
+  if (resolutionKm <= RESOLUTION_THRESHOLDS.mediumMax) return 'medium';
+  return 'large';
+}
+
+export const MESH_TIER_CONFIG: Record<MeshTier, { label: string; range: string }> = {
+  fine: { label: 'Maille fine', range: '< 5 km' },
+  medium: { label: 'Maille moyenne', range: '5–11 km' },
+  large: { label: 'Maille large', range: '> 11 km' },
+};
+
+// ────────────────────────────────────────────────────────────
+// Regional filter (medium + large mesh only)
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Global reference models that bypass the regional filter everywhere:
+ * GFS, ECMWF IFS HRES + 0.25°, ICON Global, UKMO Global.
+ * (AI models also bypass — handled via isAI flag.)
+ */
+export const GLOBAL_PASS_MODEL_IDS = [
+  'gfs',
+  'ecmwf_ifs_hres',
+  'ecmwf_ifs025',
+  'icon_global',
+  'ukmo_global',
+];
+
+/** Providers considered "local" for each region (medium/large mesh filter) */
+export const REGION_PROVIDERS: Record<Region, string[]> = {
+  europe: ['dwd', 'mf', 'ukmo', 'dmi', 'knmi', 'metno', 'mch', 'arpae', 'ecmwf'],
+  americas: ['noaa', 'cmc'],
+  asia: ['jma', 'kma', 'cma'],
+  oceania: ['bom'],
+  other: [],
+};
+
+// ────────────────────────────────────────────────────────────
+// Aggregation constants
+// ────────────────────────────────────────────────────────────
+
+export const MAX_MODELS_PER_TIER = 5;
+
+/** Minimum pool size before merging with the next (coarser) tier */
+export const MIN_POOL_SIZE = 3;
+
+/**
+ * Floor for the gaussian weighting sigma (temperature, °C).
+ * With [20, 21, 30]: median=21, MAD-sigma≈1.5 → floored to 5.0,
+ * giving w(30)≈0.20 and a result of ≈21.4 °C (outlier damped, not erased).
+ */
+export const GAUSSIAN_SIGMA_MIN_TEMP = 5.0;
+
+/** Winsorized mean trim fraction (per side) for N >= 4 */
+export const WINSORIZE_TRIM_PERCENT = 0.2;

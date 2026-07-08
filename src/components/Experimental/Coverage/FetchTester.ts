@@ -1,67 +1,78 @@
-import { FetchResult, SeamlessEndpoint } from '../types';
-import {
-  getPhase1Endpoints,
-  getPhase2Endpoints,
-  MIN_INDEPENDENT_FAMILIES,
-} from '../data/families';
+import { FetchResult, ModelDefinition, DedupExclusion, HourlySeriesKey } from '../types';
 
 interface ApiFetchResult {
   id: string;
   status: 'success' | 'no_data' | 'error';
   dataPoints: number;
-  temperatures: (number | null)[];
+  series: Partial<Record<HourlySeriesKey, (number | null)[]>>;
   times: string[];
   error?: string;
   fetchDurationMs: number;
 }
 
+const BATCH_SIZE = 10;
+
 /**
- * Phase 1: fetch region-matched + universal endpoints.
- * Phase 2 (if needed): fetch remaining endpoints as fallback to reach
- * MIN_INDEPENDENT_FAMILIES per tier.
+ * Fetches individual models (no seamless) through the API route,
+ * batched to keep each upstream burst reasonable.
  */
-export async function testSeamlessFetches(
-  lat: number,
-  lon: number
-): Promise<{ phase1: FetchResult[]; phase2: FetchResult[]; allResults: FetchResult[] }> {
-  // Phase 1: region-matched + universal
-  const phase1Endpoints = getPhase1Endpoints(lat, lon);
-  const phase1Results = await fetchEndpoints(lat, lon, phase1Endpoints);
-
-  const successPhase1 = phase1Results.filter((r) => r.status === 'success');
-  const families = new Set(successPhase1.map((r) => r.endpoint.family));
-
-  // Check if we need Phase 2
-  if (families.size >= MIN_INDEPENDENT_FAMILIES) {
-    return { phase1: phase1Results, phase2: [], allResults: phase1Results };
-  }
-
-  // Phase 2: fetch additional endpoints to fill gaps
-  const phase2Endpoints = getPhase2Endpoints(lat, lon);
-  if (phase2Endpoints.length === 0) {
-    return { phase1: phase1Results, phase2: [], allResults: phase1Results };
-  }
-
-  const phase2Results = await fetchEndpoints(lat, lon, phase2Endpoints);
-  const allResults = [...phase1Results, ...phase2Results];
-
-  return { phase1: phase1Results, phase2: phase2Results, allResults };
-}
-
-async function fetchEndpoints(
+export async function fetchIndividualModels(
   lat: number,
   lon: number,
-  endpoints: SeamlessEndpoint[]
+  models: ModelDefinition[]
 ): Promise<FetchResult[]> {
-  const models = endpoints.map((ep) => ({
-    id: ep.id,
-    apiModel: ep.apiModel,
-  }));
+  const results: FetchResult[] = [];
+
+  for (let i = 0; i < models.length; i += BATCH_SIZE) {
+    const batch = models.slice(i, i + BATCH_SIZE);
+    const batchResults = await fetchBatch(lat, lon, batch);
+    results.push(...batchResults);
+  }
+
+  return results;
+}
+
+/**
+ * Post-fetch validation with dedup fallback:
+ * if a dedup winner (e.g. DMI DINI) failed at fetch time, the model it
+ * shadowed (e.g. KNMI HARMONIE EU) is fetched and reinstated.
+ * Returns all results; callers filter on status === 'success'.
+ */
+export async function validateAndFallback(
+  lat: number,
+  lon: number,
+  fetchResults: FetchResult[],
+  exclusions: DedupExclusion[]
+): Promise<FetchResult[]> {
+  const results = [...fetchResults];
+
+  const failedIds = new Set(
+    results.filter((r) => r.status !== 'success').map((r) => r.model.id)
+  );
+
+  const fallbacksToFetch = exclusions
+    .filter((e) => e.fallbackFor && failedIds.has(e.fallbackFor))
+    .map((e) => e.excluded);
+
+  if (fallbacksToFetch.length > 0) {
+    const fallbackResults = await fetchBatch(lat, lon, fallbacksToFetch);
+    results.push(...fallbackResults);
+  }
+
+  return results;
+}
+
+async function fetchBatch(
+  lat: number,
+  lon: number,
+  models: ModelDefinition[]
+): Promise<FetchResult[]> {
+  const payload = models.map((m) => ({ id: m.id, apiModel: m.apiModel }));
 
   const response = await fetch('/api/experimental/fetch', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lat, lon, models }),
+    body: JSON.stringify({ lat, lon, models: payload }),
   });
 
   if (!response.ok) {
@@ -72,12 +83,12 @@ async function fetchEndpoints(
   const results: ApiFetchResult[] = data.results;
 
   return results.map((r) => {
-    const endpoint = endpoints.find((ep) => ep.id === r.id)!;
+    const model = models.find((m) => m.id === r.id)!;
     return {
-      endpoint,
+      model,
       status: r.status,
       dataPoints: r.dataPoints,
-      temperatures: r.temperatures,
+      series: r.series,
       times: r.times,
       error: r.error,
       fetchDurationMs: r.fetchDurationMs,
