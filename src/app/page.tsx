@@ -53,8 +53,13 @@ export default function HomePage() {
     const savedLocation = SelectedLocationService.getSelectedLocation();
     const location = savedLocation || DEFAULT_LOCATION;
     setCurrentLocation(location);
-    fetchWeatherData(location.lat, location.lon);
-    fetchCurrentWeatherData(location.lat, location.lon, location.name);
+
+    const v1Disabled = process.env.NEXT_PUBLIC_DISABLE_V1_FETCH === 'true';
+    if (!v1Disabled) {
+      fetchWeatherData(location.lat, location.lon);
+      fetchCurrentWeatherData(location.lat, location.lon, location.name);
+    }
+
     // Heures côté client uniquement pour éviter les mismatches SSR/CSR
     const update = () =>
       setCurrentTime(
@@ -144,8 +149,12 @@ export default function HomePage() {
   const handleLocationSelect = (location: LocationData) => {
     setCurrentLocation(location);
     SelectedLocationService.setSelectedLocation(location);
-    fetchWeatherData(location.lat, location.lon);
-    fetchCurrentWeatherData(location.lat, location.lon, location.name);
+
+    const v1Disabled = process.env.NEXT_PUBLIC_DISABLE_V1_FETCH === 'true';
+    if (!v1Disabled) {
+      fetchWeatherData(location.lat, location.lon);
+      fetchCurrentWeatherData(location.lat, location.lon, location.name);
+    }
   };
 
   return (

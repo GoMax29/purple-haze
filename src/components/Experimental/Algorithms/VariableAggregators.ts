@@ -5,6 +5,7 @@ import {
   poolFetchesAt,
   valueAt,
   median,
+  PoolMode,
 } from './Aggregation';
 
 /**
@@ -40,24 +41,29 @@ export function aggregateAllVariables(
     temperature: aggregateProgressive(tiered, maxHours, times, {
       key: 'temperature_2m',
       sigmaFloor: SIGMA_FLOORS.temperature,
+      poolMode: 'strict',
     }),
     humidity: aggregateProgressive(tiered, maxHours, times, {
       key: 'relative_humidity_2m',
       sigmaFloor: SIGMA_FLOORS.humidity,
       clamp: [0, 100],
+      poolMode: 'strict',
     }),
     precipitation: aggregateProgressive(tiered, maxHours, times, {
       key: 'precipitation',
       strategy: 'median',
       withWetFraction: true,
+      poolMode: 'expansion',
     }),
     windSpeed: aggregateProgressive(tiered, maxHours, times, {
       key: 'wind_speed_10m',
       sigmaFloor: SIGMA_FLOORS.windSpeed,
+      poolMode: 'strict',
     }),
     windGusts: aggregateProgressive(tiered, maxHours, times, {
       key: 'wind_gusts_10m',
       sigmaFloor: SIGMA_FLOORS.windGusts,
+      poolMode: 'strict',
     }),
     windDirection: aggregateWindDirection(tiered, maxHours, times),
     wmo: aggregateWmo(tiered, maxHours, times),
@@ -79,7 +85,7 @@ function aggregateWindDirection(
   const points: AggregatedPoint[] = [];
 
   for (let h = 0; h < maxHours; h++) {
-    const { fetches, pool } = poolFetchesAt(tiered, h, 'wind_direction_10m');
+    const { fetches, pool } = poolFetchesAt(tiered, h, 'wind_direction_10m', 'strict');
 
     let u = 0;
     let v = 0;

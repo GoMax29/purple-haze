@@ -13,6 +13,8 @@ export interface TieredFetches {
 
 export type NumericStrategy = 'robust' | 'median';
 
+export type PoolMode = 'expansion' | 'strict';
+
 export interface ProgressiveOptions {
   key: HourlySeriesKey;
   /** 'robust' = winsorized (N>=4) / gaussian (N=2-3); 'median' = median (precip) */
@@ -23,6 +25,15 @@ export interface ProgressiveOptions {
   clamp?: [number, number];
   /** Compute wetFraction (share of values > 0.1) — precipitation only */
   withWetFraction?: boolean;
+  /**
+   * Pool selection mode:
+   * - 'expansion' (default): progressive pool with MIN_POOL_SIZE, merges tiers to reach ≥3
+   * - 'strict': use the finest available tier as-is (even if only 1 model).
+   *   Prioritises spatial resolution over statistical robustness.
+   *   Used for temperature, wind, humidity where a single fine model at 1.5 km
+   *   is more informative than 4 medium models at 10 km.
+   */
+  poolMode?: PoolMode;
 }
 
 /**
@@ -45,7 +56,7 @@ export function aggregateProgressive(
   const points: AggregatedPoint[] = [];
 
   for (let h = 0; h < maxHours; h++) {
-    const { values, pool } = poolValuesAt(tiered, h, options.key);
+    const { values, pool } = poolValuesAt(tiered, h, options.key, options.poolMode ?? 'expansion');
     if (values.length === 0) continue;
 
     const { value, method } = aggregateValues(values, options);
@@ -112,16 +123,28 @@ export function aggregateAI(aiFetches: FetchResult[], times?: string[]): Aggrega
  * Progressive pool selection for one hour — exported so custom aggregators
  * (WMO vote, wind direction vector mean) reuse the exact same pool logic.
  * Returns the pooled fetches whose `key` value is valid at hour h.
+ *
+ * Mode 'expansion' (default): merges tiers progressively until MIN_POOL_SIZE.
+ * Mode 'strict': returns the finest tier with ≥1 valid model — never mixes.
  */
 export function poolFetchesAt(
   tiered: TieredFetches,
   h: number,
-  key: HourlySeriesKey
+  key: HourlySeriesKey,
+  mode: PoolMode = 'expansion'
 ): { fetches: FetchResult[]; pool: AggregatedPoint['pool'] } {
   const fine = fetchesValidAt(tiered.fine, h, key);
   const medium = fetchesValidAt(tiered.medium, h, key);
   const large = fetchesValidAt(tiered.large, h, key);
 
+  if (mode === 'strict') {
+    if (fine.length > 0) return { fetches: fine, pool: 'fine' };
+    if (medium.length > 0) return { fetches: medium, pool: 'medium' };
+    if (large.length > 0) return { fetches: large, pool: 'mixed' };
+    return { fetches: [], pool: 'mixed' };
+  }
+
+  // Expansion mode (original progressive pool)
   if (fine.length >= MIN_POOL_SIZE) return { fetches: fine, pool: 'fine' };
   if (fine.length + medium.length >= MIN_POOL_SIZE) {
     return {
@@ -216,9 +239,10 @@ function valuesAt(fetches: FetchResult[], h: number, key: HourlySeriesKey): numb
 function poolValuesAt(
   tiered: TieredFetches,
   h: number,
-  key: HourlySeriesKey
+  key: HourlySeriesKey,
+  poolMode: PoolMode = 'expansion'
 ): { values: number[]; pool: AggregatedPoint['pool'] } {
-  const { fetches, pool } = poolFetchesAt(tiered, h, key);
+  const { fetches, pool } = poolFetchesAt(tiered, h, key, poolMode);
   return { values: valuesAt(fetches, h, key), pool };
 }
 

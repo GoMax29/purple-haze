@@ -18,7 +18,7 @@ import { classifyByResolution } from './Coverage/ResolutionClassifier';
 import { filterByRegion } from './Coverage/RegionalFilter';
 import { applyExplicitDedup, detectCascades } from './Coverage/ModelDeduplicator';
 import { capModelsPerTier } from './Coverage/TierCapper';
-import { fetchIndividualModels, validateAndFallback } from './Coverage/FetchTester';
+import { fetchByTier, validateAndFallback, TierGroup } from './Coverage/FetchTester';
 import { aggregateAI } from './Algorithms/Aggregation';
 import { aggregateAllVariables } from './Algorithms/VariableAggregators';
 import { getRegion, MESH_TIER_CONFIG } from './data/families';
@@ -132,11 +132,16 @@ export default function ExperimentalPanel({ lat, lon }: ExperimentalPanelProps) 
       ];
       setTierSelections(selections);
 
-      // 6. Individual fetch — all variables in ONE request per model
+      // 6. Multi-model fetch grouped by tier (4 requests max instead of ~16)
       setLoadingStep('Connexion aux modèles météo...');
-      const nwpModels = [...capFine.kept, ...capMedium.kept, ...capLarge.kept];
       const aiModels = getAIModels();
-      const rawResults = await fetchIndividualModels(lat, lon, [...nwpModels, ...aiModels]);
+      const tierGroups: TierGroup[] = [
+        { tier: 'fine', models: capFine.kept },
+        { tier: 'medium', models: capMedium.kept },
+        { tier: 'large', models: capLarge.kept },
+        { tier: 'ai', models: aiModels },
+      ];
+      const rawResults = await fetchByTier(lat, lon, tierGroups);
 
       // 7. Post-fetch validation + dedup fallback
       setLoadingStep('Validation des données...');
