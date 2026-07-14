@@ -92,7 +92,7 @@
 | `wmoIconMapping.js` | `WMO_ICON_MAPPING` (6), `WMO_DESCRIPTIONS` (64), `SEVERITY_COLORS` (105), `getWmoIcon` (122), `getWmoDescription` (131), `getWmoSeverity` (140), `getWmoSeverityColor` (167) |
 
 ## src/app/api/ (routes — all `GET`/`POST` handlers)
-`forecast/route.js` · `fetchMeteoData/route.js` · `cache-stats/route.js` (GET/POST/PUT/DELETE) · `api-stats/route.js` (GET/POST) · `config/wmo/route.js` · `test-meteo/route.ts` (GET/POST) · `test-param/{temperature,apparent-temperature,humidite,precipitation,wind,wmo,wmo/agg,final-params,results_all}/route.js` · `surf/spots.ts` · **`experimental/fetch/route.ts`** (POST — MVP individual-model fetch, generic `{id, apiModel}` payload).
+`forecast/route.js` · `fetchMeteoData/route.js` · `cache-stats/route.js` (GET/POST/PUT/DELETE) · `api-stats/route.js` (GET/POST) · `config/wmo/route.js` · `test-meteo/route.ts` (GET/POST) · `test-param/{temperature,apparent-temperature,humidite,precipitation,wind,wmo,wmo/agg,final-params,results_all}/route.js` · `surf/spots.ts` · **`experimental/fetch/route.ts`** (POST — multi-model tier-based fetch with cache+semaphore; GET — cache stats debug).
 
 ## src/components/Experimental/ (MVP v2 — isolated, individual-model pipeline, multi-variable)
 | File | Key Exports |
@@ -107,8 +107,8 @@
 | `Coverage/RegionalFilter.ts` | `filterByRegion()` (medium+large only, global-pass exempt) |
 | `Coverage/ModelDeduplicator.ts` | `applyExplicitDedup()` (AROME/KNMI rules), `detectCascades()` (intra-provider "seamless maison") |
 | `Coverage/TierCapper.ts` | `capModelsPerTier()` (5 slots, cascade = 1 slot, family diversity first) |
-| `Coverage/FetchTester.ts` | `fetchIndividualModels()`, `validateAndFallback()` (KNMI EU fallback if DINI fails) |
-| `Algorithms/Aggregation.ts` | `aggregateProgressive(tiered, maxH, times, {key, strategy, sigmaFloor, clamp, withWetFraction})`, `aggregateAI()`, `poolFetchesAt()` (shared pool logic), `winsorizedMean()`, `robustGaussianMean()`, `median()`, `valueAt()` |
+| `Coverage/FetchTester.ts` | `fetchByTier(lat, lon, tierGroups[])`, `validateAndFallback()`, `FORECAST_HOURS_BY_TIER`, `TierGroup` (type), `fetchIndividualModels()` (deprecated) |
+| `Algorithms/Aggregation.ts` | `PoolMode` ('strict'\|'expansion'), `aggregateProgressive(tiered, maxH, times, {key, strategy, sigmaFloor, clamp, withWetFraction, poolMode})`, `aggregateAI()`, `poolFetchesAt(tiered, h, key, mode?)`, `winsorizedMean()`, `robustGaussianMean()`, `median()`, `valueAt()` |
 | `Algorithms/VariableAggregators.ts` | `aggregateAllVariables()` (7 series), `WMO_GROUPS`, `wmoGroupOf()` — precip median+wetFraction, wind dir vector mean (speed-weighted), WMO severity-group vote |
 | `Algorithms/AlgorithmPicker.ts` | `describeAlgorithm()` (informational) |
 | `Components/tabs/*.tsx` | `TemperatureTab`, `PrecipitationTab`, `HumidityTab`, `WindTab`, `SkyTab`, `ExplainerToggle` — each: daily J1–J14 recap + adapted chart + educational walkthrough |

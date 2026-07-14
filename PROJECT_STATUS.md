@@ -55,6 +55,7 @@
   - **QC filter decided**: implement **amplitude filter** (Layer 1) before aggregation: compare each model's diurnal amplitude to consensus over 24h windows; exclude if ratio < 0.5 for 2 consecutive windows. Catches structurally broken models (ARPEGE World, low-res globals on coastal sites). **Dynamic z-score filter (Layer 2) deferred**: too risky with ≤4 models at long range; winsorised mean handles moderate divergence adequately.
   - **7–14 d tendency strip design**: NOT daily cards. Smooth curve with confidence tube (winsorised mean ± k·σ, k scaling with horizon). Confidence bands: ~P20/P80 at J+7 (~60%), ~P25/P75 at J+10 (~50%), ~P30/P70 at J+14 (~40%).
 - **2026-07-04** — Complete seamless model architecture finalized. **10 independent families**, 14 universal endpoints. See Model Architecture below.
+- **2026-07-14** — Fetch pipeline optimization: multi-model URLs per tier (4 requests vs ~16), server-side cache per tier (TTL: fine/medium 90min, large 3h, AI 6h, nowcast 5min reserved), concurrency semaphore (10 max, eliminates 429 rate-limit errors). Per-variable pool mode: strict (temp/wind/humidity — finest tier only, no expansion) vs expansion (precip/WMO — needs ≥3 for vote). V1 fetch disabled in local dev via env var. Bbox buffer removed (unnecessary with multi-model URL — null models cost nothing).
 - **2026-07-05** — MVP Experimental Weather Engine implemented (`src/components/Experimental/`, 23 files). Fully isolated from V1. Region-based smart fetch (Phase 1 + Phase 2 fallback). Tailwind config fixed (`./src/**/*`). API model names corrected (`ncep_aigfs025`, `ncep_hgefs025_ensemble_mean`). Tier logic fixed (seamless contributes to all tiers it covers).
 - **2026-07-08 (3)** — **Engine v2 charts: individual model lines + tooltip readability**. All variable charts (humidity, precip, wind) now show individual NWP model curves at low opacity alongside consensus. `ensureReadableColor()` brightens dark hex colors for tooltip readability. WMO daily strip now shows per-model breakdown on hover. Analysis of Plomeur capture: all models visible on temperature chart is by design (transparency) — progressive pool only affects aggregation, not display. HGEFS integration in NWP pool at J7+ considered but deferred (would mix paradigms, to be evaluated).
 - **2026-07-08 (2)** — **Engine v2 extended to all variables** with tabbed UI. One Open-Meteo request per model now fetches 7 hourly series (temp, RH, precip, weather_code, wind speed/gusts/direction). Per-variable aggregation on the same progressive pool: temp/humidity/wind = winsorized-or-gaussian (sigma floors: RH 15 %, speed 10, gusts 15 km/h; RH clamped 0-100); **precip = median + wetFraction** (share of models > 0.1 mm, probability proxy); **wind direction = vector mean weighted by speed**; **WMO = severity-group vote** (7 groups, tie → more severe, representative = median code of winning group; daily strip: significant group ≥ 3 h wins the day). 5 tabs (Température/Précip./Humidité/Vent/Ciel), each with J1-J14 recap + adapted chart + educational "Comment ça marche ?" walkthrough (per-variable method, why, limits, real-hour example). AI overlay stays temperature-only. Functional test passed on the 3 reference cities.
@@ -90,15 +91,18 @@
 
 Fully isolated MVP panel added below Daily Cards. Does NOT touch V1. Lives in `src/components/Experimental/` + 1 API route (`src/app/api/experimental/fetch/route.ts`, generic — unchanged). Single V1 change: 1 import + 1 conditional component in `src/app/page.tsx`.
 
-**Pipeline v2 (individual models, no seamless — runs when panel opened):**
+**Pipeline v2 (runs when panel opened):**
 1. Bbox resolution (30 individual models with verified `apiModel` names)
 2. Explicit dedup: AROME dropped if AROME HD present; KNMI HARMONIE EU dropped if DMI DINI present (reinstated if DINI fetch fails)
 3. Mesh classification: fine < 5 km · medium 5–11 km incl. · large > 11 km (AI + NBM excluded)
 4. Regional filter (medium+large only; fine self-filters via bbox). Global pass: GFS, IFS HRES, IFS 0.25°, ICON Global, UKMO Global + 3 AI
 5. Intra-provider cascades ("seamless maison", 1 slot): ICON CH1[H0-33]→CH2[H33-120] (MeteoSwiss), ICON-EU[H0-120]→ICON Global[H120-180] (DWD)
 6. Cap 5 slots/tier (1 per family finest-first, then finest resolution)
-7. Fetch individual models via `models=<apiModel>` + AI always; post-fetch validation w/ dedup fallback
-8. Per-hour progressive aggregation pool: fine(≥3) → fine+medium(≥3) → medium(≥3) → medium+large(≥3) → mixed. Methods: winsorized 20% (N≥4), robust gaussian MAD-sigma floored at 5 °C (N=2-3), raw (N=1)
+7. **Multi-model fetch by tier** (4 requests: fine+medium+large+AI) via `models=m1,m2,...` per tier. Server-side cache (TTL: fine/medium 90 min, large 3h, AI 6h). Concurrency semaphore (max 10). Fallback to individual fetches on failure. `forecast_hours` per tier: fine=72, medium=180, large=384.
+8. **Per-variable pool selection** (2026-07-14):
+   - `strict` (temperature, humidity, wind speed/gusts/direction): use finest available tier as-is (even 1 model). No expansion across tiers. Prioritises spatial resolution.
+   - `expansion` (precipitation, WMO): progressive pool with MIN_POOL_SIZE=3, merges tiers. Needs multi-model vote/probability.
+   - Methods: winsorized 20% (N≥4), robust gaussian MAD-sigma floor (N=2-3), raw (N=1).
 9. AI consensus separate (3 models, full range, dedicated chart J7–J14 vs NWP reference)
 
 **Multi-variable (2026-07-08 (2)):** one request per model fetches `HOURLY_VARS` (7 series). `aggregateAllVariables()` produces `VariableAggregations` (temperature, humidity, precipitation, windSpeed, windGusts, windDirection, wmo). UI = 5 tabs, each: daily J1-J14 recap (`DailyVariableTable` / `WmoDailyStrip`) + adapted chart (`ConsensusChart`, `PrecipitationChart`, `WindChart`) + `AlgorithmExplainer` educational toggle. Note: `arome_france_hd` returns null `weather_code` — WMO pool self-adjusts (per-key validity in `poolFetchesAt`).
@@ -111,15 +115,15 @@ Fully isolated MVP panel added below Daily Cards. Does NOT touch V1. Lives in `s
 **API names verified**: `gfs_global`, `gfs_hrrr`, `ncep_nam_conus`, `ncep_nbm_conus`, `ukmo_global_deterministic_10km`, `ukmo_uk_deterministic_2km`, `meteoswiss_icon_ch1/ch2`, `italia_meteo_arpae_icon_2i`, `knmi_harmonie_arome_europe/netherlands`, `dmi_harmonie_arome_europe`, `metno_nordic`, `gem_hrdps_continental`, `kma_ldps` (endpoint OK but returns null — kept, self-excludes via no_data).
 
 ## Agent Context
-- Last prompt: analyse + improve Engine v2 charts (individual model lines on all variable charts, tooltip readability, WMO model breakdown on hover).
-- Active decisions: v2 pipeline (mesh tiers, cascades, global pass, gaussian floors); per-variable methods: precip median+wetFraction, wind dir vector mean, WMO severity vote; AI = temperature only. MVP remains a debug/comparison tool; V1 untouched.
-- **What changed this session (2026-07-08 (3))**:
-  - All variable charts (humidity, precipitation, wind) now display **individual model lines** (low opacity) alongside consensus, matching the temperature chart pattern
-  - `chartUtils.ts`: added `ensureReadableColor()` — brightens hex colors below luminance 0.4 for dark-background tooltip readability
-  - `ConsensusChart`, `PrecipitationChart`, `WindChart`: accept optional `modelLines: FetchResult[]`, build per-model data columns, custom tooltips with `ensureReadableColor` for model names
-  - `WmoDailyStrip`: hover on any day card now shows a per-model breakdown (dominant WMO group per model for that day, with icon + code)
-  - `TemperatureChart` tooltip: also uses `ensureReadableColor` for dark model colors (GFS #166534, IFS 0.25° #5B21B6, etc.)
-  - All 4 tab components updated to pass `modelLines` down to their charts
-  - `tsc --noEmit` clean
-- Next steps: (1) UV real + J6–J7 fallback; (2) PoP rework in V1; (3) WMO fix in V1; (4) V1 migration of v2 engine; (5) consider HGEFS in NWP pool at long range (J7+).
+- Last prompt: fetch pipeline optimization + per-variable pool strategy.
+- Active decisions: strict pool (temp/wind/humidity) vs expansion (precip/WMO); multi-model URLs per tier; server-side cache with TTL aligned on model run frequency; V1 disabled in local dev.
+- **What changed this session (2026-07-14)**:
+  - `route.ts` rewritten: multi-model URLs per tier (4 calls vs 16), server-side Map cache with tier-based TTL (90min/90min/3h/6h + 5min nowcast placeholder), semaphore max 10 concurrent, `forecast_hours` per tier, fallback-to-individual on failure, GET debug endpoint
+  - `FetchTester.ts` refactored: `fetchByTier(lat, lon, tierGroups[])` replaces `fetchIndividualModels`; `FORECAST_HOURS_BY_TIER` config exported
+  - `ExperimentalPanel.tsx`: calls `fetchByTier` with 4 TierGroup (fine/medium/large/ai)
+  - `Aggregation.ts`: new `PoolMode` type (`'strict'`|`'expansion'`); `poolFetchesAt()` accepts mode param; strict = finest tier with ≥1 model, no cross-tier merging
+  - `VariableAggregators.ts`: temp/humidity/windSpeed/windGusts use `poolMode:'strict'`; windDirection uses strict; precipitation/WMO keep `'expansion'`
+  - `page.tsx`: V1 fetch guarded by `NEXT_PUBLIC_DISABLE_V1_FETCH` env var
+  - `.env.local` created (gitignored): `NEXT_PUBLIC_DISABLE_V1_FETCH=true`
+- Next steps: (1) Test multi-model parsing in production; (2) UV real + J6–J7 fallback; (3) `start_date`/`end_date` optimization for large tier (optional); (4) PoP rework in V1; (5) V1 migration of v2 engine.
 - Blockers: none.

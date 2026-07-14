@@ -1,15 +1,16 @@
 ---
-description: Read when finishing a task that creates/renames/deletes files or exports, changes APIs/algorithms, or updates docs/status/index.
-alwaysApply: false
+description: MANDATORY — after every prompt that modifies source files, update PROJECT_STATUS.md and CODE_INDEX.md before ending the turn.
+alwaysApply: true
 ---
 
 # Documentation, Index & Status Maintenance
 
-Update ONLY the affected section, never rewrite a whole file.
+**MANDATORY after every code-modifying prompt.** Update ONLY the affected sections, never rewrite a whole file. Do this BEFORE ending your turn (before or after commit, but always before responding to user).
 
-## PROJECT_STATUS.md (read at session start, update at session end)
-Sections: Snapshot, File Map, Decision Log (dated), Current Parameters, Known Issues, **Agent Context** (last prompt, active decisions, next steps, blockers — keep < 15 lines).
-- Update after any prompt that modifies source files. It is a summary, NOT a copy of CODE_INDEX.md.
+## PROJECT_STATUS.md (read at session start, update after EVERY code change)
+Sections: Snapshot, File Map, Decision Log (dated), Current Parameters, Known Issues, **Agent Context** (last prompt, active decisions, what changed this session, next steps, blockers — keep < 15 lines).
+- **Agent Context** must always reflect the LATEST state — overwrite previous session's content.
+- Add a **Decision Log** entry (dated) for any architectural/algorithm/strategy change.
 
 ## CODE_INDEX.md (grep-only, never read in full)
 Update when: a file is created, an export is added/removed/renamed, a file is moved/deleted, or key line numbers shift > ±5.
@@ -17,7 +18,7 @@ Do NOT update for body-only edits, comments, formatting.
 Entry format: `### path (N lines)` + table `| Line | Export | Kind |`.
 Efficiency: never re-scan the project — grep the file's exports, update its table + line count.
 
-## Reference docs
+## Reference docs (update only when relevant)
 - `docs/Documentation.md` — every external API (endpoint, params, example req/resp) and every custom algorithm (Gaussian, PoP, smart_bary, etc.) must be documented in markdown.
 - `docs/Project.md` — milestones / current task / TODO·IN PROGRESS·DONE (historical; PROJECT_STATUS.md is the live one).
 - `docs/Milestone-Backlog-Ameliorations.md` — when an idea moves to EN COURS / FAIT, tick its item and fill `Décision`.
